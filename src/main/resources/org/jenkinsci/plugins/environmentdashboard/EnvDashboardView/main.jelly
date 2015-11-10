@@ -266,6 +266,24 @@
                                                 <a style="font-size:small; text-decoration:none;" title="View Deployment" href="${deployment.get('jobUrl')}${extn}">[${it.getNiceTimeStamp(deployment.get('created_at'))}]</a>
                                             </code>
                                         </div>
+                                        <div align="right">
+                                            <code>
+												<j:switch on="${env}">
+													<j:case value="${orderOfEnvs[0]}">
+														<a title="Promote" href="javascript:startJob('${comp}','${orderOfEnvs[1]}',${deployment.get('buildNum')});">Promote</a>
+													</j:case>
+													<j:case value="${orderOfEnvs[1]}">
+														<a title="Promote" href="javascript:startJob('${comp}','${orderOfEnvs[2]}',${deployment.get('buildNum')});">Promote</a>
+													</j:case>
+													<j:case value="${orderOfEnvs[2]}">
+														<a title="Promote" href="javascript:startJob('${comp}','${orderOfEnvs[3]}',${deployment.get('buildNum')});">Promote</a>
+													</j:case>
+													<j:case value="${orderOfEnvs[3]}">
+														<a title="Promote" href="javascript:startJob('${comp}','${orderOfEnvs[4]}',${deployment.get('buildNum')});">Promote</a>
+													</j:case>
+												</j:switch>
+                                            </code>
+                                        </div>
                                     </td>
                                 </j:if>
                                 <j:if test="${deployment.isEmpty()}">
@@ -278,6 +296,21 @@
                     </j:forEach>
 
                     <script language="javascript">
+					
+						function startJob(comp, env, buildNum)
+						{
+							var xmlHttp = new XMLHttpRequest();
+							var theUrl = "/job/" + comp + "_" + env + "/buildWithParameters?SourceBuildID=" + buildNum + "&amp;delay=0sec";
+							xmlHttp.open("GET", theUrl, true); // true for asynchronous 
+							xmlHttp.send(null);
+							setTimeout(reloadPage,2000)
+						}
+
+						function reloadPage()
+						{
+							location.reload(true);
+						}
+						
                         function toggle(showHideDiv) {
                             hideAll()
                             var ele = document.getElementById(showHideDiv);
