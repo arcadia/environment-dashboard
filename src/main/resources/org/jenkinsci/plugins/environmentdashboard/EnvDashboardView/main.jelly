@@ -297,7 +297,7 @@
 								var xmlHttp = new XMLHttpRequest();
 								var baseUrl = "/job/" + comp + "_" + env;
 								var buildUrl = baseUrl + "/buildWithParameters?SourceBuildID=" + buildNum + "&amp;delay=0sec";
-								xmlHttp.open("GET", buildUrl, true); // true for asynchronous 
+								xmlHttp.open("POST", buildUrl, true); // true for asynchronous 
 								xmlHttp.send(null);
 								window.location.replace(baseUrl);
 							}
