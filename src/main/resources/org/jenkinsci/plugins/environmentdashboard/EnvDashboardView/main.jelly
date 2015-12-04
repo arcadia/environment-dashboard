@@ -271,24 +271,9 @@
                                         </div>
                                         <div align="right">
                                             <code>
-												<j:switch on="${env}">
-													<j:case value="${orderOfEnvs[0]}">
-														<a title="Promote" href="javascript:startJob('${comp}','${orderOfEnvs[1]}',${deployment.get('buildNum')});">Promote</a>
-													</j:case>
-													<j:case value="${orderOfEnvs[1]}">
-														<a title="Promote" href="javascript:startJob('${comp}','${orderOfEnvs[2]}',${deployment.get('buildNum')});">Promote</a>
-													</j:case>
-													<j:case value="${orderOfEnvs[2]}">
-														<j:if test="${orderOfEnvs[3] != null}">
-															<a title="Promote" href="javascript:startJob('${comp}','${orderOfEnvs[3]}',${deployment.get('buildNum')});">Promote</a>
-														</j:if>
-													</j:case>
-													<j:case value="${orderOfEnvs[3]}">
-														<j:if test="${orderOfEnvs[3] != null}">
-															<a title="Promote" href="javascript:startJob('${comp}','${orderOfEnvs[4]}',${deployment.get('buildNum')});">Promote</a>
-														</j:if>
-													</j:case>
-												</j:switch>
+												<j:if test="${orderOfEnvs[orderOfEnvs.indexOf(env)+1] != null}">
+													<a title="Promote" href="javascript:startJob('${comp}','${orderOfEnvs[orderOfEnvs.indexOf(env)+1]}',${deployment.get('buildNum')});">Promote</a>
+												</j:if>
                                             </code>
                                         </div>
                                     </td>
