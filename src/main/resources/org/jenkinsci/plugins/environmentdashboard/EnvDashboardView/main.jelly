@@ -124,6 +124,9 @@
                                                             </j:if>
                                                         </j:forEach>
                                                         <td>
+															<a title="Promote" href="javascript:startJob('${comp}','${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1]}',${deployment.get('buildNum')});">Promote</a>
+                                                        </td>
+                                                        <td>
                                                             <j:switch on="${deployment.get('buildstatus')}">
                                                                 <j:case value="SUCCESS">
                                                                     <span title="SUCCESS" style="color:green;">&#10004;</span>
@@ -276,10 +279,14 @@
 														<a title="Promote" href="javascript:startJob('${comp}','${orderOfEnvs[2]}',${deployment.get('buildNum')});">Promote</a>
 													</j:case>
 													<j:case value="${orderOfEnvs[2]}">
-														<a title="Promote" href="javascript:startJob('${comp}','${orderOfEnvs[3]}',${deployment.get('buildNum')});">Promote</a>
+														<j:if test="${orderOfEnvs[3] != null}">
+															<a title="Promote" href="javascript:startJob('${comp}','${orderOfEnvs[3]}',${deployment.get('buildNum')});">Promote</a>
+														</j:if>
 													</j:case>
 													<j:case value="${orderOfEnvs[3]}">
-														<a title="Promote" href="javascript:startJob('${comp}','${orderOfEnvs[4]}',${deployment.get('buildNum')});">Promote</a>
+														<j:if test="${orderOfEnvs[3] != null}">
+															<a title="Promote" href="javascript:startJob('${comp}','${orderOfEnvs[4]}',${deployment.get('buildNum')});">Promote</a>
+														</j:if>
 													</j:case>
 												</j:switch>
                                             </code>
@@ -299,11 +306,16 @@
 					
 						function startJob(comp, env, buildNum)
 						{
-							var xmlHttp = new XMLHttpRequest();
-							var theUrl = "/job/" + comp + "_" + env + "/buildWithParameters?SourceBuildID=" + buildNum + "&amp;delay=0sec";
-							xmlHttp.open("GET", theUrl, true); // true for asynchronous 
-							xmlHttp.send(null);
-							setTimeout(reloadPage,2000)
+							var txt;
+							var r = confirm("Promoting to " + env);
+							if (r == true) {
+								var xmlHttp = new XMLHttpRequest();
+								var baseUrl = "/job/" + comp + "_" + env;
+								var buildUrl = baseUrl + "/buildWithParameters?SourceBuildID=" + buildNum + "&amp;delay=0sec";
+								xmlHttp.open("GET", buildUrl, true); // true for asynchronous 
+								xmlHttp.send(null);
+								window.location.replace(baseUrl);
+							}
 						}
 
 						function reloadPage()
