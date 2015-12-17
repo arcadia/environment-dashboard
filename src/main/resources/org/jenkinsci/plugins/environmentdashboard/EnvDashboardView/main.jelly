@@ -272,7 +272,7 @@
                                         <div align="right">
                                             <code>
 												<j:if test="${orderOfEnvs[orderOfEnvs.indexOf(env)+1] != null}">
-													<a title="Promote" href="javascript:startJob('${comp}','${orderOfEnvs[orderOfEnvs.indexOf(env)+1]}',${deployment.get('buildNum')});">Promote</a>
+													<a title="Promote" href="javascript:startJob('${comps}','${orderOfEnvs[orderOfEnvs.indexOf(env)+1]}',${deployment.get('buildNum')});">Promote</a>
 												</j:if>
                                             </code>
                                         </div>
