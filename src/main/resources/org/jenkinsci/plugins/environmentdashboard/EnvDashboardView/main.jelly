@@ -279,9 +279,35 @@
                                     </td>
                                 </j:if>
                                 <j:if test="${deployment.isEmpty()}">
-                                    <td>
-                                        <div align="center" style="font-size:15px;"><strong>---</strong></div>
-                                    </td>
+
+                                    <j:if test="${orderOfEnvs.indexOf(env) == 0}">
+                                    <!-- Test for ${comps.IndexOf('Backend') > 0}  -->
+
+                                        <td>
+                                            <div align="right">
+                                                <code>
+                                                    <a title="Deploy to DEV..." href="javascript:startJobBackendDeploy('${comps}','DEV', null);">Deploy to DEV...</a>
+                                                </code>
+                                            </div>
+                                            <div align="right">
+                                                <code>
+                                                    <a title="Deploy to QA..." href="javascript:startJobBackendDeploy('${comps}','QA', null);">Deploy to QA...</a>
+                                                </code>
+                                            </div>
+                                            <div align="right">
+                                                <code>
+                                                    <a title="Deploy to UAT..." href="javascript:startJobBackendDeploy('${comps}','UAT', null);">Deploy to UAT...</a>
+                                                </code>
+                                            </div>
+                                        </td>
+
+                                    </j:if>
+
+                                    <j:if test="${orderOfEnvs.indexOf(env) > 0}">
+                                        <td>
+                                            <div align="center" style="font-size:15px;"><strong>---</strong></div>
+                                        </td>
+                                    </j:if>
                                 </j:if>
                             </j:forEach>
                         </tr>
@@ -289,6 +315,23 @@
 
                     <script language="javascript">
 					
+                        function startJobBackendDeploy(comp, env, coreVersion)
+                        {
+                            var txt;
+                            if (coreVersion == null) {
+                                coreVersion = prompt("Please enter the version #", "v4.10.0");
+                            }
+
+                            if (coreVersion != null) {
+                                var xmlHttp = new XMLHttpRequest();
+                                var baseUrl = "/job/" + comp + "_" + env;
+                                var buildUrl = baseUrl + "/buildWithParameters?CoreVersion=" + coreVersion + "&amp;delay=0sec";
+                                xmlHttp.open("POST", buildUrl, true); // true for asynchronous 
+                                xmlHttp.send(null);
+                                window.location.replace(baseUrl);
+                            }
+                        }
+
 						function startJob(comp, env, buildNum)
 						{
 							var txt;
