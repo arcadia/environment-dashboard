@@ -284,21 +284,89 @@
                                     <!-- Test for ${comps.IndexOf('Backend') > 0}  -->
 
                                         <td>
-                                            <div align="right">
-                                                <code>
-                                                    <a title="Deploy to DEV..." href="javascript:startJobBackendDeploy('${comps}','DEV', null);">Deploy to DEV...</a>
-                                                </code>
-                                            </div>
-                                            <div align="right">
-                                                <code>
-                                                    <a title="Deploy to QA..." href="javascript:startJobBackendDeploy('${comps}','QA', null);">Deploy to QA...</a>
-                                                </code>
-                                            </div>
-                                            <div align="right">
-                                                <code>
-                                                    <a title="Deploy to UAT..." href="javascript:startJobBackendDeploy('${comps}','UAT', null);">Deploy to UAT...</a>
-                                                </code>
-                                            </div>
+										    <head>
+											<style>
+												
+											  .dropbtn {
+												background-color: #81BEF7;
+												color: black;
+												padding: 16px;
+												font-size: 13px;
+												border: dotted;
+												cursor: pointer;
+											}
+
+											.dropdown {
+												position: relative;
+												display: inline-block;
+											}
+
+											.dropdown-content {
+												display: none;
+												position: absolute;
+												right: 0;
+												background-color: #f9f9f9;
+												overflow: auto;
+												box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+											}
+
+											.dropdown-content a {
+												color: black;
+												padding: 12px 16px;
+												text-decoration: none;
+												display: block;
+											}
+
+											.dropdown-content a:hover {background-color: #f1f1f1}
+
+											.dropdown:hover .dropdown-content {
+												display: block;
+											}
+
+											.dropdown:hover .dropbtn {
+												background-color: #819FF7;
+											}
+																						
+	
+											
+											
+											</style>
+											</head>
+
+											<div class="dropdown" style="float:right;">
+											<button onclick="myFunction('myDropdownUAT')" class="dropbtn">Deploy to UAT...</button>
+											  <div id="myDropdownUAT" class="dropdown-content">
+												<code>
+													<a href="javascript:startJobBackendDeploy('${comps}','UAT', 'v4.10.1');">v4.10.1</a>
+													<a href="javascript:startJobBackendDeploy('${comps}','UAT', 'v4.10.2');">v4.10.2</a>
+													<a href="javascript:startJobBackendDeploy('${comps}','UAT', 'v4.10.3');">v4.10.3</a>
+												</code>
+											  </div>
+										    </div>
+											
+											<div class="dropdown" style="float:right;">
+											<button onclick="myFunction('myDropdownQA')" class="dropbtn">Deploy to QA...</button>
+											  <div id="myDropdownQA" class="dropdown-content">
+												<code>
+													<a href="javascript:startJobBackendDeploy('${comps}','QA', 'v4.10.1');">v4.10.1</a>
+													<a href="javascript:startJobBackendDeploy('${comps}','QA', 'v4.10.2');">v4.10.2</a>
+													<a href="javascript:startJobBackendDeploy('${comps}','QA', 'v4.10.3');">v4.10.3</a>
+												</code>
+											  </div>
+											</div>
+											
+											<div class="dropdown" style="float:right;">
+											<button onclick="myFunction('myDropdownDEV')" class="dropbtn">Deploy to DEV...</button>
+											  <div id="myDropdownDEV" class="dropdown-content">
+												<code>
+													<a href="javascript:startJobBackendDeploy('${comps}','DEV', 'v4.10.1');">v4.10.1</a>
+													<a href="javascript:startJobBackendDeploy('${comps}','DEV', 'v4.10.2');">v4.10.2</a>
+													<a href="javascript:startJobBackendDeploy('${comps}','DEV', 'v4.10.3');">v4.10.3</a>
+												</code>
+											  </div>
+											</div>
+																				
+											
                                         </td>
 
                                     </j:if>
@@ -315,12 +383,19 @@
 
                     <script language="javascript">
 					
+
+					
+					
                         function startJobBackendDeploy(comp, env, coreVersion)
                         {
-                            var txt;
-                            if (coreVersion == null) {
+
+						     //alert(coreVersion);
+							
+                             var txt;
+                             if (coreVersion == null) {
                                 coreVersion = prompt("Please enter the version #", "v4.10.0");
-                            }
+                             }													
+							
 
                             if (coreVersion != null) {
                                 var xmlHttp = new XMLHttpRequest();
@@ -334,6 +409,7 @@
 
 						function startJob(comp, env, buildNum)
 						{
+						    alert("In startJob function");
 							var txt;
 							var r = confirm("Promoting to " + env);
 							if (r == true) {
@@ -381,6 +457,11 @@
                             }
 
                         }
+						
+						
+					   
+						
+						
                     </script>
                 </j:case>
             </j:switch>
