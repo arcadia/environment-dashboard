@@ -124,7 +124,14 @@
                                                             </j:if>
                                                         </j:forEach>
                                                         <td>
-															<a title="Promote" href="javascript:startJob('${comp}','${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1]}',${deployment.get('buildNum')});">Promote</a>
+														  <code>
+															<j:if test="${comp == 'Client'}">
+																<a title="Promote" href="javascript:startJob('${comp}','${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1]}','${deployment.get('buildNum')}');">Promote</a>
+															</j:if>	
+															<j:if test="${comp == 'Client Backend'}">  
+																<a title="Promote" href="javascript:startJobBackendDeploy('${comp}','${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1]}','${deployment.get('buildNum')}',true);">Promote</a>
+															</j:if>	
+														 </code>
                                                         </td>
                                                         <td>
                                                             <j:switch on="${deployment.get('buildstatus')}">
@@ -272,7 +279,12 @@
                                         <div align="right">
                                             <code>
 												<j:if test="${orderOfEnvs[orderOfEnvs.indexOf(env)+1] != null}">
-													<a title="Promote" href="javascript:startJob('${comps}','${orderOfEnvs[orderOfEnvs.indexOf(env)+1]}',${deployment.get('buildNum')});">Promote</a>
+													<j:if test="${comps == 'Client'}">
+														<a title="Promote" href="javascript:startJob('${comps}','${orderOfEnvs[orderOfEnvs.indexOf(env)+1]}','${deployment.get('buildNum')}');">Promote</a>
+													</j:if>	
+													<j:if test="${comps == 'Client Backend'}">  
+														<a title="Promote" href="javascript:startJobBackendDeploy('${comps}','${orderOfEnvs[orderOfEnvs.indexOf(env)+1]}','${deployment.get('buildNum')}',true);">Promote</a>
+												    </j:if>	
 												</j:if>
                                             </code>
                                         </div>
@@ -284,10 +296,10 @@
                                     <!-- Test for ${comps.IndexOf('Backend') > 0}  -->
 
                                         <td>
-										    <head>
+                                        <head>
 											<style>
 												
-											  .dropbtn {
+											.dropbtn {
 												background-color: #81BEF7;
 												color: black;
 												padding: 16px;
@@ -328,7 +340,7 @@
 											}
 																						
 	
-											
+
 											
 											</style>
 											</head>
@@ -337,9 +349,9 @@
 											<button onclick="myFunction('myDropdownUAT')" class="dropbtn">Deploy to UAT...</button>
 											  <div id="myDropdownUAT" class="dropdown-content">
 												<code>
-													<a href="javascript:startJobBackendDeploy('${comps}','UAT', 'v4.10.1');">v4.10.1</a>
-													<a href="javascript:startJobBackendDeploy('${comps}','UAT', 'v4.10.2');">v4.10.2</a>
-													<a href="javascript:startJobBackendDeploy('${comps}','UAT', 'v4.10.3');">v4.10.3</a>
+													<a href="javascript:startJobBackendDeploy('${comps}','UAT', 'v4.10.1',false);">v4.10.1</a>
+													<a href="javascript:startJobBackendDeploy('${comps}','UAT', 'v4.10.2',false);">v4.10.2</a>
+													<a href="javascript:startJobBackendDeploy('${comps}','UAT', 'v4.10.3',false);">v4.10.3</a>
 												</code>
 											  </div>
 										    </div>
@@ -348,9 +360,9 @@
 											<button onclick="myFunction('myDropdownQA')" class="dropbtn">Deploy to QA...</button>
 											  <div id="myDropdownQA" class="dropdown-content">
 												<code>
-													<a href="javascript:startJobBackendDeploy('${comps}','QA', 'v4.10.1');">v4.10.1</a>
-													<a href="javascript:startJobBackendDeploy('${comps}','QA', 'v4.10.2');">v4.10.2</a>
-													<a href="javascript:startJobBackendDeploy('${comps}','QA', 'v4.10.3');">v4.10.3</a>
+													<a href="javascript:startJobBackendDeploy('${comps}','QA', 'v4.10.1',false);">v4.10.1</a>
+													<a href="javascript:startJobBackendDeploy('${comps}','QA', 'v4.10.2',false);">v4.10.2</a>
+													<a href="javascript:startJobBackendDeploy('${comps}','QA', 'v4.10.3',false);">v4.10.3</a>
 												</code>
 											  </div>
 											</div>
@@ -359,9 +371,9 @@
 											<button onclick="myFunction('myDropdownDEV')" class="dropbtn">Deploy to DEV...</button>
 											  <div id="myDropdownDEV" class="dropdown-content">
 												<code>
-													<a href="javascript:startJobBackendDeploy('${comps}','DEV', 'v4.10.1');">v4.10.1</a>
-													<a href="javascript:startJobBackendDeploy('${comps}','DEV', 'v4.10.2');">v4.10.2</a>
-													<a href="javascript:startJobBackendDeploy('${comps}','DEV', 'v4.10.3');">v4.10.3</a>
+													<a href="javascript:startJobBackendDeploy('${comps}','DEV', 'v4.10.1',false);">v4.10.1</a>
+													<a href="javascript:startJobBackendDeploy('${comps}','DEV', 'v4.10.2',false);">v4.10.2</a>
+													<a href="javascript:startJobBackendDeploy('${comps}','DEV', 'v4.10.3',false);">v4.10.3</a>
 												</code>
 											  </div>
 											</div>
@@ -383,33 +395,35 @@
 
                     <script language="javascript">
 					
-
-					
-					
-                        function startJobBackendDeploy(comp, env, coreVersion)
+                        function startJobBackendDeploy(comp, env, coreVersion, prom)
                         {
+						     
+							if (prom == true)
+							{
+								var r = confirm("Promoting to " + env);
+							}
 
-						     //alert(coreVersion);
+							if (r == true || prom == false) 
+							{
+								if (coreVersion != null) 
+								{
+									var xmlHttp = new XMLHttpRequest();
+									var baseUrl = "/job/" + comp + "_" + env;
+									var buildUrl = baseUrl + "/buildWithParameters?CoreVersion=" + coreVersion + "&amp;delay=0sec";
+									xmlHttp.open("POST", buildUrl, true); // true for asynchronous 
+									xmlHttp.send(null);
+									window.location.replace(baseUrl);
+								}
+							}
 							
-                             var txt;
-                             if (coreVersion == null) {
-                                coreVersion = prompt("Please enter the version #", "v4.10.0");
-                             }													
 							
-
-                            if (coreVersion != null) {
-                                var xmlHttp = new XMLHttpRequest();
-                                var baseUrl = "/job/" + comp + "_" + env;
-                                var buildUrl = baseUrl + "/buildWithParameters?CoreVersion=" + coreVersion + "&amp;delay=0sec";
-                                xmlHttp.open("POST", buildUrl, true); // true for asynchronous 
-                                xmlHttp.send(null);
-                                window.location.replace(baseUrl);
-                            }
+							
                         }
 
 						function startJob(comp, env, buildNum)
 						{
-						    alert("In startJob function");
+							
+
 							var txt;
 							var r = confirm("Promoting to " + env);
 							if (r == true) {
@@ -439,7 +453,7 @@
                         }
 
                         function hideAll() {
-                            Q(".overlay, .popup").fadeToggle();
+                            Q(".overlay, .popup, .dropdown").fadeToggle();
                             var divs = document.getElementsByTagName("div");
                             var tableDivs = new Array();
                             for (var i = 0; i &lt; divs.length; i++) {
@@ -458,8 +472,6 @@
 
                         }
 						
-						
-					   
 						
 						
                     </script>
