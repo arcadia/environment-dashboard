@@ -44,13 +44,16 @@ public class EnvDashboardView extends View {
 
     private String compOrder = null;
 
+    private String tags = null;
+
     private String deployHistory = null;
 
     @DataBoundConstructor
-    public EnvDashboardView(final String name, final String envOrder, final String compOrder, final String deployHistory) {
+    public EnvDashboardView(final String name, final String envOrder, final String compOrder, final String tags, final String deployHistory) {
         super(name, Hudson.getInstance());
         this.envOrder = envOrder;
         this.compOrder = compOrder;
+        this.tags = tags;
         this.deployHistory = deployHistory;
     }
 
@@ -85,6 +88,26 @@ public class EnvDashboardView extends View {
     }
 
     @RequirePOST
+    public void doSqlSubmit(final StaplerRequest req, StaplerResponse res) throws IOException, ServletException, FormException {
+        checkPermission(Jenkins.ADMINISTER);
+
+        Connection conn = null;
+        Statement stat = null;
+        conn = DBConnection.getConnection();
+        try {
+            assert conn != null;
+            stat = conn.createStatement();
+            String sql = req.getSubmittedForm().getString("sql");
+            stat.execute(sql);
+        } catch (SQLException e) {
+            System.out.println("E15: Could not truncate table env_dashboard.\n" + e.getMessage());
+        } finally { 
+            DBConnection.closeConnection();
+        }
+        res.forwardToPreviousPage(req);
+    }
+
+    @RequirePOST
     public void doPurgeSubmit(final StaplerRequest req, StaplerResponse res) throws IOException, ServletException, FormException {
         checkPermission(Jenkins.ADMINISTER);
 
@@ -113,6 +136,7 @@ public class EnvDashboardView extends View {
 
         private String envOrder;
         private String compOrder;
+        private String tags;
         private String deployHistory;
 
         /**
@@ -224,6 +248,7 @@ public class EnvDashboardView extends View {
         public boolean configure(StaplerRequest req, JSONObject formData) throws FormException {
             envOrder = formData.getString("envOrder");
             compOrder = formData.getString("compOrder");
+            tags = formData.getString("tags");
             deployHistory = formData.getString("deployHistory");
             save();
             return super.configure(req,formData);
@@ -245,6 +270,14 @@ public class EnvDashboardView extends View {
             orderOfComps = new ArrayList<String>(Arrays.asList(compOrder.split("\\s*,\\s*")));
         }
         return orderOfComps;
+    }
+
+    public ArrayList<String> splitTags(String tags) {
+        ArrayList<String> orderOfTags = new ArrayList<String>();
+        if (! "".equals(tags)) {
+            orderOfTags = new ArrayList<String>(Arrays.asList(tags.split("\\s*,\\s*")));
+        }
+        return orderOfTags;
     }
 
     public ResultSet runQuery(String queryString) {
@@ -314,6 +347,12 @@ public class EnvDashboardView extends View {
             }
         }
         return orderOfComps;
+    }
+
+    public ArrayList<String> getOrderOfTags() {
+        ArrayList<String> orderOfTags;
+        orderOfTags = splitTags(tags);
+        return orderOfTags;
     }
 
     public Integer getLimitDeployHistory() {
@@ -491,8 +530,16 @@ public class EnvDashboardView extends View {
         return compOrder;
     }
 
+    public String getTags() {
+        return tags;
+    }
+
     public void setCompOrder(final String compOrder) {
         this.compOrder = compOrder;
+    }
+
+    public void setTags(final String tags) {
+        this.tags = tags;
     }
 
     public String getDeployHistory() {

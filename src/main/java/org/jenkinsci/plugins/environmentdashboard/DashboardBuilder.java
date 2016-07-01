@@ -239,7 +239,7 @@ public class DashboardBuilder extends BuildWrapper {
             return returnComment;
         }
         if ( numberOfDays > 0 ) {
-            runQuery = "DELETE FROM env_dashboard where created_at <= current_timestamp - " + numberOfDays;
+            runQuery = "DELETE FROM env_dashboard where created_at <= current_timestamp - " + numberOfDays + " and created_at != (select max(created_at) from env_dashboard e2 where e2.compName = env_dashboard.compName and e2.envName = env_dashboard.envName)";
             try {
                 stat.execute(runQuery);
             } catch (SQLException e) {

@@ -9,6 +9,10 @@
         <f:textbox />
     </f:entry>
 
+    <f:entry title="Tagged versions" field="tags">
+        <f:textbox />
+    </f:entry>
+
     <f:entry title="Limit deploy history to last X deploys" field="deployHistory">
         <f:textbox default="10"/>
     </f:entry>
