@@ -124,6 +124,16 @@
                                                             </j:if>
                                                         </j:forEach>
                                                         <td>
+														  <code>
+															<j:if test="${comp == 'Client'}">
+																<a title="Promote" href="javascript:startJob('${comp}','${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1]}','${deployment.get('buildNum')}');">Promote</a>
+															</j:if>	
+															<j:if test="${comp == 'Client Backend'}">  
+																<a title="Promote" href="javascript:startJobBackendDeploy('${comp}','${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1]}','${deployment.get('buildNum')}',true);">Promote</a>
+															</j:if>	
+														 </code>
+                                                        </td>
+                                                        <td>
                                                             <j:switch on="${deployment.get('buildstatus')}">
                                                                 <j:case value="SUCCESS">
                                                                     <span title="SUCCESS" style="color:green;">&#10004;</span>
@@ -266,18 +276,171 @@
                                                 <a style="font-size:small; text-decoration:none;" title="View Deployment" href="${deployment.get('jobUrl')}${extn}">[${it.getNiceTimeStamp(deployment.get('created_at'))}]</a>
                                             </code>
                                         </div>
+                                        <div align="right">
+                                            <code>
+												<j:if test="${orderOfEnvs[orderOfEnvs.indexOf(env)+1] != null}">
+													<j:if test="${comps == 'Client'}">
+														<a title="Promote" href="javascript:startJob('${comps}','${orderOfEnvs[orderOfEnvs.indexOf(env)+1]}','${deployment.get('buildNum')}');">Promote</a>
+													</j:if>	
+													<j:if test="${comps == 'Client Backend'}">  
+														<a title="Promote" href="javascript:startJobBackendDeploy('${comps}','${orderOfEnvs[orderOfEnvs.indexOf(env)+1]}','${deployment.get('buildNum')}',true);">Promote</a>
+												    </j:if>	
+												</j:if>
+                                            </code>
+                                        </div>
                                     </td>
                                 </j:if>
                                 <j:if test="${deployment.isEmpty()}">
-                                    <td>
-                                        <div align="center" style="font-size:15px;"><strong>---</strong></div>
-                                    </td>
+
+                                    <j:if test="${orderOfEnvs.indexOf(env) == 0}">
+                                    <!-- Test for ${comps.IndexOf('Backend') > 0}  -->
+
+                                        <td>
+                                        <head>
+											<style>
+												
+											.dropbtn {
+												background-color: #81BEF7;
+												color: black;
+												padding: 16px;
+												font-size: 13px;
+												border: dotted;
+												cursor: pointer;
+											}
+
+											.dropdown {
+												position: relative;
+												display: inline-block;
+											}
+
+											.dropdown-content {
+												display: none;
+												position: absolute;
+												right: 0;
+												background-color: #f9f9f9;
+												overflow: auto;
+												box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+											}
+
+											.dropdown-content a {
+												color: black;
+												padding: 12px 16px;
+												text-decoration: none;
+												display: block;
+											}
+
+											.dropdown-content a:hover {background-color: #f1f1f1}
+
+											.dropdown:hover .dropdown-content {
+												display: block;
+											}
+
+											.dropdown:hover .dropbtn {
+												background-color: #819FF7;
+											}
+																						
+	
+
+											
+											</style>
+											</head>
+
+											<div class="dropdown" style="float:right;">
+											<button onclick="myFunction('myDropdownUAT')" class="dropbtn">Deploy to UAT...</button>
+											  <div id="myDropdownUAT" class="dropdown-content">
+												<code>
+													<a href="javascript:startJobBackendDeploy('${comps}','UAT', 'v4.10.1',false);">v4.10.1</a>
+													<a href="javascript:startJobBackendDeploy('${comps}','UAT', 'v4.10.2',false);">v4.10.2</a>
+													<a href="javascript:startJobBackendDeploy('${comps}','UAT', 'v4.10.3',false);">v4.10.3</a>
+												</code>
+											  </div>
+										    </div>
+											
+											<div class="dropdown" style="float:right;">
+											<button onclick="myFunction('myDropdownQA')" class="dropbtn">Deploy to QA...</button>
+											  <div id="myDropdownQA" class="dropdown-content">
+												<code>
+													<a href="javascript:startJobBackendDeploy('${comps}','QA', 'v4.10.1',false);">v4.10.1</a>
+													<a href="javascript:startJobBackendDeploy('${comps}','QA', 'v4.10.2',false);">v4.10.2</a>
+													<a href="javascript:startJobBackendDeploy('${comps}','QA', 'v4.10.3',false);">v4.10.3</a>
+												</code>
+											  </div>
+											</div>
+											
+											<div class="dropdown" style="float:right;">
+											<button onclick="myFunction('myDropdownDEV')" class="dropbtn">Deploy to DEV...</button>
+											  <div id="myDropdownDEV" class="dropdown-content">
+												<code>
+													<a href="javascript:startJobBackendDeploy('${comps}','DEV', 'v4.10.1',false);">v4.10.1</a>
+													<a href="javascript:startJobBackendDeploy('${comps}','DEV', 'v4.10.2',false);">v4.10.2</a>
+													<a href="javascript:startJobBackendDeploy('${comps}','DEV', 'v4.10.3',false);">v4.10.3</a>
+												</code>
+											  </div>
+											</div>
+																				
+											
+                                        </td>
+
+                                    </j:if>
+
+                                    <j:if test="${orderOfEnvs.indexOf(env) > 0}">
+                                        <td>
+                                            <div align="center" style="font-size:15px;"><strong>---</strong></div>
+                                        </td>
+                                    </j:if>
                                 </j:if>
                             </j:forEach>
                         </tr>
                     </j:forEach>
 
                     <script language="javascript">
+					
+                        function startJobBackendDeploy(comp, env, coreVersion, prom)
+                        {
+						     
+							if (prom == true)
+							{
+								var r = confirm("Promoting to " + env);
+							}
+
+							if (r == true || prom == false) 
+							{
+								if (coreVersion != null) 
+								{
+									var xmlHttp = new XMLHttpRequest();
+									var baseUrl = "/job/" + comp + "_" + env;
+									var buildUrl = baseUrl + "/buildWithParameters?CoreVersion=" + coreVersion + "&amp;delay=0sec";
+									xmlHttp.open("POST", buildUrl, true); // true for asynchronous 
+									xmlHttp.send(null);
+									window.location.replace(baseUrl);
+								}
+							}
+							
+							
+							
+                        }
+
+						function startJob(comp, env, buildNum)
+						{
+							
+
+							var txt;
+							var r = confirm("Promoting to " + env);
+							if (r == true) {
+								var xmlHttp = new XMLHttpRequest();
+								var baseUrl = "/job/" + comp + "_" + env;
+								var buildUrl = baseUrl + "/buildWithParameters?SourceBuildID=" + buildNum + "&amp;delay=0sec";
+								xmlHttp.open("POST", buildUrl, true); // true for asynchronous 
+								xmlHttp.send(null);
+								window.location.replace(baseUrl);
+							}
+						}
+
+						function reloadPage()
+						{
+							location.reload(true);
+						}
+						
                         function toggle(showHideDiv) {
                             hideAll()
                             var ele = document.getElementById(showHideDiv);
@@ -290,7 +453,7 @@
                         }
 
                         function hideAll() {
-                            Q(".overlay, .popup").fadeToggle();
+                            Q(".overlay, .popup, .dropdown").fadeToggle();
                             var divs = document.getElementsByTagName("div");
                             var tableDivs = new Array();
                             for (var i = 0; i &lt; divs.length; i++) {
@@ -308,6 +471,9 @@
                             }
 
                         }
+						
+						
+						
                     </script>
                 </j:case>
             </j:switch>
