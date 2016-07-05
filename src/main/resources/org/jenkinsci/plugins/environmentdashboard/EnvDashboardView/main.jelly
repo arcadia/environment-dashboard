@@ -104,6 +104,7 @@
                                                         <th style="text-align:center">${column.substring(0, 1).toUpperCase() + column.substring(1)}</th>
                                                     </j:if>
                                                 </j:forEach>
+                                                <th style="width:8%;text-align:center">Action</th>
                                                 <th style="width:8%;text-align:center">Status</th>
                                                 <th style="text-align:center">Time</th>
                                             </tbody>
@@ -127,11 +128,15 @@
                                                         </j:forEach>
                                                         <td>
 														  <code>
-															<j:if test="${comp == 'Client'}">
-																<a title="Promote" href="javascript:startJob('${comp}','${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1]}','${deployment.get('buildNum')}');">Promote</a>
-															</j:if>	
-															<j:if test="${comp == 'Client Backend'}">  
-																<a title="Promote" href="javascript:startJobBackendDeploy('${comp}','${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1]}','${deployment.get('buildNum')}');">Promote</a>
+                                                            <j:if test="${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1] != 'PRD' || h.hasPermission(app.ADMINISTER)}">
+                                                                <j:if test="${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1] != null}">
+        															<j:if test="${comp == 'Client'}">
+        																<a title="Promote" href="javascript:startJob('${comp}','${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1]}','${deployment.get('buildNum')}');">Promote</a>
+        															</j:if>	
+        															<j:if test="${comp == 'Client Backend'}">  
+        																<a title="Promote" href="javascript:startJobBackendDeploy('${comp}','${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1]}','${deployment.get('buildNum')}');">Promote</a>
+                                                                    </j:if> 
+                                                                </j:if> 
                                                             </j:if> 
 														 </code>
                                                         </td>
@@ -284,11 +289,13 @@
                                             <code>
     											<j:if test="${orderOfEnvs[orderOfEnvs.indexOf(env)+1] != null}">
                                                     <j:if test="${orderOfEnvs.indexOf(env) != 0}">
-        												<j:if test="${comps.indexOf('Backend') == -1}">
-        													<a title="Promote" href="javascript:startJob('${comps}','${orderOfEnvs[orderOfEnvs.indexOf(env)+1]}','${deployment.get('buildNum')}');">Promote</a>
-        												</j:if>	
-        												<j:if test="${comps.indexOf('Backend') != -1}">  
-        													<a title="Promote" href="javascript:startJobBackendDeploy('${comps}','${orderOfEnvs[orderOfEnvs.indexOf(env)+1]}','${deployment.get('buildNum')}');">Promote</a>
+                                                        <j:if test="${orderOfEnvs[orderOfEnvs.indexOf(env)+1] != 'PRD' || h.hasPermission(app.ADMINISTER)}">
+            												<j:if test="${comps.indexOf('Backend') == -1}">
+            													<a title="Promote" href="javascript:startJob('${comps}','${orderOfEnvs[orderOfEnvs.indexOf(env)+1]}','${deployment.get('buildNum')}');">Promote${it.envVars}</a>
+            												</j:if>	
+            												<j:if test="${comps.indexOf('Backend') != -1}">  
+            													<a title="Promote" href="javascript:startJobBackendDeploy('${comps}','${orderOfEnvs[orderOfEnvs.indexOf(env)+1]}','${deployment.get('buildNum')}');">Promote</a>
+                                                            </j:if> 
                                                         </j:if> 
                                                     </j:if> 
     											</j:if>
@@ -349,20 +356,22 @@
 
                                             <!-- don't promote to itself -->
                                             <j:if test="${env_promote != env}">
-                                                <j:if test="${comps.indexOf('Backend') != -1}">  
-                                                    <div class="dropdown" style="float:right;">
-                                                    <button class="dropbtn">Deploy to ${env_promote}...</button>
-                                                      <div id="myDropdown${env_promote}" class="dropdown-content">
-                                                        <code>
-                                                            <j:forEach items="${tags}" var="tag">
-                                                                <a href="javascript:startJobBackendDeploy('${comps}','${env_promote}', '${tag}');">${tag}</a>
-                                                            </j:forEach>
-                                                        </code>
-                                                      </div>
-                                                    </div>
+                                                <j:if test="${env_promote != 'PRD' || h.hasPermission(app.ADMINISTER)}">
+                                                    <j:if test="${comps.indexOf('Backend') != -1}">  
+                                                        <div class="dropdown" style="float:right;">
+                                                        <button class="dropbtn">Deploy to ${env_promote}...</button>
+                                                          <div id="myDropdown${env_promote}" class="dropdown-content">
+                                                            <code>
+                                                                <j:forEach items="${tags}" var="tag">
+                                                                    <a href="javascript:startJobBackendDeploy('${comps}','${env_promote}', '${tag}');">${tag}</a>
+                                                                </j:forEach>
+                                                            </code>
+                                                          </div>
+                                                        </div>
+                                                    </j:if>
+                                                    <j:if test="${comps.indexOf('Backend') == -1}">  
+                                                        <a href="javascript:javascript:startJob('${comps}','${env_promote}','${deployment.get('buildNum')}');">Promote to ${env_promote}</a>                                                </j:if>
                                                 </j:if>
-                                                <j:if test="${comps.indexOf('Backend') == -1}">  
-                                                    <a href="javascript:javascript:startJob('${comps}','${env_promote}','${deployment.get('buildNum')}');">Promote to ${env_promote}</a>                                                </j:if>
                                             </j:if>
                                         </j:forEach>
                                     </j:if>
