@@ -322,7 +322,7 @@
 
                                             .dropdown-content {
                                                 display: none;
-                                                position: absolute;
+                                                position: relative;
                                                 right: 0;
                                                 background-color: #f9f9f9;
                                                 overflow: auto;
@@ -369,8 +369,11 @@
                                                           </div>
                                                         </div>
                                                     </j:if>
-                                                    <j:if test="${comps.indexOf('Backend') == -1}">  
-                                                        <a href="javascript:javascript:startJob('${comps}','${env_promote}','${deployment.get('buildNum')}');">Promote to ${env_promote}</a>                                                </j:if>
+                                                    <j:if test="${comps.indexOf('Backend') == -1}"> 
+													   <div style="margin-right:30px; float:right;">
+                                                        <a href="javascript:javascript:startJob('${comps}','${env_promote}','${deployment.get('buildNum')}');">Promote to ${env_promote}</a>                                                
+													   </div>
+													</j:if>
                                                 </j:if>
                                             </j:if>
                                         </j:forEach>
