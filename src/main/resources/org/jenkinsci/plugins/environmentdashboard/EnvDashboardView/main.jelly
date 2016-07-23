@@ -156,6 +156,7 @@
 																	</j:if>	
 																	<j:if test="${comp.indexOf('Backend') != -1}">
 																	
+																	
 																	<j:set var="deployment" value="${it.getCompLastDeployed(envsHeader, comp)}"/>
 																		
 																		<j:if test="${envsHeader == 'DEV'}">
@@ -361,7 +362,13 @@
             												</j:if>	
 															
             												<j:if test="${comps.indexOf('Backend') != -1}">  
+															
+															
+
+															
+															
 															<j:set var="deployment" value="${it.getCompLastDeployed(env, comps)}"/>
+															
 															
 															<j:if test="${env == 'DEV'}">
 																<j:switch on="${deployment.get('buildstatus')}">
