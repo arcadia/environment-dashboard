@@ -157,10 +157,10 @@
 																	<j:if test="${comp.indexOf('Backend') != -1}">
 																	
 																	
-																	<j:set var="deployment" value="${it.getCompLastDeployed(envsHeader, comp)}"/>
+																	<j:set var="lastdeployment" value="${it.getCompLastDeployed(envsHeader, comp)}"/>
 																		
 																		<j:if test="${envsHeader == 'DEV'}">
-																			<j:switch on="${deployment.get('buildstatus')}">
+																			<j:switch on="${lastdeployment.get('buildstatus')}">
 																			<j:case value="SUCCESS">
 																				 <a title="Promote" href="javascript:startJobBackendDeploy('${comp}','${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1]}','${deployment.get('buildNum')}');">Promote</a>
 																			</j:case>
@@ -362,14 +362,7 @@
             												</j:if>	
 															
             												<j:if test="${comps.indexOf('Backend') != -1}">  
-															
-															
-
-															
-															
-															<j:set var="deployment" value="${it.getCompLastDeployed(env, comps)}"/>
-															
-															
+												
 															<j:if test="${env == 'DEV'}">
 																<j:switch on="${deployment.get('buildstatus')}">
 																<j:case value="SUCCESS">
