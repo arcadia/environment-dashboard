@@ -85,6 +85,26 @@ public class EnvDashboardView extends View {
     }
 
     @RequirePOST
+    public void doSqlSubmit(final StaplerRequest req, StaplerResponse res) throws IOException, ServletException, FormException {
+        checkPermission(Jenkins.ADMINISTER);
+
+        Connection conn = null;
+        Statement stat = null;
+        conn = DBConnection.getConnection();
+        try {
+            assert conn != null;
+            stat = conn.createStatement();
+            String sql = req.getSubmittedForm().getString("sql");
+            stat.execute(sql);
+        } catch (SQLException e) {
+            System.out.println("E15: Could not truncate table env_dashboard.\n" + e.getMessage());
+        } finally { 
+            DBConnection.closeConnection();
+        }
+        res.forwardToPreviousPage(req);
+    }
+
+    @RequirePOST
     public void doPurgeSubmit(final StaplerRequest req, StaplerResponse res) throws IOException, ServletException, FormException {
         checkPermission(Jenkins.ADMINISTER);
 
