@@ -139,6 +139,7 @@
                                                                 <j:if test="${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1] != null}">
      
                                                                    <j:if test="${comp.indexOf('Backend') == -1}">
+																   
 																		<j:switch on="${deployment.get('buildstatus')}">
 																			<j:case value="SUCCESS">
 																				 <a title="Promote" href="javascript:startJob('${comp}','${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1]}','${deployment.get('buildNum')}');">Promote</a>
@@ -153,14 +154,11 @@
 																				  <a title="Promote" href="javascript:void(0)" class="disabled">Promote</a>
 																			</j:default>
 																		</j:switch>
-																	</j:if>	
+																  </j:if>	
+
 																	<j:if test="${comp.indexOf('Backend') != -1}">
 																	
-																	
-																	<j:set var="lastdeployment" value="${it.getCompLastDeployed(envsHeader, comp)}"/>
-																		
-																		<j:if test="${envsHeader == 'DEV'}">
-																			<j:switch on="${lastdeployment.get('buildstatus')}">
+																			<j:switch on="${deployment.get('buildstatus')}">
 																			<j:case value="SUCCESS">
 																				 <a title="Promote" href="javascript:startJobBackendDeploy('${comp}','${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1]}','${deployment.get('buildNum')}');">Promote</a>
 																			</j:case>
@@ -174,12 +172,7 @@
 																				  <a title="Promote" href="javascript:void(0)" class="disabled">Promote</a>
 																			</j:default>
 																			</j:switch>
-																	    </j:if>
 
-																		<j:if test="${envsHeader != 'DEV'}">
-																		  <a title="Promote" href="javascript:startJobBackendDeploy('${comp}','${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1]}','${deployment.get('buildNum')}');">Promote</a>
-																		</j:if>
-																		
 																	</j:if> 
 																	
                                                                 </j:if> 
@@ -362,28 +355,22 @@
             												</j:if>	
 															
             												<j:if test="${comps.indexOf('Backend') != -1}">  
-												
-															<j:if test="${env == 'DEV'}">
-																<j:switch on="${deployment.get('buildstatus')}">
-																<j:case value="SUCCESS">
-																	 <a title="Promote" href="javascript:startJobBackendDeploy('${comps}','${orderOfEnvs[orderOfEnvs.indexOf(env)+1]}','${deployment.get('buildNum')}');">Promote</a>
-																</j:case>
-																<j:case value="FAILURE">
-																	 <a title="Promote" href="javascript:void(0)" class="disabled">Promote</a>
-																</j:case>
-																<j:case value="RUNNING">
-																	 <a title="Promote" href="javascript:void(0)" class="disabled">Promote</a>
-																</j:case>
-																<j:default>																	
-																	  <a title="Promote" href="javascript:void(0)" class="disabled">Promote</a>
-																</j:default>
-																</j:switch>
-															</j:if>
 
-															<j:if test="${env != 'DEV'}">
-															  <a title="Promote" href="javascript:startJobBackendDeploy('${comps}','${orderOfEnvs[orderOfEnvs.indexOf(env)+1]}','${deployment.get('buildNum')}');">Promote</a>
-															</j:if>
-            													
+																<j:switch on="${deployment.get('buildstatus')}">
+																	<j:case value="SUCCESS">
+																		 <a title="Promote" href="javascript:startJobBackendDeploy('${comps}','${orderOfEnvs[orderOfEnvs.indexOf(env)+1]}','${deployment.get('buildNum')}');">Promote</a>
+																	</j:case>
+																	<j:case value="FAILURE">
+																		 <a title="Promote" href="javascript:void(0)" class="disabled">Promote</a>
+																	</j:case>
+																	<j:case value="RUNNING">
+																		 <a title="Promote" href="javascript:void(0)" class="disabled">Promote</a>
+																	</j:case>
+																	<j:default>																	
+																		  <a title="Promote" href="javascript:void(0)" class="disabled">Promote</a>
+																	</j:default>
+																</j:switch>
+
 																
                                                             </j:if> 
                                                         </j:if> 
@@ -448,21 +435,179 @@
 
                                             <!-- don't promote to itself -->
                                             <j:if test="${env_promote != env}">
+											
                                                 <j:if test="${env_promote != 'PRD' || h.hasPermission(app.ADMINISTER)}">
+												
+												   <!-- DROPDOWN MENUS FOR PERFORMING BACKEND DEPLOYMENTS under 'Last Commit' column-->
+												   
                                                     <j:if test="${comps.indexOf('Backend') != -1}">  
-                                                        <div class="dropdown" style="float:right;">
-                                                        <button class="dropbtn">Deploy to ${env_promote}...</button>
-                                                          <div id="myDropdown${env_promote}" class="dropdown-content">
-                                                            <code>
-                                                                <j:forEach items="${tags}" var="tag">
-                                                                    <a href="javascript:startJobBackendDeploy('${comps}','${env_promote}', '${tag}');">${tag}</a>
-                                                                </j:forEach>
-                                                            </code>
-                                                          </div>
-                                                        </div>
-                                                    </j:if>
-                                                    <j:if test="${comps.indexOf('Backend') == -1}"> 
-																											
+													
+														 <j:set var="SpaceIndex" value="${comps.indexOf(' ',1)}"/>
+														 <j:set var="client" value="${comps.substring(0,SpaceIndex)}"/>
+														 <j:set var="lastcommit" value="${it.getCompLastDeployed('Last Commit', client)}"/>
+													 
+														<j:switch on="${lastcommit.get('buildstatus')}">
+															<j:case value="SUCCESS">
+															
+																<div class="dropdown" style="float:right;">
+																<button class="dropbtn" >Deploy to ${env_promote}...</button>
+																  <div id="myDropdown${env_promote}" class="dropdown-content">
+																	<code>
+																		<j:forEach items="${tags}" var="tag">
+																			<a href="javascript:startJobBackendDeploy('${comps}','${env_promote}', '${tag}');">${tag}</a>
+																		</j:forEach>
+																	</code>
+																  </div>
+																</div>
+																
+															</j:case>
+															<j:case value="FAILURE">
+
+															  <j:switch on="${env_promote}">
+																<j:case value="DEV">
+																		<div class="dropdown" style="float:right;pointer-events:none;">
+																		<button class="dropbtn" style="color:grey">Deploy to ${env_promote}...</button>
+																		  <div id="myDropdown${env_promote}" class="dropdown-content">
+																			<code>
+																				<j:forEach items="${tags}" var="tag">
+																					<a href="javascript:startJobBackendDeploy('${comps}','${env_promote}', '${tag}');">${tag}</a>
+																				</j:forEach>
+																			</code>
+																		  </div>
+																		</div>
+																</j:case>
+																<j:case value="QA">
+
+																	<div class="dropdown" style="float:right;">
+																	<button class="dropbtn" >Deploy to ${env_promote}...</button>
+																	  <div id="myDropdown${env_promote}" class="dropdown-content">
+																		<code>
+																			<j:forEach items="${tags}" var="tag">
+																				<a href="javascript:startJobBackendDeploy('${comps}','${env_promote}', '${tag}');">${tag}</a>
+																			</j:forEach>
+																		</code>
+																	  </div>
+																	</div>
+																	
+																</j:case>
+																<j:case value="UAT">
+
+																	<div class="dropdown" style="float:right;">
+																	<button class="dropbtn" >Deploy to ${env_promote}...</button>
+																	  <div id="myDropdown${env_promote}" class="dropdown-content">
+																		<code>
+																			<j:forEach items="${tags}" var="tag">
+																				<a href="javascript:startJobBackendDeploy('${comps}','${env_promote}', '${tag}');">${tag}</a>
+																			</j:forEach>
+																		</code>
+																	  </div>
+																	</div>
+
+																</j:case>
+															  </j:switch>	
+
+																
+															</j:case>
+															<j:case value="RUNNING">
+
+															  <j:switch on="${env_promote}">
+																<j:case value="DEV">
+																		<div class="dropdown" style="float:right;pointer-events:none;">
+																		<button class="dropbtn" style="color:grey">Deploy to ${env_promote}...</button>
+																		  <div id="myDropdown${env_promote}" class="dropdown-content">
+																			<code>
+																				<j:forEach items="${tags}" var="tag">
+																					<a href="javascript:startJobBackendDeploy('${comps}','${env_promote}', '${tag}');">${tag}</a>
+																				</j:forEach>
+																			</code>
+																		  </div>
+																		</div>
+																</j:case>
+																<j:case value="QA">
+
+																	<div class="dropdown" style="float:right;">
+																	<button class="dropbtn" >Deploy to ${env_promote}...</button>
+																	  <div id="myDropdown${env_promote}" class="dropdown-content">
+																		<code>
+																			<j:forEach items="${tags}" var="tag">
+																				<a href="javascript:startJobBackendDeploy('${comps}','${env_promote}', '${tag}');">${tag}</a>
+																			</j:forEach>
+																		</code>
+																	  </div>
+																	</div>
+																	
+																</j:case>
+																<j:case value="UAT">
+
+																	<div class="dropdown" style="float:right;">
+																	<button class="dropbtn" >Deploy to ${env_promote}...</button>
+																	  <div id="myDropdown${env_promote}" class="dropdown-content">
+																		<code>
+																			<j:forEach items="${tags}" var="tag">
+																				<a href="javascript:startJobBackendDeploy('${comps}','${env_promote}', '${tag}');">${tag}</a>
+																			</j:forEach>
+																		</code>
+																	  </div>
+																	</div>
+
+																</j:case>
+															  </j:switch>	
+
+															</j:case>
+															<j:default>																	
+
+															  <j:switch on="${env_promote}">
+																<j:case value="DEV">
+																		<div class="dropdown" style="float:right;pointer-events:none;">
+																		<button class="dropbtn" style="color:grey">Deploy to ${env_promote}...</button>
+																		  <div id="myDropdown${env_promote}" class="dropdown-content">
+																			<code>
+																				<j:forEach items="${tags}" var="tag">
+																					<a href="javascript:startJobBackendDeploy('${comps}','${env_promote}', '${tag}');">${tag}</a>
+																				</j:forEach>
+																			</code>
+																		  </div>
+																		</div>
+																</j:case>
+																<j:case value="QA">
+
+																	<div class="dropdown" style="float:right;">
+																	<button class="dropbtn" >Deploy to ${env_promote}...</button>
+																	  <div id="myDropdown${env_promote}" class="dropdown-content">
+																		<code>
+																			<j:forEach items="${tags}" var="tag">
+																				<a href="javascript:startJobBackendDeploy('${comps}','${env_promote}', '${tag}');">${tag}</a>
+																			</j:forEach>
+																		</code>
+																	  </div>
+																	</div>
+																	
+																</j:case>
+																<j:case value="UAT">
+
+																	<div class="dropdown" style="float:right;">
+																	<button class="dropbtn" >Deploy to ${env_promote}...</button>
+																	  <div id="myDropdown${env_promote}" class="dropdown-content">
+																		<code>
+																			<j:forEach items="${tags}" var="tag">
+																				<a href="javascript:startJobBackendDeploy('${comps}','${env_promote}', '${tag}');">${tag}</a>
+																			</j:forEach>
+																		</code>
+																	  </div>
+																	</div>
+
+																</j:case>
+															  </j:switch>	
+
+															</j:default>
+														</j:switch>	
+														
+														
+														
+                                                     </j:if>
+													
+													<!-- PROMOTE LINKS under 'Last Commit' column -->
+                                                    <j:if test="${comps.indexOf('Backend') == -1}"> 										
 														<div style="margin-right:30px; float:right;">
 															<j:switch on="${deployment.get('buildstatus')}">
 																<j:case value="SUCCESS">
@@ -478,10 +623,10 @@
 																	  <a href="javascript:void(0)" class="disabled">Promote to ${env_promote}</a>                                                
 																</j:default>
 															</j:switch>
-														</div>	
-														
-													  											
+														</div>												
 													</j:if>
+													
+													
                                                 </j:if>
                                             </j:if>
                                         </j:forEach>
