@@ -157,28 +157,16 @@
 																	<j:if test="${comp.indexOf('Backend') != -1}">
 																	
 																	
-																	<j:set var="lastdeployment" value="${it.getCompLastDeployed(envsHeader, comp)}"/>
+    																	<j:set var="lastdeployment" value="${it.getCompLastDeployed(envsHeader, comp)}"/>
 																		
-																		<j:if test="${envsHeader == 'DEV'}">
-																			<j:switch on="${lastdeployment.get('buildstatus')}">
-																			<j:case value="SUCCESS">
-																				 <a title="Promote" href="javascript:startJobBackendDeploy('${comp}','${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1]}','${deployment.get('buildNum')}');">Promote</a>
-																			</j:case>
-																			<j:case value="FAILURE">
-																				 <a title="Promote" href="javascript:void(0)" class="disabled">Promote</a>
-																			</j:case>
-																			<j:case value="RUNNING">
-																				 <a title="Promote" href="javascript:void(0)" class="disabled">Promote</a>
-																			</j:case>
-																			<j:default>																	
-																				  <a title="Promote" href="javascript:void(0)" class="disabled">Promote</a>
-																			</j:default>
-																			</j:switch>
-																	    </j:if>
-
-																		<j:if test="${envsHeader != 'DEV'}">
-																		  <a title="Promote" href="javascript:startJobBackendDeploy('${comp}','${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1]}','${deployment.get('buildNum')}');">Promote</a>
-																		</j:if>
+																		<j:switch on="${lastdeployment.get('buildstatus')}">
+																		<j:case value="SUCCESS">
+																			 <a title="Promote" href="javascript:startJobBackendDeploy('${comp}','${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1]}','${deployment.get('buildNum')}');">Promote</a>
+                                                                        </j:case>
+																		<j:default>																
+																			  <a title="Promote" href="javascript:void(0)" class="disabled">Promote</a>
+																		</j:default>
+																		</j:switch>
 																		
 																	</j:if> 
 																	
@@ -348,12 +336,6 @@
 																<j:case value="SUCCESS">
 																	 <a title="Promote" href="javascript:startJob('${comps}','${orderOfEnvs[orderOfEnvs.indexOf(env)+1]}','${deployment.get('buildNum')}');">Promote${it.envVars}</a>
 																</j:case>
-																<j:case value="FAILURE">
-																	 <a title="Promote" href="javascript:void(0)" class="disabled">Promote</a>
-																</j:case>
-																<j:case value="RUNNING">
-																	 <a title="Promote" href="javascript:void(0)" class="disabled">Promote</a>
-																</j:case>
 																<j:default>																	
 																	  <a title="Promote" href="javascript:void(0)" class="disabled">Promote</a>
 																</j:default>
@@ -367,12 +349,6 @@
 																<j:switch on="${deployment.get('buildstatus')}">
 																<j:case value="SUCCESS">
 																	 <a title="Promote" href="javascript:startJobBackendDeploy('${comps}','${orderOfEnvs[orderOfEnvs.indexOf(env)+1]}','${deployment.get('buildNum')}');">Promote</a>
-																</j:case>
-																<j:case value="FAILURE">
-																	 <a title="Promote" href="javascript:void(0)" class="disabled">Promote</a>
-																</j:case>
-																<j:case value="RUNNING">
-																	 <a title="Promote" href="javascript:void(0)" class="disabled">Promote</a>
 																</j:case>
 																<j:default>																	
 																	  <a title="Promote" href="javascript:void(0)" class="disabled">Promote</a>
@@ -450,12 +426,21 @@
                                             <j:if test="${env_promote != env}">
                                                 <j:if test="${env_promote != 'PRD' || h.hasPermission(app.ADMINISTER)}">
                                                     <j:if test="${comps.indexOf('Backend') != -1}">  
+                                                        <j:set var="lastdeployment" value="${it.getCompLastDeployed(env, comps.substring(0, comps.indexOf(' ')))}"/>
+
                                                         <div class="dropdown" style="float:right;">
                                                         <button class="dropbtn">Deploy to ${env_promote}...</button>
                                                           <div id="myDropdown${env_promote}" class="dropdown-content">
                                                             <code>
                                                                 <j:forEach items="${tags}" var="tag">
-                                                                    <a href="javascript:startJobBackendDeploy('${comps}','${env_promote}', '${tag}');">${tag}</a>
+                                                                    <j:if test="${env_promote == 'DEV'}">
+                                                                        <j:if test="${lastdeployment.get('buildstatus') != 'SUCCESS'}">
+                                                                            <a href="javascript:void(0)" class="disabled">${tag}</a>
+                                                                        </j:if>
+                                                                    </j:if>
+                                                                    <j:if test="${env_promote != 'DEV' || lastdeployment.get('buildstatus') == 'SUCCESS'}">
+                                                                        <a href="javascript:startJobBackendDeploy(  '${comps}','${env_promote}', '${tag}');">${tag}</a>
+                                                                    </j:if>
                                                                 </j:forEach>
                                                             </code>
                                                           </div>
@@ -467,12 +452,6 @@
 															<j:switch on="${deployment.get('buildstatus')}">
 																<j:case value="SUCCESS">
 																	  <a href="javascript:javascript:startJob('${comps}','${env_promote}','${deployment.get('buildNum')}');">Promote to ${env_promote}</a>
-																</j:case>
-																<j:case value="FAILURE">
-																	  <a href="javascript:void(0)" class="disabled">Promote to ${env_promote}</a>                                                
-																</j:case>
-																<j:case value="RUNNING">
-																	  <a href="javascript:void(0)" class="disabled">Promote to ${env_promote}</a>                                                
 																</j:case>
 																<j:default>																	
 																	  <a href="javascript:void(0)" class="disabled">Promote to ${env_promote}</a>                                                
@@ -496,15 +475,16 @@
                         function startJobBackendDeploy(comp, env, coreVersion)
                         {
 						     
-							var r = confirm("Deploying " + comp + " to " + env);
+                            var compSubstr = comp.substring(0, comp.indexOf(' '))
+							var r = confirm("Backend deploy " + compSubstr + " to " + env);
 
 							if (r == true) 
 							{
 								if (coreVersion != null) 
 								{
 									var xmlHttp = new XMLHttpRequest();
-									var baseUrl = "/job/" + comp + "_" + env;
-									var buildUrl = baseUrl + "/buildWithParameters?CoreVersion=" + coreVersion + "&amp;delay=0sec";
+									var baseUrl = "/job/Backend_Deploy";
+									var buildUrl = baseUrl + "/buildWithParameters?CoreVersion=" + coreVersion + "&amp;Client=" + compSubstr + "&amp;Env=" + env + "&amp;delay=0sec";
 									xmlHttp.open("POST", buildUrl, true); // true for asynchronous 
 									xmlHttp.send(null);
 									window.location.replace(baseUrl);
