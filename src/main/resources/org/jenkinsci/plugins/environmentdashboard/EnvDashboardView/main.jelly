@@ -156,10 +156,7 @@
 																	</j:if>	
 																	<j:if test="${comp.indexOf('Backend') != -1}">
 																	
-																	
-																		<j:set var="lastdeployment" value="${it.getCompLastDeployed(envsHeader, comp)}"/>
-																		
-																		<j:switch on="${lastdeployment.get('buildstatus')}">
+																			<j:switch on="${deployment.get('buildstatus')}">
 																			<j:case value="SUCCESS">
 																				 <a title="Promote" href="javascript:startJobBackendDeploy('${comp}','${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1]}','${deployment.get('buildNum')}');">Promote</a>
 																			</j:case>
@@ -344,7 +341,7 @@
 															</j:if>	
 															
 															<j:if test="${comps.indexOf('Backend') != -1}">  
-
+												
 																<j:switch on="${deployment.get('buildstatus')}">
 																	<j:case value="SUCCESS">
 																		<a title="Promote" href="javascript:startJobBackendDeploy('${comps}','${orderOfEnvs[orderOfEnvs.indexOf(env)+1]}','${deployment.get('buildNum')}');">Promote</a>
@@ -416,6 +413,7 @@
 
 										<j:forEach items="${orderOfEnvs}" var="env_promote">
 
+
 											<!-- don't promote to itself -->
 											<j:if test="${env_promote != env}">
 											
@@ -436,7 +434,7 @@
 															<code>
 																<j:forEach items="${tags}" var="tag">
 																	<j:if test="${env_promote == 'DEV'}">
-																		<j:if test="${lastdeployment.get('buildstatus') != 'SUCCESS'}">
+																		<j:if test="${lastcommit.get('buildstatus') != 'SUCCESS'}">
 																			<a href="javascript:void(0)" class="disabled">${tag}</a>
 																		</j:if>
 																	</j:if>
@@ -465,6 +463,7 @@
 													  											
 													</j:if>
 												</j:if>
+											</j:if>
 										</j:forEach>
 									</j:if>
 								</td>
