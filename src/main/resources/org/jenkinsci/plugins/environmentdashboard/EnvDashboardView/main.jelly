@@ -6,129 +6,129 @@
 <div class="overlay" style="display:none; background-color: rgba(0, 0, 0, 0.4); position:absolute; top: 0; left:0; bottom:0; right:0;" onclick="hideAll()"></div>
 <div class="popup" id="popup" style="position: absolute; width: 300px; height:150; display:none; background-color: white; text-align: center; top:50%; left:50%; margin-left: -150px; margin-top: -75;"></div>
 <div id="startDashboard">
-    <table id="envDashboard" class="table table-bordered table-striped table-condensed">
-        <tbody>
-            <j:switch on="${it.anyJobsConfigured()}">
-                <j:case value="NONE">
-                    <tr>
-                        <div class="jumbotron">
-                            <h2>Hi, there!</h2>
-                            <p>You possibly haven't set up any jobs to use the Dashboard. Or if you have, the job hasn't run atleast once. You can configure the jobs by using the 'Details for Environment Dashboard' checkbox.</p>
-                        </div>
-                    </tr>
-                </j:case>
-                <j:case value="ENVS">
-                    <tr align="center">
-                        <th/>
-                        <j:set var="orderOfEnvs" value="${it.getOrderOfEnvs()}"/>
-                        <j:set var="orderOfComps" value="${it.getOrderOfComps()}"/>
-                        <j:set var="customColumnsList" value="${it.getCustomDBColumns()}"/>
-                        <j:set var="tags" value="${it.getOrderOfTags()}"/>
+	<table id="envDashboard" class="table table-bordered table-striped table-condensed">
+		<tbody>
+			<j:switch on="${it.anyJobsConfigured()}">
+				<j:case value="NONE">
+					<tr>
+						<div class="jumbotron">
+							<h2>Hi, there!</h2>
+							<p>You possibly haven't set up any jobs to use the Dashboard. Or if you have, the job hasn't run atleast once. You can configure the jobs by using the 'Details for Environment Dashboard' checkbox.</p>
+						</div>
+					</tr>
+				</j:case>
+				<j:case value="ENVS">
+					<tr align="center">
+						<th/>
+						<j:set var="orderOfEnvs" value="${it.getOrderOfEnvs()}"/>
+						<j:set var="orderOfComps" value="${it.getOrderOfComps()}"/>
+						<j:set var="customColumnsList" value="${it.getCustomDBColumns()}"/>
+						<j:set var="tags" value="${it.getOrderOfTags()}"/>
 
 
-                        <j:forEach items="${orderOfEnvs}" var="envsHeader">
-                            <th style="text-align:center">
-                                <a style="text-decoration:none" title="View environment history" id="${envsHeader}_Header" href="javascript:toggle('${envsHeader}_History');">${envsHeader}</a>
-                                <div id="${envsHeader}_History" style="display: inline-block; position: fixed; top: 100; bottom: 100; left: 0; right: 0; width: 900px; height: 600px; position:fixed; margin: auto; padding: 10px; background-color: #FEFEFE; border: 1px solid; border-color: #DDDDDD; box-shadow: 1px 2px 1px #AAAAAA; border-radius: 15px; display:none; overflow: auto; overflow-x:hidden;">
-                                    <div align="right">
-                                        <b onclick="javascript:hideAll()" style="cursor: pointer">[X]</b>
-                                    </div>
-                                    <h3>${envsHeader}</h3>
-                                     <table class="table table-bordered table-striped table-condensed">
-                                        <j:set var="limitDeploy" value="${it.getLimitDeployHistory()}"/>
-                                        <tbody>
-                                            <th style="text-align:center">Component</th>
-                                            <th style="text-align:center">Build</th>
+						<j:forEach items="${orderOfEnvs}" var="envsHeader">
+							<th style="text-align:center">
+								<a style="text-decoration:none" title="View environment history" id="${envsHeader}_Header" href="javascript:toggle('${envsHeader}_History');">${envsHeader}</a>
+								<div id="${envsHeader}_History" style="display: inline-block; position: fixed; top: 100; bottom: 100; left: 0; right: 0; width: 900px; height: 600px; position:fixed; margin: auto; padding: 10px; background-color: #FEFEFE; border: 1px solid; border-color: #DDDDDD; box-shadow: 1px 2px 1px #AAAAAA; border-radius: 15px; display:none; overflow: auto; overflow-x:hidden;">
+									<div align="right">
+										<b onclick="javascript:hideAll()" style="cursor: pointer">[X]</b>
+									</div>
+									<h3>${envsHeader}</h3>
+									 <table class="table table-bordered table-striped table-condensed">
+										<j:set var="limitDeploy" value="${it.getLimitDeployHistory()}"/>
+										<tbody>
+											<th style="text-align:center">Component</th>
+											<th style="text-align:center">Build</th>
 
-                                            <j:set var="hasPackageColumn" value="${false}"/>
-                                            <j:forEach items="${it.getDeployments(envsHeader, limitDeploy)}" var="time">
-                                                <j:if test="${it.getCompDeployed(envsHeader,time).get('packageName') != null &amp;&amp; !it.getCompDeployed(envsHeader,time).get('packageName').equals('')}">
-                                                    <j:set var="hasPackageColumn" value="${true}"/>
-                                                </j:if>
-                                            </j:forEach>
-                                            <j:if test="${hasPackageColumn}">
-                                                <th style="text-align:center">Package</th>
-                                            </j:if> 
-                                            <th style="text-align:center">Last Update</th>
-                                        </tbody>
-                                        <j:forEach items="${it.getDeployments(envsHeader, limitDeploy)}" var="time">
-                                        <j:set var="deployment" value="${it.getCompDeployed(envsHeader,time)}"/>
-                                            <tr>
-                                                <td>${deployment.get("compName")}</td>
-                                                <td>
+											<j:set var="hasPackageColumn" value="${false}"/>
+											<j:forEach items="${it.getDeployments(envsHeader, limitDeploy)}" var="time">
+												<j:if test="${it.getCompDeployed(envsHeader,time).get('packageName') != null &amp;&amp; !it.getCompDeployed(envsHeader,time).get('packageName').equals('')}">
+													<j:set var="hasPackageColumn" value="${true}"/>
+												</j:if>
+											</j:forEach>
+											<j:if test="${hasPackageColumn}">
+												<th style="text-align:center">Package</th>
+											</j:if> 
+											<th style="text-align:center">Last Update</th>
+										</tbody>
+										<j:forEach items="${it.getDeployments(envsHeader, limitDeploy)}" var="time">
+										<j:set var="deployment" value="${it.getCompDeployed(envsHeader,time)}"/>
+											<tr>
+												<td>${deployment.get("compName")}</td>
+												<td>
 													<j:switch on="${deployment.get('buildstatus')}">
-                                                        <a title="View" href="${deployment.get('buildJobUrl')}">${deployment.get("buildNum")}</a>
+														<a title="View" href="${deployment.get('buildJobUrl')}">${deployment.get("buildNum")}</a>
 														<j:case value="SUCCESS">
-                                                            <span title="SUCCESS" style="color:green;">&#10004;</span>
+															<span title="SUCCESS" style="color:green;">&#10004;</span>
 														</j:case>
 														<j:case value="FAILURE">
-                                                            <span title="FAILURE" style="color:darkred;">&#x2716;</span>
+															<span title="FAILURE" style="color:darkred;">&#x2716;</span>
 														</j:case>
 														<j:case value="RUNNING">
-                                                            <span title="RUNNING" style="color:blue;">&#9658;</span>
+															<span title="RUNNING" style="color:blue;">&#9658;</span>
 														</j:case>
 														<j:default>
-                                                            <span title="UNKNOWN" style="color:orange;">&#63;</span>
+															<span title="UNKNOWN" style="color:orange;">&#63;</span>
 														</j:default>
 													</j:switch>
 												</td>
-                                                <j:if test="${hasPackageColumn}">
-                                                    <td>
-                                                        ${deployment.get("packageName")}
-                                                    </td>
-                                                </j:if>
+												<j:if test="${hasPackageColumn}">
+													<td>
+														${deployment.get("packageName")}
+													</td>
+												</j:if>
 												<td>
 													<a title="View Deployment" href="${deployment.get('jobUrl')}">${it.getNiceTimeStamp(time)}</a>
 												</td>
-                                            </tr>
-                                        </j:forEach>
-                                    </table>
-                                </div>
+											</tr>
+										</j:forEach>
+									</table>
+								</div>
 
-                                <!-- Popup per Env per Component  -->
-                                <j:forEach items="${orderOfComps}" var="comp">
-                                    <j:set var="compLastDeployed" value="${it.getCompLastDeployed(envsHeader, comp)}"/>
-                                    <div id="${comp}_${envsHeader}_Popup" style="display: inline-block; position: fixed; top: 100; bottom: 100; left: 0; right: 0; width: 900px; height: 600px; position:fixed; margin: auto; padding: 10px; background-color: #FEFEFE; border: 1px solid; border-color: #DDDDDD; box-shadow: 1px 2px 1px #AAAAAA; border-radius: 15px; display:none; overflow: auto; overflow-x:hidden;">
-                                        <div align="right">
-                                            <b onclick="javascript:hideAll()" style="cursor: pointer">[X]</b>
-                                        </div>
-                                        <h3>${comp + "   |   " + envsHeader}</h3>
-                                         <table style="width=100%" class="table table-bordered table-striped table-condensed">
-                                            <tbody>
-                                                <th style="width: 8%;text-align:center">Build</th>
-                                                <j:if test="${compLastDeployed.get('packageName') != null &amp;&amp; !compLastDeployed.get('packageName').equals('')}">
-                                                    <th style="text-align:center">Package</th>
-                                                </j:if>
-                                                <j:forEach items="${customColumnsList}" var="column">
-                                                    <j:if test="${compLastDeployed.get(column.toLowerCase()) != null}">
-                                                        <th style="text-align:center">${column.substring(0, 1).toUpperCase() + column.substring(1)}</th>
-                                                    </j:if>
-                                                </j:forEach>
-                                                <th style="width:8%;text-align:center">Action</th>
-                                                <th style="width:8%;text-align:center">Status</th>
-                                                <th style="text-align:center">Time</th>
-                                            </tbody>
-                                            
-                                            <j:forEach items="${it.getDeploymentsByCompEnv(comp, envsHeader, limitDeploy)}" var="deployment">
-                                                    <tr>
-                                                        <td >
-                                                            <a title="View Deployment" href="${deployment.get('jobUrl')}">${deployment.get('buildNum')}</a>
-                                                        </td>
-                                                        <j:if test="${compLastDeployed.get('packageName') != null &amp;&amp; !compLastDeployed.get('packageName').equals('')}">
-                                                            <td style="word-wrap:break-word">
-                                                                ${deployment.get('packageName')}
-                                                            </td>
-                                                        </j:if>
-                                                        <j:forEach items="${customColumnsList}" var="column">
-                                                            <j:if test="${compLastDeployed.get(column.toLowerCase()) != null}">
-                                                                <td style="max-width:20em;word-wrap:break-word">
-                                                                    ${deployment.get(column.toLowerCase())}
-                                                                </td>
-                                                            </j:if>
-                                                        </j:forEach>
-                                                        <td>
+								<!-- Popup per Env per Component  -->
+								<j:forEach items="${orderOfComps}" var="comp">
+									<j:set var="compLastDeployed" value="${it.getCompLastDeployed(envsHeader, comp)}"/>
+									<div id="${comp}_${envsHeader}_Popup" style="display: inline-block; position: fixed; top: 100; bottom: 100; left: 0; right: 0; width: 900px; height: 600px; position:fixed; margin: auto; padding: 10px; background-color: #FEFEFE; border: 1px solid; border-color: #DDDDDD; box-shadow: 1px 2px 1px #AAAAAA; border-radius: 15px; display:none; overflow: auto; overflow-x:hidden;">
+										<div align="right">
+											<b onclick="javascript:hideAll()" style="cursor: pointer">[X]</b>
+										</div>
+										<h3>${comp + "   |   " + envsHeader}</h3>
+										 <table style="width=100%" class="table table-bordered table-striped table-condensed">
+											<tbody>
+												<th style="width: 8%;text-align:center">Build</th>
+												<j:if test="${compLastDeployed.get('packageName') != null &amp;&amp; !compLastDeployed.get('packageName').equals('')}">
+													<th style="text-align:center">Package</th>
+												</j:if>
+												<j:forEach items="${customColumnsList}" var="column">
+													<j:if test="${compLastDeployed.get(column.toLowerCase()) != null}">
+														<th style="text-align:center">${column.substring(0, 1).toUpperCase() + column.substring(1)}</th>
+													</j:if>
+												</j:forEach>
+												<th style="width:8%;text-align:center">Action</th>
+												<th style="width:8%;text-align:center">Status</th>
+												<th style="text-align:center">Time</th>
+											</tbody>
+											
+											<j:forEach items="${it.getDeploymentsByCompEnv(comp, envsHeader, limitDeploy)}" var="deployment">
+													<tr>
+														<td >
+															<a title="View Deployment" href="${deployment.get('jobUrl')}">${deployment.get('buildNum')}</a>
+														</td>
+														<j:if test="${compLastDeployed.get('packageName') != null &amp;&amp; !compLastDeployed.get('packageName').equals('')}">
+															<td style="word-wrap:break-word">
+																${deployment.get('packageName')}
+															</td>
+														</j:if>
+														<j:forEach items="${customColumnsList}" var="column">
+															<j:if test="${compLastDeployed.get(column.toLowerCase()) != null}">
+																<td style="max-width:20em;word-wrap:break-word">
+																	${deployment.get(column.toLowerCase())}
+																</td>
+															</j:if>
+														</j:forEach>
+														<td>
 														  <code>
-                                                            <j:if test="${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1] != 'PRD' || h.hasPermission(app.ADMINISTER)}">
+															<j:if test="${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1] != 'PRD' || h.hasPermission(app.ADMINISTER)}">
 																															<head>
 																<style>									
 																a.disabled {
@@ -136,10 +136,9 @@
 																}
 																</style>
 															   </head>
-                                                                <j:if test="${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1] != null}">
-     
-                                                                   <j:if test="${comp.indexOf('Backend') == -1}">
-																   
+																<j:if test="${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1] != null}">
+	 
+																   <j:if test="${comp.indexOf('Backend') == -1}">
 																		<j:switch on="${deployment.get('buildstatus')}">
 																			<j:case value="SUCCESS">
 																				 <a title="Promote" href="javascript:startJob('${comp}','${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1]}','${deployment.get('buildNum')}');">Promote</a>
@@ -154,181 +153,174 @@
 																				  <a title="Promote" href="javascript:void(0)" class="disabled">Promote</a>
 																			</j:default>
 																		</j:switch>
-																  </j:if>	
-
+																	</j:if>	
 																	<j:if test="${comp.indexOf('Backend') != -1}">
 																	
 																			<j:switch on="${deployment.get('buildstatus')}">
 																			<j:case value="SUCCESS">
 																				 <a title="Promote" href="javascript:startJobBackendDeploy('${comp}','${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1]}','${deployment.get('buildNum')}');">Promote</a>
 																			</j:case>
-																			<j:case value="FAILURE">
-																				 <a title="Promote" href="javascript:void(0)" class="disabled">Promote</a>
-																			</j:case>
-																			<j:case value="RUNNING">
-																				 <a title="Promote" href="javascript:void(0)" class="disabled">Promote</a>
-																			</j:case>
-																			<j:default>																	
+																			<j:default>																
 																				  <a title="Promote" href="javascript:void(0)" class="disabled">Promote</a>
 																			</j:default>
-																			</j:switch>
-
+																		</j:switch>
+																		
 																	</j:if> 
 																	
-                                                                </j:if> 
-                                                            </j:if> 
+																</j:if> 
+															</j:if> 
 														 </code>
-                                                        </td>
-                                                        <td>
-                                                            <j:switch on="${deployment.get('buildstatus')}">
-                                                                <j:case value="SUCCESS">
-                                                                    <span title="SUCCESS" style="color:green;">&#10004;</span>
-                                                                </j:case>
-                                                                <j:case value="FAILURE">
-                                                                    <span title="FAILURE" style="color:darkred;">&#x2716;</span>
-                                                                </j:case>
-                                                                <j:case value="RUNNING">
-                                                                    <span title="RUNNING" style="color:blue;">&#9658;</span>
-                                                                </j:case>
-                                                                <j:default>
-                                                                    <span title="UNKNOWN" style="color:orange;">&#63;</span>
-                                                                </j:default>
-                                                            </j:switch>
-                                                        </td>
-                                                        <td>
-                                                            <a title="View Deployment" href="${deployment.get('jobUrl')}">${it.getNiceTimeStamp(deployment.get('created_at'))}</a>
-                                                        </td>
-                                                    </tr>
-                                            </j:forEach>      
-                                        </table>
-                                    </div>
-                                </j:forEach>
+														</td>
+														<td>
+															<j:switch on="${deployment.get('buildstatus')}">
+																<j:case value="SUCCESS">
+																	<span title="SUCCESS" style="color:green;">&#10004;</span>
+																</j:case>
+																<j:case value="FAILURE">
+																	<span title="FAILURE" style="color:darkred;">&#x2716;</span>
+																</j:case>
+																<j:case value="RUNNING">
+																	<span title="RUNNING" style="color:blue;">&#9658;</span>
+																</j:case>
+																<j:default>
+																	<span title="UNKNOWN" style="color:orange;">&#63;</span>
+																</j:default>
+															</j:switch>
+														</td>
+														<td>
+															<a title="View Deployment" href="${deployment.get('jobUrl')}">${it.getNiceTimeStamp(deployment.get('created_at'))}</a>
+														</td>
+													</tr>
+											</j:forEach>	  
+										</table>
+									</div>
+								</j:forEach>
 
 
-                                <!-- Component History -->
-                                <j:forEach items="${orderOfComps}" var="comp">
-                                    <j:set var="compLastDeployed" value="${it.getCompLastDeployed(envsHeader, comp)}"/>
-                                    <div id="${comp}_History" style="display: inline-block; position: fixed; top: 100; bottom: 100; left: 0; right: 0; width: 900px; height: 600px; position:fixed; margin: auto; padding: 10px; background-color: #FEFEFE; border: 1px solid; border-color: #DDDDDD; box-shadow: 1px 2px 1px #AAAAAA; border-radius: 15px; display:none; overflow: auto; overflow-x:hidden;">
-                                        <div align="right">
-                                            <b onclick="javascript:hideAll()" style="cursor: pointer">[X]</b>
-                                        </div>
-                                        <h3>${comp} History</h3>
-                                         <table class="table table-bordered table-striped table-condensed">
-                                            <tbody>
-                                                <th style="text-align:center">Env</th>
-                                                <th style="text-align:center">Build</th>
-                                                <th style="text-align:center">Status</th>
-                                                <j:if test="${compLastDeployed.get('packageName') != null &amp;&amp; !compLastDeployed.get('packageName').equals('')}">
-                                                    <th style="text-align:center">Package</th>
-                                                </j:if>
-                                                <th style="text-align:center">Time</th>
-                                            </tbody>
-                                            
-                                            <j:forEach items="${it.getDeploymentsByComp(comp, limitDeploy)}" var="deployment">
-                                                <tr>
-                                                    <td>
-                                                        ${deployment.get('envName')}
-                                                    </td>
-                                                    <td>
-                                                        <a title="View Deployment" href="${deployment.get('jobUrl')}">${deployment.get('buildNum')}</a>
-                                                    </td>
-                                                    <td>
-                                                        <j:switch on="${deployment.get('buildstatus')}">
-                                                            <j:case value="SUCCESS">
-                                                                <span title="SUCCESS" style="color:green;">&#10004;</span>
-                                                            </j:case>
-                                                            <j:case value="FAILURE">
-                                                                <span title="FAILURE" style="color:darkred;">&#x2716;</span>
-                                                            </j:case>
-                                                            <j:case value="RUNNING">
-                                                                <span title="RUNNING" style="color:blue;">&#9658;</span>
-                                                            </j:case>
-                                                            <j:default>
-                                                                <span title="UNKNOWN" style="color:orange;">&#63;</span>
-                                                            </j:default>
-                                                        </j:switch>
-                                                    </td>
-                                                    <j:if test="${compLastDeployed.get('packageName') != null &amp;&amp; !compLastDeployed.get('packageName').equals('')}">
-                                                        <td>
-                                                            ${deployment.get('packageName')}
-                                                        </td>
-                                                    </j:if>
-                                                    <td>
-                                                        <a title="View Deployment" href="${deployment.get('jobUrl')}">${it.getNiceTimeStamp(deployment.get('created_at'))}</a>
-                                                    </td>
-                                                </tr>
-                                            </j:forEach>      
-                                        </table>
-                                    </div>
-                                </j:forEach>
-                            </th>
-                        </j:forEach>
-                    </tr>
+								<!-- Component History -->
+								<j:forEach items="${orderOfComps}" var="comp">
+									<j:set var="compLastDeployed" value="${it.getCompLastDeployed(envsHeader, comp)}"/>
+									<div id="${comp}_History" style="display: inline-block; position: fixed; top: 100; bottom: 100; left: 0; right: 0; width: 900px; height: 600px; position:fixed; margin: auto; padding: 10px; background-color: #FEFEFE; border: 1px solid; border-color: #DDDDDD; box-shadow: 1px 2px 1px #AAAAAA; border-radius: 15px; display:none; overflow: auto; overflow-x:hidden;">
+										<div align="right">
+											<b onclick="javascript:hideAll()" style="cursor: pointer">[X]</b>
+										</div>
+										<h3>${comp} History</h3>
+										 <table class="table table-bordered table-striped table-condensed">
+											<tbody>
+												<th style="text-align:center">Env</th>
+												<th style="text-align:center">Build</th>
+												<th style="text-align:center">Status</th>
+												<j:if test="${compLastDeployed.get('packageName') != null &amp;&amp; !compLastDeployed.get('packageName').equals('')}">
+													<th style="text-align:center">Package</th>
+												</j:if>
+												<th style="text-align:center">Time</th>
+											</tbody>
+											
+											<j:forEach items="${it.getDeploymentsByComp(comp, limitDeploy)}" var="deployment">
+												<tr>
+													<td>
+														${deployment.get('envName')}
+													</td>
+													<td>
+														<a title="View Deployment" href="${deployment.get('jobUrl')}">${deployment.get('buildNum')}</a>
+													</td>
+													<td>
+														<j:switch on="${deployment.get('buildstatus')}">
+															<j:case value="SUCCESS">
+																<span title="SUCCESS" style="color:green;">&#10004;</span>
+															</j:case>
+															<j:case value="FAILURE">
+																<span title="FAILURE" style="color:darkred;">&#x2716;</span>
+															</j:case>
+															<j:case value="RUNNING">
+																<span title="RUNNING" style="color:blue;">&#9658;</span>
+															</j:case>
+															<j:default>
+																<span title="UNKNOWN" style="color:orange;">&#63;</span>
+															</j:default>
+														</j:switch>
+													</td>
+													<j:if test="${compLastDeployed.get('packageName') != null &amp;&amp; !compLastDeployed.get('packageName').equals('')}">
+														<td>
+															${deployment.get('packageName')}
+														</td>
+													</j:if>
+													<td>
+														<a title="View Deployment" href="${deployment.get('jobUrl')}">${it.getNiceTimeStamp(deployment.get('created_at'))}</a>
+													</td>
+												</tr>
+											</j:forEach>	  
+										</table>
+									</div>
+								</j:forEach>
+							</th>
+						</j:forEach>
+					</tr>
 
 
-                    <!-- Main dashboard -->
-                    <j:forEach items="${orderOfComps}" var="comps">
-                        <tr>
-                            <td align="center"><strong><a href="javascript:toggle('${comps}_History')">${comps}</a></strong></td>
-                            <j:forEach items="${orderOfEnvs}" var="env">
-                                <j:set var="deployment" value="${it.getCompLastDeployed(env, comps)}"/>
-                                <j:if test="${!deployment.isEmpty()}">
-                                    <j:switch on="${deployment.get('buildstatus')}">
-                                        <j:case value="SUCCESS">
-                                            <j:set var="bgcol" value="#DAF5DA;"/>
-                                            <j:set var="clss" value="notused"/>
-                                            <j:set var="extn" value=""/>
-                                        </j:case>
-                                        <j:case value="FAILURE">
-                                            <j:set var="bgcol" value="#FF6666;"/>
-                                            <j:set var="clss" value="notused"/>
-                                            <j:set var="extn" value=""/>
-                                        </j:case>
-                                        <j:case value="RUNNING">
-                                            <j:set var="bgcol" value="#ffffff;"/>
-                                            <j:set var="clss" value="deploying"/>
-                                            <j:set var="extn" value="console"/>
-                                        </j:case>
-                                        <j:default>
-                                            <j:set var="bgcol" value="#eccf97;"/>
-                                            <j:set var="clss" value="notused"/>
-                                            <j:set var="extn" value="console"/>
-                                        </j:default>
-                                    </j:switch>
-                                </j:if>
+					<!-- Main dashboard -->
+					<j:forEach items="${orderOfComps}" var="comps">
+						<tr>
+							<td align="center"><strong><a href="javascript:toggle('${comps}_History')">${comps}</a></strong></td>
+							<j:forEach items="${orderOfEnvs}" var="env">
+								<j:set var="deployment" value="${it.getCompLastDeployed(env, comps)}"/>
+								<j:if test="${!deployment.isEmpty()}">
+									<j:switch on="${deployment.get('buildstatus')}">
+										<j:case value="SUCCESS">
+											<j:set var="bgcol" value="#DAF5DA;"/>
+											<j:set var="clss" value="notused"/>
+											<j:set var="extn" value=""/>
+										</j:case>
+										<j:case value="FAILURE">
+											<j:set var="bgcol" value="#FF6666;"/>
+											<j:set var="clss" value="notused"/>
+											<j:set var="extn" value=""/>
+										</j:case>
+										<j:case value="RUNNING">
+											<j:set var="bgcol" value="#ffffff;"/>
+											<j:set var="clss" value="deploying"/>
+											<j:set var="extn" value="console"/>
+										</j:case>
+										<j:default>
+											<j:set var="bgcol" value="#eccf97;"/>
+											<j:set var="clss" value="notused"/>
+											<j:set var="extn" value="console"/>
+										</j:default>
+									</j:switch>
+								</j:if>
 
-                                <td class="${clss}" style="background-color:${bgcol} padding 1.5% 1.5%;" align="center">
-                                    <j:if test="${!deployment.isEmpty()}">
-                                        <a style="text-decoration:none; color:blue; font-size:medium;" title="View" href="javascript:toggle('${comps}_${env}_Popup');">
-                                            <strong>
-                                                <j:if test="${deployment.get('packageName').equals('') || deployment.get('packageName') == null}">${deployment.get('buildNum')}</j:if>
-                                                <j:if test="${!deployment.get('packageName').equals('') &amp;&amp; deployment.get('packageName') != null}">${deployment.get('packageName')}</j:if>
-    											<j:switch on="${deployment.get('buildstatus')}">
-    												<j:case value="SUCCESS">
-                                                        <span title="SUCCESS" style="color:green;">&#10004;</span>
-    												</j:case>
-    												<j:case value="FAILURE">
-                                                        <span title="FAILURE" style="color:darkred;">&#x2716;</span>
-    												</j:case>
-    												<j:case value="RUNNING">
-                                                        <span title="RUNNING" style="color:blue;">&#9658;</span>
-    												</j:case>
-    												<j:default>
-                                                        <span title="UNKNOWN" style="color:orange;">&#63;</span>
-    												</j:default>
-    											</j:switch>
-    										</strong>
-                                        </a>
-                                        <div align="right">
-                                            <code>
-                                                <a style="font-size:small; text-decoration:none;" title="View Deployment" href="${deployment.get('jobUrl')}${extn}">[${it.getNiceTimeStamp(deployment.get('created_at'))}]</a>
-                                            </code>
-                                        </div>
-                                        <div align="right">
-                                            <code>
-    											<j:if test="${orderOfEnvs[orderOfEnvs.indexOf(env)+1] != null}">
-                                                    <j:if test="${orderOfEnvs.indexOf(env) != 0}">
-                                                        <j:if test="${orderOfEnvs[orderOfEnvs.indexOf(env)+1] != 'PRD' || h.hasPermission(app.ADMINISTER)}">
+								<td class="${clss}" style="background-color:${bgcol} padding 1.5% 1.5%;" align="center">
+									<j:if test="${!deployment.isEmpty()}">
+										<a style="text-decoration:none; color:blue; font-size:medium;" title="View" href="javascript:toggle('${comps}_${env}_Popup');">
+											<strong>
+												<j:if test="${deployment.get('packageName').equals('') || deployment.get('packageName') == null}">${deployment.get('buildNum')}</j:if>
+												<j:if test="${!deployment.get('packageName').equals('') &amp;&amp; deployment.get('packageName') != null}">${deployment.get('packageName')}</j:if>
+												<j:switch on="${deployment.get('buildstatus')}">
+													<j:case value="SUCCESS">
+														<span title="SUCCESS" style="color:green;">&#10004;</span>
+													</j:case>
+													<j:case value="FAILURE">
+														<span title="FAILURE" style="color:darkred;">&#x2716;</span>
+													</j:case>
+													<j:case value="RUNNING">
+														<span title="RUNNING" style="color:blue;">&#9658;</span>
+													</j:case>
+													<j:default>
+														<span title="UNKNOWN" style="color:orange;">&#63;</span>
+													</j:default>
+												</j:switch>
+											</strong>
+										</a>
+										<div align="right">
+											<code>
+												<a style="font-size:small; text-decoration:none;" title="View Deployment" href="${deployment.get('jobUrl')}${extn}">[${it.getNiceTimeStamp(deployment.get('created_at'))}]</a>
+											</code>
+										</div>
+										<div align="right">
+											<code>
+												<j:if test="${orderOfEnvs[orderOfEnvs.indexOf(env)+1] != null}">
+													<j:if test="${orderOfEnvs.indexOf(env) != 0}">
+														<j:if test="${orderOfEnvs[orderOfEnvs.indexOf(env)+1] != 'PRD' || h.hasPermission(app.ADMINISTER)}">
 														 <head>
 															<style>									
 															a.disabled {
@@ -336,323 +328,167 @@
 															}
 															</style>
 															   </head>
-            												<j:if test="${comps.indexOf('Backend') == -1}">
+															<j:if test="${comps.indexOf('Backend') == -1}">
 															<j:switch on="${deployment.get('buildstatus')}">
 																<j:case value="SUCCESS">
 																	 <a title="Promote" href="javascript:startJob('${comps}','${orderOfEnvs[orderOfEnvs.indexOf(env)+1]}','${deployment.get('buildNum')}');">Promote${it.envVars}</a>
-																</j:case>
-																<j:case value="FAILURE">
-																	 <a title="Promote" href="javascript:void(0)" class="disabled">Promote</a>
-																</j:case>
-																<j:case value="RUNNING">
-																	 <a title="Promote" href="javascript:void(0)" class="disabled">Promote</a>
 																</j:case>
 																<j:default>																	
 																	  <a title="Promote" href="javascript:void(0)" class="disabled">Promote</a>
 																</j:default>
 															 </j:switch>
-            													
-            												</j:if>	
+																
+															</j:if>	
 															
-            												<j:if test="${comps.indexOf('Backend') != -1}">  
-
+															<j:if test="${comps.indexOf('Backend') != -1}">  
+												
 																<j:switch on="${deployment.get('buildstatus')}">
 																	<j:case value="SUCCESS">
-																		 <a title="Promote" href="javascript:startJobBackendDeploy('${comps}','${orderOfEnvs[orderOfEnvs.indexOf(env)+1]}','${deployment.get('buildNum')}');">Promote</a>
-																	</j:case>
-																	<j:case value="FAILURE">
-																		 <a title="Promote" href="javascript:void(0)" class="disabled">Promote</a>
-																	</j:case>
-																	<j:case value="RUNNING">
-																		 <a title="Promote" href="javascript:void(0)" class="disabled">Promote</a>
+																		<a title="Promote" href="javascript:startJobBackendDeploy('${comps}','${orderOfEnvs[orderOfEnvs.indexOf(env)+1]}','${deployment.get('buildNum')}');">Promote</a>
 																	</j:case>
 																	<j:default>																	
-																		  <a title="Promote" href="javascript:void(0)" class="disabled">Promote</a>
+																		<a title="Promote" href="javascript:void(0)" class="disabled">Promote</a>
 																	</j:default>
 																</j:switch>
 
 																
-                                                            </j:if> 
-                                                        </j:if> 
-                                                    </j:if> 
-    											</j:if>
-                                            </code>
-                                        </div>
-                                    </j:if>
-                                    <j:if test="${orderOfEnvs.indexOf(env) == 0}">
-                                        <head>
-                                            <style>
-                                                
-                                            .dropbtn {
-                                                background-color: #81BEF7;
-                                                color: black;
-                                                padding: 16px;
-                                                font-size: 13px;
-                                                border: dotted;
-                                                cursor: pointer;
-                                            }
+															</j:if> 
+														</j:if> 
+													</j:if> 
+												</j:if>
+											</code>
+										</div>
+									</j:if>
+									<j:if test="${orderOfEnvs.indexOf(env) == 0}">
+										<head>
+											<style>
+												
+											.dropbtn {
+												background-color: #81BEF7;
+												color: black;
+												padding: 16px;
+												font-size: 13px;
+												border: dotted;
+												cursor: pointer;
+											}
 
-                                            .dropdown {
-                                                position: relative;
-                                                display: inline-block;
-                                            }
+											.dropdown {
+												position: relative;
+												display: inline-block;
+											}
 
-                                            .dropdown-content {
-                                                display: none;
-                                                position: relative;
-                                                right: 0;
-                                                background-color: #f9f9f9;
-                                                overflow: auto;
-                                                box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-                                            }
+											.dropdown-content {
+												display: none;
+												position: relative;
+												right: 0;
+												background-color: #f9f9f9;
+												overflow: auto;
+												box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+											}
 
-                                            .dropdown-content a {
-                                                color: black;
-                                                padding: 12px 16px;
-                                                text-decoration: none;
-                                                display: block;
-                                            }
+											.dropdown-content a {
+												color: black;
+												padding: 12px 16px;
+												text-decoration: none;
+												display: block;
+											}
 
-                                            .dropdown-content a:hover {background-color: #f1f1f1}
+											.dropdown-content a:hover {background-color: #f1f1f1}
 
-                                            .dropdown:hover .dropdown-content {
-                                                display: block;
-                                            }
+											.dropdown:hover .dropdown-content {
+												display: block;
+											}
 
-                                            .dropdown:hover .dropbtn {
-                                                background-color: #819FF7;
-                                            }
-                                                                                        
-    
-                                            a.disabled {
-									            color:grey;
-									        }
-                                            
-                                            </style>
-                                        </head>
-
-                                        <j:forEach items="${orderOfEnvs}" var="env_promote">
-
-                                            <!-- don't promote to itself -->
-                                            <j:if test="${env_promote != env}">
+											.dropdown:hover .dropbtn {
+												background-color: #819FF7;
+											}
+																						
+	
+											a.disabled {
+												color:grey;
+											}
 											
-                                                <j:if test="${env_promote != 'PRD' || h.hasPermission(app.ADMINISTER)}">
+											</style>
+										</head>
+
+										<j:forEach items="${orderOfEnvs}" var="env_promote">
+
+
+											<!-- don't promote to itself -->
+											<j:if test="${env_promote != env}">
+											
+												<j:if test="${env_promote != 'PRD' || h.hasPermission(app.ADMINISTER)}">
 												
 												   <!-- DROPDOWN MENUS FOR PERFORMING BACKEND DEPLOYMENTS under 'Last Commit' column-->
 												   
-                                                    <j:if test="${comps.indexOf('Backend') != -1}">  
+													<j:if test="${comps.indexOf('Backend') != -1}">  
 													
 														 <j:set var="SpaceIndex" value="${comps.indexOf(' ',1)}"/>
 														 <j:set var="client" value="${comps.substring(0,SpaceIndex)}"/>
 														 <j:set var="lastcommit" value="${it.getCompLastDeployed('Last Commit', client)}"/>
 													 
-														<j:switch on="${lastcommit.get('buildstatus')}">
-															<j:case value="SUCCESS">
 															
-																<div class="dropdown" style="float:right;">
+														<div class="dropdown" style="float:right;">
 																<button class="dropbtn" >Deploy to ${env_promote}...</button>
-																  <div id="myDropdown${env_promote}" class="dropdown-content">
-																	<code>
-																		<j:forEach items="${tags}" var="tag">
-																			<a href="javascript:startJobBackendDeploy('${comps}','${env_promote}', '${tag}');">${tag}</a>
-																		</j:forEach>
-																	</code>
-																  </div>
-																</div>
-																
-															</j:case>
-															<j:case value="FAILURE">
-
-															  <j:switch on="${env_promote}">
-																<j:case value="DEV">
-																		<div class="dropdown" style="float:right;pointer-events:none;">
-																		<button class="dropbtn" style="color:grey">Deploy to ${env_promote}...</button>
-																		  <div id="myDropdown${env_promote}" class="dropdown-content">
-																			<code>
-																				<j:forEach items="${tags}" var="tag">
-																					<a href="javascript:startJobBackendDeploy('${comps}','${env_promote}', '${tag}');">${tag}</a>
-																				</j:forEach>
-																			</code>
-																		  </div>
-																		</div>
-																</j:case>
-																<j:case value="QA">
-
-																	<div class="dropdown" style="float:right;">
-																	<button class="dropbtn" >Deploy to ${env_promote}...</button>
-																	  <div id="myDropdown${env_promote}" class="dropdown-content">
-																		<code>
-																			<j:forEach items="${tags}" var="tag">
-																				<a href="javascript:startJobBackendDeploy('${comps}','${env_promote}', '${tag}');">${tag}</a>
-																			</j:forEach>
-																		</code>
-																	  </div>
-																	</div>
-																	
-																</j:case>
-																<j:case value="UAT">
-
-																	<div class="dropdown" style="float:right;">
-																	<button class="dropbtn" >Deploy to ${env_promote}...</button>
-																	  <div id="myDropdown${env_promote}" class="dropdown-content">
-																		<code>
-																			<j:forEach items="${tags}" var="tag">
-																				<a href="javascript:startJobBackendDeploy('${comps}','${env_promote}', '${tag}');">${tag}</a>
-																			</j:forEach>
-																		</code>
-																	  </div>
-																	</div>
-
-																</j:case>
-															  </j:switch>	
-
-																
-															</j:case>
-															<j:case value="RUNNING">
-
-															  <j:switch on="${env_promote}">
-																<j:case value="DEV">
-																		<div class="dropdown" style="float:right;pointer-events:none;">
-																		<button class="dropbtn" style="color:grey">Deploy to ${env_promote}...</button>
-																		  <div id="myDropdown${env_promote}" class="dropdown-content">
-																			<code>
-																				<j:forEach items="${tags}" var="tag">
-																					<a href="javascript:startJobBackendDeploy('${comps}','${env_promote}', '${tag}');">${tag}</a>
-																				</j:forEach>
-																			</code>
-																		  </div>
-																		</div>
-																</j:case>
-																<j:case value="QA">
-
-																	<div class="dropdown" style="float:right;">
-																	<button class="dropbtn" >Deploy to ${env_promote}...</button>
-																	  <div id="myDropdown${env_promote}" class="dropdown-content">
-																		<code>
-																			<j:forEach items="${tags}" var="tag">
-																				<a href="javascript:startJobBackendDeploy('${comps}','${env_promote}', '${tag}');">${tag}</a>
-																			</j:forEach>
-																		</code>
-																	  </div>
-																	</div>
-																	
-																</j:case>
-																<j:case value="UAT">
-
-																	<div class="dropdown" style="float:right;">
-																	<button class="dropbtn" >Deploy to ${env_promote}...</button>
-																	  <div id="myDropdown${env_promote}" class="dropdown-content">
-																		<code>
-																			<j:forEach items="${tags}" var="tag">
-																				<a href="javascript:startJobBackendDeploy('${comps}','${env_promote}', '${tag}');">${tag}</a>
-																			</j:forEach>
-																		</code>
-																	  </div>
-																	</div>
-
-																</j:case>
-															  </j:switch>	
-
-															</j:case>
-															<j:default>																	
-
-															  <j:switch on="${env_promote}">
-																<j:case value="DEV">
-																		<div class="dropdown" style="float:right;pointer-events:none;">
-																		<button class="dropbtn" style="color:grey">Deploy to ${env_promote}...</button>
-																		  <div id="myDropdown${env_promote}" class="dropdown-content">
-																			<code>
-																				<j:forEach items="${tags}" var="tag">
-																					<a href="javascript:startJobBackendDeploy('${comps}','${env_promote}', '${tag}');">${tag}</a>
-																				</j:forEach>
-																			</code>
-																		  </div>
-																		</div>
-																</j:case>
-																<j:case value="QA">
-
-																	<div class="dropdown" style="float:right;">
-																	<button class="dropbtn" >Deploy to ${env_promote}...</button>
-																	  <div id="myDropdown${env_promote}" class="dropdown-content">
-																		<code>
-																			<j:forEach items="${tags}" var="tag">
-																				<a href="javascript:startJobBackendDeploy('${comps}','${env_promote}', '${tag}');">${tag}</a>
-																			</j:forEach>
-																		</code>
-																	  </div>
-																	</div>
-																	
-																</j:case>
-																<j:case value="UAT">
-
-																	<div class="dropdown" style="float:right;">
-																	<button class="dropbtn" >Deploy to ${env_promote}...</button>
-																	  <div id="myDropdown${env_promote}" class="dropdown-content">
-																		<code>
-																			<j:forEach items="${tags}" var="tag">
-																				<a href="javascript:startJobBackendDeploy('${comps}','${env_promote}', '${tag}');">${tag}</a>
-																			</j:forEach>
-																		</code>
-																	  </div>
-																	</div>
-
-																</j:case>
-															  </j:switch>	
-
-															</j:default>
-														</j:switch>	
-														
-														
-														
-                                                     </j:if>
+														  <div id="myDropdown${env_promote}" class="dropdown-content">
+															<code>
+																<j:forEach items="${tags}" var="tag">
+																	<j:if test="${env_promote == 'DEV'}">
+																		<j:if test="${lastcommit.get('buildstatus') != 'SUCCESS'}">
+																			<a href="javascript:void(0)" class="disabled">${tag}</a>
+																		</j:if>
+																	</j:if>
+																	<j:if test="${env_promote != 'DEV' || lastcommit.get('buildstatus') == 'SUCCESS'}">
+																		<a href="javascript:startJobBackendDeploy(  '${comps}','${env_promote}', '${tag}');">${tag}</a>
+																	</j:if>
+																</j:forEach>
+															</code>
+														  </div>
+														</div>
+													</j:if>
 													
 													<!-- PROMOTE LINKS under 'Last Commit' column -->
-                                                    <j:if test="${comps.indexOf('Backend') == -1}"> 										
+													<j:if test="${comps.indexOf('Backend') == -1}"> 
 														<div style="margin-right:30px; float:right;">
 															<j:switch on="${deployment.get('buildstatus')}">
 																<j:case value="SUCCESS">
 																	  <a href="javascript:javascript:startJob('${comps}','${env_promote}','${deployment.get('buildNum')}');">Promote to ${env_promote}</a>
 																</j:case>
-																<j:case value="FAILURE">
-																	  <a href="javascript:void(0)" class="disabled">Promote to ${env_promote}</a>                                                
-																</j:case>
-																<j:case value="RUNNING">
-																	  <a href="javascript:void(0)" class="disabled">Promote to ${env_promote}</a>                                                
-																</j:case>
 																<j:default>																	
-																	  <a href="javascript:void(0)" class="disabled">Promote to ${env_promote}</a>                                                
+																	  <a href="javascript:void(0)" class="disabled">Promote to ${env_promote}</a>												
 																</j:default>
 															</j:switch>
-														</div>												
+														</div>	
+														
+													  											
 													</j:if>
-													
-													
-                                                </j:if>
-                                            </j:if>
-                                        </j:forEach>
-                                    </j:if>
-                                </td>
-                            </j:forEach>
-                        </tr>
-                    </j:forEach>
+												</j:if>
+											</j:if>
+										</j:forEach>
+									</j:if>
+								</td>
+							</j:forEach>
+						</tr>
+					</j:forEach>
 
-                    <script language="javascript">
+					<script language="javascript">
 					
-                        function startJobBackendDeploy(comp, env, coreVersion)
-                        {
-						     
-							var r = confirm("Deploying " + comp + " to " + env);
+						function startJobBackendDeploy(comp, env, coreVersion)
+						{
+							 
+							var compSubstr = comp.substring(0, comp.indexOf(' '))
+							var r = confirm("Backend deploy " + compSubstr + " to " + env);
 
 							if (r == true) 
 							{
 								if (coreVersion != null) 
 								{
-								    var SpaceIndex = comp.indexOf(" ", 1);														 
+									var SpaceIndex = comp.indexOf(" ", 1);														 
 									var client = comp.substring(0, SpaceIndex);
-								    
+									
 									var xmlHttp = new XMLHttpRequest();
-									var baseUrl = "/job/" + comp + "_" + env;
-									var buildUrl = baseUrl + "/buildWithParameters?CoreVersion=" + coreVersion + "&amp;" + "Client=" + client + "&amp;" + "Env=" + env + "&amp;delay=0sec";
+									var baseUrl = "/job/Backend_Deploy";
+									var buildUrl = baseUrl + "/buildWithParameters?CoreVersion=" + coreVersion + "&amp;Client=" + compSubstr + "&amp;Env=" + env + "&amp;delay=0sec";
 									xmlHttp.open("POST", buildUrl, true); // true for asynchronous 
 									xmlHttp.send(null);
 									window.location.replace(baseUrl);
@@ -661,13 +497,13 @@
 							
 							
 							
-                        }
+						}
 
 						function startJob(comp, env, buildNum)
 						{
 							
 
-                            var r = confirm("Deploying " + comp + " to " + env);
+							var r = confirm("Deploying " + comp + " to " + env);
 							if (r == true) {
 								var xmlHttp = new XMLHttpRequest();
 								var baseUrl = "/job/" + comp + "_" + env;
@@ -683,43 +519,43 @@
 							location.reload(true);
 						}
 						
-                        function toggle(showHideDiv) {
-                            hideAll()
-                            var ele = document.getElementById(showHideDiv);
-                            if(ele.style.display == "block") {
-                                ele.style.display = "none";
-                            }
-                            else {
-                                ele.style.display = "block";
-                            }
-                        }
+						function toggle(showHideDiv) {
+							hideAll()
+							var ele = document.getElementById(showHideDiv);
+							if(ele.style.display == "block") {
+								ele.style.display = "none";
+							}
+							else {
+								ele.style.display = "block";
+							}
+						}
 
-                        function hideAll() {
-                            Q(".overlay, .popup, .dropdown").fadeToggle();
-                            var divs = document.getElementsByTagName("div");
-                            var tableDivs = new Array();
-                            for (var i = 0; i &lt; divs.length; i++) {
-                                if (divs[i].id.match("_History") != null || divs[i].id.match("_Popup") || divs[i].id.match("pop")) {
-                                    tableDivs.push(divs[i]);
-                                }
-                            }
+						function hideAll() {
+							Q(".overlay, .popup, .dropdown").fadeToggle();
+							var divs = document.getElementsByTagName("div");
+							var tableDivs = new Array();
+							for (var i = 0; i &lt; divs.length; i++) {
+								if (divs[i].id.match("_History") != null || divs[i].id.match("_Popup") || divs[i].id.match("pop")) {
+									tableDivs.push(divs[i]);
+								}
+							}
 
-                            var envs = tableDivs.length;
-                            for (i = 0; i &lt; envs; i++) {
-                                var ele = tableDivs[i];
-                                if(ele.style.display == "block") {
-                                    ele.style.display = "none";
-                                }
-                            }
+							var envs = tableDivs.length;
+							for (i = 0; i &lt; envs; i++) {
+								var ele = tableDivs[i];
+								if(ele.style.display == "block") {
+									ele.style.display = "none";
+								}
+							}
 
-                        }
+						}
 						
 						
 						
-                    </script>
-                </j:case>
-            </j:switch>
-        </tbody>
-    </table>
+					</script>
+				</j:case>
+			</j:switch>
+		</tbody>
+	</table>
 </div>
 </j:jelly>
