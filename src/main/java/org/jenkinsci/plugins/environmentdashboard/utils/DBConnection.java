@@ -25,7 +25,7 @@ public class DBConnection {
 		
 		// Generate connection String for DB driver.
 		String dbConnectionString = "jdbc:h2:" + Hudson.getInstance().root.toString() +
-									 File.separator + "jenkins_dashboard" + ";MVCC=true;AUTO_SERVER=TRUE;TRACE_LEVEL_FILE=0";
+									 File.separator + "jenkins_dashboard" + ";MVCC=true;TRACE_LEVEL_FILE=0";
 		
 		//Load driver and connect to DB
 		try { 
