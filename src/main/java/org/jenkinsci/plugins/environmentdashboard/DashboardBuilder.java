@@ -9,6 +9,11 @@ import hudson.tasks.BuildWrapper;
 import hudson.tasks.BuildWrapperDescriptor;
 import hudson.util.FormValidation;
 
+import hudson.model.Hudson;
+import java.io.File;
+import java.util.Calendar;
+import java.util.concurrent.TimeUnit;
+
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -247,6 +252,47 @@ public class DashboardBuilder extends BuildWrapper {
                 return returnComment;
             }
         }
+        // create and rotate database backups
+        File f = null;
+        File[] paths;
+
+        try
+        {
+            boolean takeBackup = false;      
+            // create new file
+            f = new File(Hudson.getInstance().root.toString() + File.separator + "Backup1.zip");
+
+            if(f.exists()) { 
+
+                long d1 = Calendar.getInstance().getTime().getTime();
+                long d2 = f.lastModified();
+                if (TimeUnit.HOURS.convert(d1-d2,TimeUnit.MILLISECONDS) >= 24) {
+                    takeBackup = true;
+                }
+            }
+            else {
+                takeBackup = true;
+            }
+
+            if (takeBackup) {
+
+                for (int i = 5; i >= 1; i--) {
+                    f = new File(Hudson.getInstance().root.toString() + File.separator + "Backup" + i + ".zip");
+                    File f2 = new File(Hudson.getInstance().root.toString() + File.separator + "Backup" + (i+1) + ".zip");
+                    if (f.exists())  f.renameTo(f2);
+                    if (i == 5) f2.delete();
+                }
+                stat.execute("BACKUP TO '" + Hudson.getInstance().root.toString() + File.separator + "Backup1.zip'");
+            }
+
+
+        }
+        catch(Exception e)
+        {
+           // if any error occurs
+           e.printStackTrace();
+        }
+
         try {
             stat.close();
             conn.close();
