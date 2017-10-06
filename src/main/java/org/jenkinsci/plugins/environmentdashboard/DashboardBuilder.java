@@ -177,19 +177,19 @@ public class DashboardBuilder extends BuildWrapper {
         try {
             stat = conn.createStatement();
         } catch (SQLException e) {
-            returnComment = "WARN: Could not execute statement.";
+            returnComment = "WARN: Could not execute statement." + e;
             return returnComment;
         }
         try {
             stat.execute("CREATE TABLE IF NOT EXISTS env_dashboard (envComp VARCHAR(255), jobUrl VARCHAR(255), buildNum VARCHAR(255), buildStatus VARCHAR(255), envName VARCHAR(255), compName VARCHAR(255), created_at TIMESTAMP,  buildJobUrl VARCHAR(255), packageName VARCHAR(255));");
         } catch (SQLException e) {
-            returnComment = "WARN: Could not create table env_dashboard.";
+            returnComment = "WARN: Could not create table env_dashboard." + e;
             return returnComment;
         }
         try {
             stat.execute("ALTER TABLE env_dashboard ADD IF NOT EXISTS packageName VARCHAR(255);");
         } catch (SQLException e) {
-            returnComment = "WARN: Could not alter table env_dashboard.";
+            returnComment = "WARN: Could not alter table env_dashboard." + e;
             return returnComment;
         }
         String columns = "";
@@ -200,7 +200,7 @@ public class DashboardBuilder extends BuildWrapper {
             try {
                 stat.execute("ALTER TABLE env_dashboard ADD IF NOT EXISTS " + item.columnName + " VARCHAR;");
             } catch (SQLException e) {
-                returnComment = "WARN: Could not alter table env_dashboard to add column " + item.columnName + ".";
+                returnComment = "WARN: Could not alter table env_dashboard to add column " + item.columnName + "." + e;
                 return returnComment;
             }
         }
@@ -240,7 +240,7 @@ public class DashboardBuilder extends BuildWrapper {
         try {
             stat.execute(runQuery);
         } catch (SQLException e) {
-            returnComment = "Error running query " + runQuery + ".";
+            returnComment = "Error running query " + runQuery + "." + e;
             return returnComment;
         }
         if ( numberOfDays > 0 ) {
@@ -248,7 +248,7 @@ public class DashboardBuilder extends BuildWrapper {
             try {
                 stat.execute(runQuery);
             } catch (SQLException e) {
-                returnComment = "Error running delete query " + runQuery + ".";
+                returnComment = "Error running delete query " + runQuery + "." + e;
                 return returnComment;
             }
         }
