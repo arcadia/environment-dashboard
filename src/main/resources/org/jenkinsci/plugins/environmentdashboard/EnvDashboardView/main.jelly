@@ -485,13 +485,55 @@
 								{
 									var SpaceIndex = comp.indexOf(" ", 1);														 
 									var client = comp.substring(0, SpaceIndex);
-									
 									var xmlHttp = new XMLHttpRequest();
 									var baseUrl = "/job/Backend_Deploy";
-									var buildUrl = baseUrl + "/buildWithParameters?CoreVersion=" + coreVersion + "&amp;Client=" + compSubstr + "&amp;Env=" + env + "&amp;delay=0sec";
-									xmlHttp.open("POST", buildUrl, true); // true for asynchronous 
-									xmlHttp.send(null);
-									window.location.replace(baseUrl);
+									var buildUrl = "";
+									var r_on_rev = false;
+									var SHA_length = 40; //SHA value should always be 40 characters long
+									
+
+									
+									if (env != "DEV")
+									{
+										//Ask user if he/she would like to provide custom client revision
+										r_on_rev = confirm("Do you want to provide specific client revision with this backend deployment?");
+										if (r_on_rev == true)
+										{
+											//Get SHA value
+											var ClientRevision = prompt("Please enter SHA value of client revision (please make sure the build is stable) to use with this backend deployment");
+											if (ClientRevision != null) 
+											{
+												while (ClientRevision.length != SHA_length)
+												{
+													ClientRevision = prompt("It looks like some characters are missing since SHA value should be 40 characters long. Please enter the correct value.");
+													
+												}
+												
+												//specify custom SHA value
+												buildUrl = baseUrl + "/buildWithParameters?CoreVersion=" + coreVersion + "&amp;Client=" + compSubstr + "&amp;Env=" + env + "&amp;ClientRevision=" + ClientRevision + "&amp;delay=0sec";
+
+											}
+											
+										}
+									
+									}
+									
+									//Custom SHA is not needed
+									if (r_on_rev == false)
+									{
+										buildUrl = baseUrl + "/buildWithParameters?CoreVersion=" + coreVersion + "&amp;Client=" + compSubstr + "&amp;Env=" + env + "&amp;delay=0sec";
+									}
+									
+									
+									//Post request if custom SHA is not needed or when user decided to provide a specific client revision (SHA value)
+									if (r_on_rev == false || (r_on_rev == true &amp;&amp; ClientRevision != null))
+									{
+
+										xmlHttp.open("POST", buildUrl, true); // true for asynchronous 
+										xmlHttp.send(null);
+										window.location.replace(baseUrl);
+									}
+									
 								}
 							}
 							
