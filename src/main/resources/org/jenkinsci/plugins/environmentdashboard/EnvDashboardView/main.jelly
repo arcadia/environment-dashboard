@@ -548,8 +548,8 @@
 							var r = confirm("Deploying " + comp + " to " + env);
 							if (r == true) {
 								var xmlHttp = new XMLHttpRequest();
-								var baseUrl = "/job/" + comp + "_" + env;
-								var buildUrl = baseUrl + "/buildWithParameters?SourceBuildID=" + buildNum + "&amp;delay=0sec";
+								var baseUrl = "/job/Client_Deploy";
+								var buildUrl = baseUrl + "/buildWithParameters?SourceBuildID=" + buildNum + "&amp;Client=" + comp + "&amp;Env=" + env + "&amp;delay=0sec";
 								xmlHttp.open("POST", buildUrl, true); // true for asynchronous 
 								xmlHttp.send(null);
 								window.location.replace(baseUrl);
