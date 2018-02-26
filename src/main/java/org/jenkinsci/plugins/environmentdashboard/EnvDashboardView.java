@@ -32,6 +32,9 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.interceptor.RequirePOST;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Class to provide build wrapper for Dashboard.
@@ -285,6 +288,10 @@ public class EnvDashboardView extends View {
         Statement stat = null;
 
         ResultSet rs = null;
+        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        //get current date time with Date()
+        Date date = new Date();
+        System.out.println(dateFormat.format(date) + queryString);
         
         //Get DB connection
         conn = DBConnection.getConnection();

@@ -5,6 +5,7 @@ import hudson.model.Hudson;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import org.h2.jdbcx.JdbcConnectionPool;
 
 import java.io.File;
 
@@ -16,6 +17,7 @@ import java.io.File;
 public class DBConnection {
 
 	private static Connection con = null;
+	private static JdbcConnectionPool pool = null;
 	
 	/**
 	 * Return a database connection object.
@@ -24,19 +26,34 @@ public class DBConnection {
 	public static Connection getConnection(){
 		
 		// Generate connection String for DB driver.
-		String dbConnectionString = "jdbc:h2:" + Hudson.getInstance().root.toString() +
-									 File.separator + "jenkins_dashboard" + ";MVCC=true;TRACE_LEVEL_FILE=0";
-		
-		//Load driver and connect to DB
-		try { 
-			Class.forName("org.h2.Driver");
-			DBConnection.con = DriverManager.getConnection(dbConnectionString);
-		} catch (ClassNotFoundException e) {
-			System.err.println("WARN: Could not acquire Class org.h2.Driver.");
-		} catch (SQLException e){
-			System.err.println("WARN: Could not acquire connection to H2 DB.");
+
+		if (con == null) {
+			//Load driver and connect to DB
+			try { 
+				String dbConnectionString = "jdbc:h2:" + Hudson.getInstance().root.toString() +
+										 File.separator + "jenkins_dashboard" + ";MVCC=true;TRACE_LEVEL_FILE=0;DB_CLOSE_DELAY=-1";
+				Class.forName("org.h2.Driver");
+				//DBConnection.pool = JdbcConnectionPool.create(dbConnectionString, "", "");
+				//DBConnection.pool.setMaxConnections(200);
+
+				try {
+					DBConnection.con = DriverManager.getConnection(dbConnectionString);
+				} catch (SQLException e){
+					System.err.println("WARN: Could not acquire connection to H2 DB.\n" + e.getMessage());
+				}
+
+			} catch (ClassNotFoundException e) {
+				System.err.println("WARN: Could not acquire Class org.h2.Driver.\n" + e.getMessage());
+			}
 		}
-		return con;
+
+//		try {
+//			DBConnection.con = DBConnection.pool.getConnection();
+//		} catch (SQLException e){
+//			System.err.println("WARN: Could not acquire connection to H2 DB.\n" + e.getMessage());
+//		}
+
+		return DBConnection.con;
 	}
 	
 	/**
@@ -50,6 +67,7 @@ public class DBConnection {
 		if(DBConnection.con != null){
 			try {
 				DBConnection.con.close();
+				DBConnection.con = null;
 				return true;
 			} catch (SQLException error) { System.err.println("E5"); return false; }
 		}
