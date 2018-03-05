@@ -252,6 +252,16 @@ public class DashboardBuilder extends BuildWrapper {
                 return returnComment;
             }
         }
+
+        // create backend entry
+        runQuery = "INSERT INTO env_dashboard (envComp, jobUrl, buildNum, buildStatus, envName, compName, created_at, buildJobUrl, packageName) select distinct  '', '', 1, 1, '', concat(compName, ' Backend'), '2000-01-01', '', '' from env_dashboard a where not exists (select 1 from env_dashboard b where concat(a.compName, ' Backend') = b.compName) and compName not like '%Backend'";
+        try {
+            stat.execute(runQuery);
+        } catch (SQLException e) {
+            returnComment = "Error running backend query " + runQuery + "." + e;
+            return returnComment;
+        }
+
         // create and rotate database backups
         File f = null;
         File[] paths;
