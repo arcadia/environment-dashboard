@@ -290,13 +290,15 @@ public class EnvDashboardView extends View {
             assert conn != null;
             stat = conn.createStatement();
         } catch (SQLException e) {
-            System.out.println("E3" + e.getMessage());
+            System.err.println("E3" + e.getMessage());
+            e.printStackTrace();
         }
         try {
             assert stat != null;
             rs = stat.executeQuery(queryString);
         } catch (SQLException e) {
-            System.out.println("E4" + e.getMessage());
+            System.err.println("E4" + e.getMessage());
+            e.printStackTrace();
         }
         return rs;
     }
@@ -510,7 +512,7 @@ public class EnvDashboardView extends View {
             if (e.getErrorCode() == 2000) {
                 //We'll assume this comp has never been deployed to this env            }
             } else {
-                System.out.println("E12" + e.getMessage());
+                System.err.println("E12" + e.getMessage());
                 e.printStackTrace();
                 System.out.println("Error executing: " + queryString);
             }

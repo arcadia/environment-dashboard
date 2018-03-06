@@ -24,7 +24,7 @@ public class DBConnection {
 		
 		// Generate connection String for DB driver.
 		String dbConnectionString = "jdbc:h2:" + Hudson.getInstance().root.toString() +
-									 File.separator + "jenkins_dashboard" + ";MVCC=true;TRACE_LEVEL_FILE=0";
+									 File.separator + "jenkins_dashboard" + ";TRACE_LEVEL_FILE=0";
 		
 		Connection con = null;
 
@@ -32,7 +32,7 @@ public class DBConnection {
 		System.setProperty("h2.serverCachedObjects", "20000"); 
 		try { 
 			Class.forName("org.h2.Driver");
-			DBConnection.con = DriverManager.getConnection(dbConnectionString);
+			con = DriverManager.getConnection(dbConnectionString);
 		} catch (ClassNotFoundException e) {
 			System.err.println("WARN: Could not acquire Class org.h2.Driver.");
 		} catch (SQLException e){
