@@ -77,7 +77,7 @@ public class EnvDashboardView extends View {
        } catch (SQLException e) {
            System.out.println("E14: Could not alter table to add package column to table env_dashboard.\n" + e.getMessage());
        } finally { 
-           DBConnection.closeConnection();
+           DBConnection.closeConnection(conn);
        }
        return;
    }
@@ -102,7 +102,7 @@ public class EnvDashboardView extends View {
         } catch (SQLException e) {
             System.out.println("E15: Could not truncate table env_dashboard.\n" + e.getMessage());
         } finally { 
-            DBConnection.closeConnection();
+            DBConnection.closeConnection(conn);
         }
         res.forwardToPreviousPage(req);
     }
@@ -121,7 +121,7 @@ public class EnvDashboardView extends View {
         } catch (SQLException e) {
             System.out.println("E15: Could not truncate table env_dashboard.\n" + e.getMessage());
         } finally { 
-            DBConnection.closeConnection();
+            DBConnection.closeConnection(conn);
         }
         res.forwardToPreviousPage(req);
     }
@@ -185,7 +185,7 @@ public class EnvDashboardView extends View {
                         columns.add(col.toLowerCase());
                     }
                 }
-                DBConnection.closeConnection();
+                DBConnection.closeConnection(conn);
             } catch (SQLException e) {
                 System.out.println("E11" + e.getMessage());
                 return null;
@@ -226,10 +226,10 @@ public class EnvDashboardView extends View {
                 assert stat != null;
                 stat.execute(queryString);
             } catch (SQLException e) {
-                DBConnection.closeConnection();
+                DBConnection.closeConnection(conn);
                 return FormValidation.error("Failed to remove column: " + column + "\nThis column may have already been removed. Refresh to update the list of columns to remove."); 
             } 
-            DBConnection.closeConnection();
+            DBConnection.closeConnection(conn);
 
             return FormValidation.ok("Successfully removed column " + column + ".");
         }
@@ -280,14 +280,11 @@ public class EnvDashboardView extends View {
         return orderOfTags;
     }
 
-    public ResultSet runQuery(String queryString) {
+    public ResultSet runQuery(Connection conn, String queryString) {
         Connection conn = null;
         Statement stat = null;
 
         ResultSet rs = null;
-        
-        //Get DB connection
-        conn = DBConnection.getConnection();
         
         try {
             assert conn != null;
@@ -310,7 +307,8 @@ public class EnvDashboardView extends View {
         if (orderOfEnvs == null || orderOfEnvs.isEmpty()){
             String queryString="select distinct envname from env_dashboard order by envname;";
             try {
-                ResultSet rs = runQuery(queryString);
+                Connection conn = DBConnection.getConnection();
+                ResultSet rs = runQuery(conn, queryString);
                 if (rs == null ) {
                     return null;
                 }
@@ -319,7 +317,7 @@ public class EnvDashboardView extends View {
                         orderOfEnvs.add(rs.getString("envName"));
                     }
                 }
-                DBConnection.closeConnection();
+                DBConnection.closeConnection(conn);
             } catch (SQLException e) {
                 System.out.println("E6" + e.getMessage());
                 return null;
@@ -334,13 +332,14 @@ public class EnvDashboardView extends View {
         if (orderOfComps == null || orderOfComps.isEmpty()){
             String queryString="select distinct compname from env_dashboard order by compname;";
             try {
-                ResultSet rs = runQuery(queryString);
+                Connection conn = DBConnection.getConnection();
+                ResultSet rs = runQuery(conn, queryString);
                 while (rs.next()) {
                     if (orderOfComps != null) {
                         orderOfComps.add(rs.getString("compName"));
                     }
                 }
-                DBConnection.closeConnection();
+                DBConnection.closeConnection(conn);
             } catch (SQLException e) {
                 System.out.println("E8" + e.getMessage());
                 return null;
@@ -377,11 +376,12 @@ public class EnvDashboardView extends View {
         deployments = new ArrayList<String>();
         String queryString="select top " + lastDeploy + " created_at from env_dashboard where envName ='" + env + "' order by created_at desc;";
             try {
-                ResultSet rs = runQuery(queryString);
+                Connection conn = DBConnection.getConnection();
+                ResultSet rs = runQuery(conn, queryString);
                 while (rs.next()) {
                     deployments.add(rs.getString("created_at"));
                 }
-                DBConnection.closeConnection();
+                DBConnection.closeConnection(conn);
             } catch (SQLException e) {
                 System.out.println("E11" + e.getMessage());
                 return null;
@@ -409,12 +409,13 @@ public class EnvDashboardView extends View {
         String[] fields = {"buildstatus", "compName", "buildJobUrl", "jobUrl", "buildNum", "packageName"};
         String queryString = "select " + StringUtils.join(fields, ", ").replace(".$","") + " from env_dashboard where envName = '" + env + "' and created_at = '" + time + "';";
         try {
-            ResultSet rs = runQuery(queryString);
+            Connection conn = DBConnection.getConnection();
+            ResultSet rs = runQuery(conn, queryString);
             rs.next();
             for (String field : fields) {
                 deployment.put(field, rs.getString(field));
             }
-            DBConnection.closeConnection();
+            DBConnection.closeConnection(conn);
         } catch (SQLException e) {
             System.out.println("E10" + e.getMessage());
             System.out.println("Error executing: " + queryString);
@@ -440,7 +441,8 @@ public class EnvDashboardView extends View {
         }
         String queryString="select top " + lastDeploy + " * from env_dashboard where compName='" + comp + "' order by created_at desc;";
             try {
-                ResultSet rs = runQuery(queryString);
+                Connection conn = DBConnection.getConnection();
+                ResultSet rs = runQuery(conn, queryString);
                 while (rs.next()) {
                     hash = new HashMap<String, String>();
                     for (String field : allDBFields) {
@@ -448,7 +450,7 @@ public class EnvDashboardView extends View {
                     }
                     deployments.add(hash);
                 }
-                DBConnection.closeConnection();
+                DBConnection.closeConnection(conn);
             } catch (SQLException e) {
                 System.out.println("E11" + e.getMessage());
                 return null;
@@ -470,7 +472,8 @@ public class EnvDashboardView extends View {
         }
         String queryString="select top " + lastDeploy + " " +  StringUtils.join(allDBFields, ", ").replace(".$","") + " from env_dashboard where compName='" + comp + "' and envName='" + env + "' order by created_at desc;";
             try {
-                ResultSet rs = runQuery(queryString);
+                Connection conn = DBConnection.getConnection();
+                ResultSet rs = runQuery(conn, queryString);
                 while (rs.next()) {
                     hash = new HashMap<String, String>();
                     for (String field : allDBFields) {
@@ -478,7 +481,7 @@ public class EnvDashboardView extends View {
                     }
                     deployments.add(hash);
                 }
-                DBConnection.closeConnection();
+                DBConnection.closeConnection(conn);
             } catch (SQLException e) {
                 System.out.println("E11" + e.getMessage());
                 return null;
@@ -496,17 +499,19 @@ public class EnvDashboardView extends View {
         }
         String queryString = "select top 1 " + StringUtils.join(allDBFields, ", ").replace(".$","") + " from env_dashboard where envName = '" + env + "' and compName = '" + comp + "' order by created_at desc;";
         try {
-            ResultSet rs = runQuery(queryString);
+            Connection conn = DBConnection.getConnection();
+            ResultSet rs = runQuery(conn, queryString);
             rs.next();
             for (String field : allDBFields) {
                 deployment.put(field, rs.getString(field));
             }
-            DBConnection.closeConnection();
+            DBConnection.closeConnection(conn);
         } catch (SQLException e) {
             if (e.getErrorCode() == 2000) {
                 //We'll assume this comp has never been deployed to this env            }
             } else {
                 System.out.println("E12" + e.getMessage());
+                e.printStackTrace();
                 System.out.println("Error executing: " + queryString);
             }
         }

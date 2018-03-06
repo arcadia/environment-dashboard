@@ -15,7 +15,6 @@ import java.io.File;
  */
 public class DBConnection {
 
-	private static Connection con = null;
 	
 	/**
 	 * Return a database connection object.
@@ -27,7 +26,10 @@ public class DBConnection {
 		String dbConnectionString = "jdbc:h2:" + Hudson.getInstance().root.toString() +
 									 File.separator + "jenkins_dashboard" + ";MVCC=true;TRACE_LEVEL_FILE=0";
 		
+		Connection con = null;
+
 		//Load driver and connect to DB
+		System.setProperty("h2.serverCachedObjects", "20000"); 
 		try { 
 			Class.forName("org.h2.Driver");
 			DBConnection.con = DriverManager.getConnection(dbConnectionString);
@@ -44,12 +46,12 @@ public class DBConnection {
 	 * @return true if database connection closed successful,
 	 * 			 else false if connection not closed or SQLException.
 	 */
-	public static boolean closeConnection(){
+	public static boolean closeConnection(Connection con){
 		
 		//Prevent unchecked NullPointerException
-		if(DBConnection.con != null){
+		if(con != null){
 			try {
-				DBConnection.con.close();
+				con.close();
 				return true;
 			} catch (SQLException error) { System.err.println("E5"); return false; }
 		}
