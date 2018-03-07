@@ -281,7 +281,6 @@ public class EnvDashboardView extends View {
     }
 
     public ResultSet runQuery(Connection conn, String queryString) {
-        Connection conn = null;
         Statement stat = null;
 
         ResultSet rs = null;
