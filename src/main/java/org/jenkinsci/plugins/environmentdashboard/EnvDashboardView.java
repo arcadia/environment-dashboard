@@ -375,7 +375,7 @@ public class EnvDashboardView extends View {
         }
         ArrayList<String> deployments;
         deployments = new ArrayList<String>();
-        String queryString="select top " + lastDeploy + " created_at from env_dashboard where envName ='" + env + "' order by created_at desc;";
+        String queryString="select top " + lastDeploy + " created_at from env_dashboard where 1=0 and envName ='" + env + "' order by created_at desc;";
             try {
                 Connection conn = DBConnection.getConnection();
                 ResultSet rs = runQuery(conn, queryString);
@@ -408,7 +408,7 @@ public class EnvDashboardView extends View {
         HashMap<String, String> deployment;
         deployment = new HashMap<String, String>();
         String[] fields = {"buildstatus", "compName", "buildJobUrl", "jobUrl", "buildNum", "packageName"};
-        String queryString = "select " + StringUtils.join(fields, ", ").replace(".$","") + " from env_dashboard where envName = '" + env + "' and created_at = '" + time + "';";
+        String queryString = "select " + StringUtils.join(fields, ", ").replace(".$","") + " from env_dashboard where 1=0 and envName = '" + env + "' and created_at = '" + time + "';";
         try {
             Connection conn = DBConnection.getConnection();
             ResultSet rs = runQuery(conn, queryString);
@@ -440,7 +440,7 @@ public class EnvDashboardView extends View {
         for (String field : fields ){
             allDBFields.add(field);
         }
-        String queryString="select top " + lastDeploy + " * from env_dashboard where compName='" + comp + "' order by created_at desc;";
+        String queryString="select top " + lastDeploy + " * from env_dashboard where compName='" + comp + "' and 1=0 order by created_at desc;";
             try {
                 Connection conn = DBConnection.getConnection();
                 ResultSet rs = runQuery(conn, queryString);
