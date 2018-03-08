@@ -194,9 +194,11 @@ public class DashboardBuilder extends BuildWrapper {
         }
         String columns = "";
         String contents = "";
+        String setContents = "";
         for (ListItem item : passedColumnData){
             columns = columns + ", " +  item.columnName;
             contents = contents + "', '" + item.contents;
+            setContents = setContents + ", " +  item.columnName + "=" + "'" + item.contents + "' ";
             try {
                 stat.execute("ALTER TABLE env_dashboard ADD IF NOT EXISTS " + item.columnName + " VARCHAR;");
             } catch (SQLException e) {
@@ -230,7 +232,7 @@ public class DashboardBuilder extends BuildWrapper {
             runQuery = "INSERT INTO env_dashboard (envComp, jobUrl, buildNum, buildStatus, envName, compName, created_at, buildJobUrl, packageName" + columns +") VALUES( '" + indexValueofTable + "', '" + currentBuildUrl + "', '" + currentBuildNum + "', '" + currentBuildResult + "', '" + envName + "', '" + compName + "' , + current_timestamp, '" + buildJobUrl + "' , '" + packageName + contents + "');";
         } else {
             if (runTime.equals("POST")) {
-                runQuery = "UPDATE env_dashboard SET buildStatus = '" + currentBuildResult + "', created_at = current_timestamp WHERE envComp = '" + indexValueofTable +"' AND joburl = '" + currentBuildUrl + "';";
+                runQuery = "UPDATE env_dashboard SET buildStatus = '" + currentBuildResult + "', created_at = current_timestamp" + setContents + " WHERE envComp = '" + indexValueofTable +"' AND joburl = '" + currentBuildUrl + "';";
             }else {
                 if (runTime.equals("NODEPLOY")){
                     runQuery = "DELETE FROM env_dashboard where envComp = '" + indexValueofTable +"' AND joburl = '" + currentBuildUrl + "';";

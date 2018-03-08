@@ -75,7 +75,7 @@ public class EnvDashboardView extends View {
        try {
            stat.execute("ALTER TABLE env_dashboard ADD IF NOT EXISTS packageName VARCHAR(255);");
        } catch (SQLException e) {
-           System.out.println("E14: Could not alter table to add package column to table env_dashboard.\n" + e.getMessage());
+           System.out.println("ensureCorrectDBSchema: Could not alter table to add package column to table env_dashboard.\n" + e.getMessage());
        } finally { 
            DBConnection.closeConnection(conn);
        }
@@ -100,7 +100,7 @@ public class EnvDashboardView extends View {
             String sql = req.getSubmittedForm().getString("sql");
             stat.execute(sql);
         } catch (SQLException e) {
-            System.out.println("E15: Could not truncate table env_dashboard.\n" + e.getMessage());
+            System.out.println("doSqlSubmit: Could not truncate table env_dashboard.\n" + e.getMessage());
         } finally { 
             DBConnection.closeConnection(conn);
         }
@@ -119,7 +119,7 @@ public class EnvDashboardView extends View {
             stat = conn.createStatement();
             stat.execute("TRUNCATE TABLE env_dashboard");
         } catch (SQLException e) {
-            System.out.println("E15: Could not truncate table env_dashboard.\n" + e.getMessage());
+            System.out.println("doPurgeSubmit: Could not truncate table env_dashboard.\n" + e.getMessage());
         } finally { 
             DBConnection.closeConnection(conn);
         }
@@ -163,13 +163,13 @@ public class EnvDashboardView extends View {
                     assert conn != null;
                     stat = conn.createStatement();
                 } catch (SQLException e) {
-                    System.out.println("E3" + e.getMessage());
+                    System.out.println("getCustomColumns stmt:" + e.getMessage());
                 }
                 try {
                     assert stat != null;
                     rs = stat.executeQuery(queryString);
                 } catch (SQLException e) {
-                    System.out.println("E4" + e.getMessage());
+                    System.out.println("getCustomColumns exec:" + e.getMessage());
                 }
                 String col = "";
                 while (rs.next()) {
@@ -187,7 +187,7 @@ public class EnvDashboardView extends View {
                 }
                 DBConnection.closeConnection(conn);
             } catch (SQLException e) {
-                System.out.println("E11" + e.getMessage());
+                System.out.println("getCustomColumns:" + e.getMessage());
                 return null;
             }
             return columns;
@@ -289,14 +289,14 @@ public class EnvDashboardView extends View {
             assert conn != null;
             stat = conn.createStatement();
         } catch (SQLException e) {
-            System.err.println("E3" + e.getMessage());
+            System.err.println("runQuery stmt:" + e.getMessage());
             e.printStackTrace();
         }
         try {
             assert stat != null;
             rs = stat.executeQuery(queryString);
         } catch (SQLException e) {
-            System.err.println("E4" + e.getMessage());
+            System.err.println("runQuery exec:" + e.getMessage());
             e.printStackTrace();
         }
         return rs;
@@ -320,7 +320,7 @@ public class EnvDashboardView extends View {
                 }
                 DBConnection.closeConnection(conn);
             } catch (SQLException e) {
-                System.out.println("E6" + e.getMessage());
+                System.out.println("getOrderOfEnvs:" + e.getMessage());
                 return null;
             }
         }
@@ -342,7 +342,7 @@ public class EnvDashboardView extends View {
                 }
                 DBConnection.closeConnection(conn);
             } catch (SQLException e) {
-                System.out.println("E8" + e.getMessage());
+                System.out.println("getOrderOfComps:" + e.getMessage());
                 return null;
             }
         }
@@ -384,7 +384,7 @@ public class EnvDashboardView extends View {
                 }
                 DBConnection.closeConnection(conn);
             } catch (SQLException e) {
-                System.out.println("E11" + e.getMessage());
+                System.out.println("getDeployments:" + e.getMessage());
                 return null;
             }
         return deployments;
@@ -418,7 +418,7 @@ public class EnvDashboardView extends View {
             }
             DBConnection.closeConnection(conn);
         } catch (SQLException e) {
-            System.out.println("E10" + e.getMessage());
+            System.out.println("getCompDeployed:" + e.getMessage());
             System.out.println("Error executing: " + queryString);
         }
         return deployment;
@@ -453,7 +453,7 @@ public class EnvDashboardView extends View {
                 }
                 DBConnection.closeConnection(conn);
             } catch (SQLException e) {
-                System.out.println("E11" + e.getMessage());
+                System.out.println("getDeploymentsByComp:" + e.getMessage());
                 return null;
             }
         return deployments;
@@ -484,7 +484,7 @@ public class EnvDashboardView extends View {
                 }
                 DBConnection.closeConnection(conn);
             } catch (SQLException e) {
-                System.out.println("E11" + e.getMessage());
+                System.out.println("getDeploymentsByCompEnv:" + e.getMessage());
                 return null;
             }
         return deployments;
@@ -511,7 +511,7 @@ public class EnvDashboardView extends View {
             if (e.getErrorCode() == 2000) {
                 //We'll assume this comp has never been deployed to this env            }
             } else {
-                System.err.println("E12" + e.getMessage());
+                System.err.println("getCompLastDeployed:" + e.getMessage());
                 e.printStackTrace();
                 System.out.println("Error executing: " + queryString);
             }
