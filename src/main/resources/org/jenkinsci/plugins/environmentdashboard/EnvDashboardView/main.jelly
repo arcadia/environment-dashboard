@@ -563,14 +563,16 @@
 						}
 
 						function filterTable() {
-						  var input, filter, table, tr, td, i, hd;
+						  var input, filter, table, tr, td, i, hd, htmlElementNode;
 						  input = document.getElementById("searchInput");
 						  filter = input.value.toUpperCase();
 						  table = document.getElementById("envDashboard");
-						  tr = table.getElementsByTagName("tr");
+						  tr = table.rows;
 						  for (i = 0; i &lt; tr.length; i++) {
 						    td = tr[i].getElementsByTagName("td")[0];
 						    th = tr[i].getElementsByTagName("th")[0];
+
+
 						    if (td &amp;&amp; !th) {
 						      if (td.innerHTML.toUpperCase().indexOf(filter) &gt; -1) {
 						        tr[i].style.display = "";

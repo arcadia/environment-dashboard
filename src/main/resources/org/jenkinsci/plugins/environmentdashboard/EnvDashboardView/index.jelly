@@ -6,7 +6,7 @@
             <j:if test="${h.hasPermission(app.ADMINISTER)}">
 
                 <f:form name="purge" method="post" action="sqlSubmit" tableClass="advancedLink">
-                    <f:advanced title="${%Dangerous Tark Sql}">
+                    <f:advanced title="${%Dangerous Sql}">
                         <f:entry title="Sql" field="sql">
                             <f:textbox />
                         </f:entry>
