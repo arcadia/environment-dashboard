@@ -478,7 +478,7 @@
 						{
 							 
 							var compSubstr = comp.substring(0, comp.indexOf(' '))
-							var r = confirm("Backend deploy " + compSubstr + " to " + env + " using " + coreVersion);
+							var r = confirm("Backend deploy " + compSubstr + " to " + env + " for " + coreVersion);
 
 							if (r == true) 
 							{
@@ -546,7 +546,7 @@
 						{
 							
                             
-							var r = confirm("Deploying " + comp + " to " + env + " using " + buildNum);
+							var r = confirm("Deploying " + comp + " to " + env + " for " + buildNum);
 							if (r == true) {
 								var xmlHttp = new XMLHttpRequest();
 								var baseUrl = "/job/Client_Deploy";
