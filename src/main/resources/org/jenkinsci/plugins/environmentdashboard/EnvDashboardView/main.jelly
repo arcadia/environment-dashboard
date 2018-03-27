@@ -129,7 +129,7 @@
 														</j:forEach>
 														<td>
 														  <code>
-															<j:if test="${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1] != 'PRD' || h.hasPermission(app.ADMINISTER)}">
+															
 																															<head>
 																<style>									
 																a.disabled {
@@ -169,7 +169,7 @@
 																	</j:if> 
 																	
 																</j:if> 
-															</j:if> 
+															 
 														 </code>
 														</td>
 														<td>
@@ -321,7 +321,7 @@
 											<code>
 												<j:if test="${orderOfEnvs[orderOfEnvs.indexOf(env)+1] != null}">
 													<j:if test="${orderOfEnvs.indexOf(env) != 0}">
-														<j:if test="${orderOfEnvs[orderOfEnvs.indexOf(env)+1] != 'PRD' || h.hasPermission(app.ADMINISTER)}">
+														
 														 <head>
 															<style>									
 															a.disabled {
@@ -354,7 +354,7 @@
 
 																
 															</j:if> 
-														</j:if> 
+														 
 													</j:if> 
 												</j:if>
 											</code>
@@ -418,7 +418,7 @@
 											<!-- don't promote to itself -->
 											<j:if test="${env_promote != env}">
 											
-												<j:if test="${env_promote != 'PRD' || h.hasPermission(app.ADMINISTER)}">
+												
 												
 												   <!-- DROPDOWN MENUS FOR PERFORMING BACKEND DEPLOYMENTS under 'Last Commit' column-->
 												   
@@ -463,7 +463,7 @@
 														
 													  											
 													</j:if>
-												</j:if>
+												
 											</j:if>
 										</j:forEach>
 									</j:if>
