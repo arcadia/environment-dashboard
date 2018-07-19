@@ -570,9 +570,25 @@
                             
 							var r = confirm("Deploying " + comp + " to " + env + " for " + buildNum);
 							if (r == true) {
+							
 								var xmlHttp = new XMLHttpRequest();
 								var baseUrl = "/job/Client_Deploy";
-								var buildUrl = baseUrl + "/buildWithParameters?SourceBuildID=" + buildNum + "&amp;Client=" + comp + "&amp;Env=" + env + "&amp;delay=0sec";
+								var buildUrl = "";
+								var rollback = false;
+								
+						        //Ask if auto-rollback is needed
+								var rollback = confirm("Do you want auto-rollback performed upon failed deployment?");
+								if (rollback == true) 
+								{
+									var rollbackFlag = "-rollback";
+									buildUrl = baseUrl + "/buildWithParameters?SourceBuildID=" + buildNum + "&amp;Client=" + comp + "&amp;Env=" + env + "&amp;Rollback=" + rollbackFlag + "&amp;delay=0sec";
+								}
+								else
+								{
+									buildUrl = baseUrl + "/buildWithParameters?SourceBuildID=" + buildNum + "&amp;Client=" + comp + "&amp;Env=" + env + "&amp;delay=0sec";
+								}
+								
+								
 								xmlHttp.open("POST", buildUrl, true); // true for asynchronous 
 								xmlHttp.send(null);
 								window.location.replace(baseUrl);
