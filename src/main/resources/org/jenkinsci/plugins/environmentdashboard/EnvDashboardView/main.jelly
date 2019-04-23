@@ -3,6 +3,8 @@
 <link href="${rootURL}/plugin/environment-dashboard/css/bootstrap.min.css" type="text/css" rel="stylesheet"/>
 <link href="${rootURL}/plugin/environment-dashboard/css/bootstrap-theme.min.css" type="text/css" rel="stylesheet"/>
 <link href="${rootURL}/plugin/environment-dashboard/css/blink.css" type="text/css" rel="stylesheet"/>
+<link href="${rootURL}/plugin/environment-dashboard/css/dropdown_button.css" type="text/css" rel="stylesheet"/>
+<link href="${rootURL}/plugin/environment-dashboard/css/dynamic_dialog.css" type="text/css" rel="stylesheet"/>
 <div class="overlay" style="display:none; background-color: rgba(0, 0, 0, 0.4); position:absolute; top: 0; left:0; bottom:0; right:0;" onclick="hideAll()"></div>
 <div class="popup" id="popup" style="position: absolute; width: 300px; height:150; display:none; background-color: white; text-align: center; top:50%; left:50%; margin-left: -150px; margin-top: -75;"></div>
 <div id="startDashboard" style="margin-left: -360px; margin-right: 360px;">
@@ -361,57 +363,7 @@
 										</div>
 									</j:if>
 									<j:if test="${orderOfEnvs.indexOf(env) == 0}">
-										<head>
-											<style>
-												
-											.dropbtn {
-												background-color: #81BEF7;
-												color: black;
-												padding: 16px;
-												font-size: 13px;
-												border: dotted;
-												cursor: pointer;
-											}
-
-											.dropdown {
-												position: relative;
-												display: inline-block;
-											}
-
-											.dropdown-content {
-												display: none;
-												position: relative;
-												right: 0;
-												background-color: #f9f9f9;
-												overflow: auto;
-												box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-											}
-
-											.dropdown-content a {
-												color: black;
-												padding: 12px 16px;
-												text-decoration: none;
-												display: block;
-											}
-
-											.dropdown-content a:hover {background-color: #f1f1f1}
-
-											.dropdown:hover .dropdown-content {
-												display: block;
-											}
-
-											.dropdown:hover .dropbtn {
-												background-color: #819FF7;
-											}
-																						
-	
-											a.disabled {
-												color:grey;
-											}
-											
-											</style>
-										</head>
-
+										
 										<j:forEach items="${orderOfEnvs}" var="env_promote">
 
 
@@ -474,9 +426,29 @@
 
 					<script language="javascript">
 					
+						function closeDynamicDialog() 
+						{ 
+							 document.getElementById("overlay").style.display = 'none';
+							 document.getElementById("dialog").style.display = 'none';
+						} 
+					
 						function startJobBackendDeploy(comp, env, coreVersion)
 						{
 							 
+							 
+							 
+							 //document.getElementById("mytext").value = test;
+							 //document.getElementById("mytext").value = test;
+							 
+							 document.getElementById("overlay").style.display = 'inline';
+							 document.getElementById("dialog").style.display = 'inline';
+							 
+							 var compSubstr = comp.substring(0, comp.indexOf(' '))
+							 document.getElementById("dialogTitle").innerHTML = "Backend deploy " + compSubstr + " to " + env + " for " + coreVersion;
+							 //document.getElementById("dialogTitle").innerHTML = "Backend deploy to ABC DEV";
+							 
+							 
+							 /*
 							var compSubstr = comp.substring(0, comp.indexOf(' '))
 							var r = confirm("Backend deploy " + compSubstr + " to " + env + " for " + coreVersion);
 
@@ -559,7 +531,7 @@
 									
 								}
 							}
-							
+							*/
 							
 							
 						}
@@ -659,5 +631,18 @@
 			</j:switch>
 		</tbody>
 	</table>
+</div>
+<div id="overlay" style="display:none;"></div>
+<div id="dialog" style="display:none;">
+	<p id="dialogTitle">Placeholder for Deployment Information</p>
+	<label id="ClientRevisionLabel">ClientRevision</label>
+	<input type="text" id="ClientRevision"></input><br></br>
+	<label id="ClientRevisionDescriptionLabel">SHA value (checksum hash represented as 40 digits long hexadecimal number which is a GitHub commit) and represents a client version to deploy after core deployment completes</label><br></br>
+	<br></br>
+	<input type="checkbox" id="norollback">Do not perform auto-rollback upon failed deployment</input><br></br>
+	<br></br>
+	<br></br>
+	<span id="submit" onclick="closeDynamicDialog()">Submit</span>
+	<span id="cancel" onclick="closeDynamicDialog()">Cancel</span>
 </div>
 </j:jelly>
