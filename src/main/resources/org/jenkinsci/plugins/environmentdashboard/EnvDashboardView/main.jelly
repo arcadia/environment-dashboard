@@ -161,7 +161,7 @@
 																	
 																			<j:switch on="${deployment.get('buildstatus')}">
 																			<j:case value="SUCCESS">
-																				 <a title="Promote" href="javascript:startJobBackendDeploy('${comp}','${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1]}','${deployment.get('buildNum')}');">Promote</a>
+																				 <a title="Promote" href="javascript:showBackendDepDynamicDialog('${comp}','${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1]}','${deployment.get('buildNum')}');">Promote</a>
 																			</j:case>
 																			<j:default>																
 																				  <a title="Promote" href="javascript:void(0)" class="disabled">Promote</a>
@@ -347,7 +347,7 @@
 												
 																<j:switch on="${deployment.get('buildstatus')}">
 																	<j:case value="SUCCESS">
-																		<a title="Promote" href="javascript:startJobBackendDeploy('${comps}','${orderOfEnvs[orderOfEnvs.indexOf(env)+1]}','${deployment.get('buildNum')}');">Promote</a>
+																		<a title="Promote" href="javascript:showBackendDepDynamicDialog('${comps}','${orderOfEnvs[orderOfEnvs.indexOf(env)+1]}','${deployment.get('buildNum')}');">Promote</a>
 																	</j:case>
 																	<j:default>																	
 																		<a title="Promote" href="javascript:void(0)" class="disabled">Promote</a>
@@ -392,7 +392,7 @@
 																		</j:if>
 																	</j:if>
 																	<j:if test="${env_promote != 'DEV' || lastcommit.get('buildstatus') == 'SUCCESS'}">
-																		<a href="javascript:startJobBackendDeploy(  '${comps}','${env_promote}', '${tag}');">${tag}</a>
+																		<a href="javascript:showBackendDepDynamicDialog(  '${comps}','${env_promote}', '${tag}');">${tag}</a>
 																	</j:if>
 																</j:forEach>
 															</code>
@@ -425,113 +425,120 @@
 					</j:forEach>
 
 					<script language="javascript">
+											
+						//Hide the dynamic dialog initially after the page loads					
+						$(document).ready(function()
+						{
+							Q("#overlay, #dialog").hide();
+							
+						});
 					
-						function closeDynamicDialog() 
+						function closeBackendDepDynamicDialog()
+						{
+							Q("#overlay, #dialog").hide();
+							
+							//Reset values of html elements
+							Q("#ClientRevision").val("");
+							Q("#norollback").prop("checked", false);
+						}
+					
+						
+						function showBackendDepDynamicDialog(comp, env, coreVersion) 
 						{ 
-							 document.getElementById("overlay").style.display = 'none';
-							 document.getElementById("dialog").style.display = 'none';
-						} 
-					
+							 Q("#overlay, #dialog").show(); 
+							
+							 //Set the html elements
+							 var compSubstr = comp.substring(0, comp.indexOf(' '))
+							 Q("#dialogTitle").text("Backend deploy " + compSubstr + " to " + env + " for " + coreVersion);
+							 Q("#clientAcronym").val(comp);
+							 Q("#environment").val(env);
+							 Q("#core_version").val(coreVersion);
+							 
+						}
+						
+						
 						function startJobBackendDeploy(comp, env, coreVersion)
 						{
-							 
-							 
-							 
-							 //document.getElementById("mytext").value = test;
-							 //document.getElementById("mytext").value = test;
-							 
-							 document.getElementById("overlay").style.display = 'inline';
-							 document.getElementById("dialog").style.display = 'inline';
-							 
-							 var compSubstr = comp.substring(0, comp.indexOf(' '))
-							 document.getElementById("dialogTitle").innerHTML = "Backend deploy " + compSubstr + " to " + env + " for " + coreVersion;
-							 //document.getElementById("dialogTitle").innerHTML = "Backend deploy to ABC DEV";
-							 
-							 
-							 /*
+							alert(Q("#ClientRevision").val());
+							
 							var compSubstr = comp.substring(0, comp.indexOf(' '))
-							var r = confirm("Backend deploy " + compSubstr + " to " + env + " for " + coreVersion);
-
-							if (r == true) 
+							
+							if (coreVersion != null) 
 							{
-								if (coreVersion != null) 
+								var SpaceIndex = comp.indexOf(" ", 1);														 
+								var client = comp.substring(0, SpaceIndex);
+								var xmlHttp = new XMLHttpRequest();
+								var baseUrl = "/job/Backend_Deploy";
+								var buildUrl = "";
+								var r_on_rev = false;
+								var rollback = false;
+								var SHA_length = 40; //SHA value should always be 40 characters long
+								
+
+								if (env != "DEV")
 								{
-									var SpaceIndex = comp.indexOf(" ", 1);														 
-									var client = comp.substring(0, SpaceIndex);
-									var xmlHttp = new XMLHttpRequest();
-									var baseUrl = "/job/Backend_Deploy";
-									var buildUrl = "";
-									var r_on_rev = false;
-									var rollback = false;
-									var SHA_length = 40; //SHA value should always be 40 characters long
-									
-
-									if (env != "DEV")
+									//Ask user if he/she would like to provide custom client revision
+									r_on_rev = confirm("Do you want to provide specific client revision with this backend deployment?");
+									if (r_on_rev == true)
 									{
-										//Ask user if he/she would like to provide custom client revision
-										r_on_rev = confirm("Do you want to provide specific client revision with this backend deployment?");
-										if (r_on_rev == true)
+										//Get SHA value
+										var ClientRevision = prompt("Please enter SHA value of client revision (please make sure the build is stable) to use with this backend deployment");
+										if (ClientRevision != null) 
 										{
-											//Get SHA value
-											var ClientRevision = prompt("Please enter SHA value of client revision (please make sure the build is stable) to use with this backend deployment");
-											if (ClientRevision != null) 
+											while (ClientRevision.length != SHA_length)
 											{
-												while (ClientRevision.length != SHA_length)
-												{
-													ClientRevision = prompt("It looks like some characters are missing since SHA value should be 40 characters long. Please enter the correct value.");
-													
-												}
+												ClientRevision = prompt("It looks like some characters are missing since SHA value should be 40 characters long. Please enter the correct value.");
 												
-												//specify custom SHA value
-												buildUrl = baseUrl + "/buildWithParameters?CoreVersion=" + coreVersion + "&amp;Client=" + compSubstr + "&amp;Env=" + env + "&amp;ClientRevision=" + ClientRevision + "&amp;delay=0sec";
-
 											}
 											
-										}
-									
-									}
-									
-									
-									//Custom SHA is not needed
-									if (r_on_rev == false)
-									{
-										buildUrl = baseUrl + "/buildWithParameters?CoreVersion=" + coreVersion + "&amp;Client=" + compSubstr + "&amp;Env=" + env + "&amp;delay=0sec";
-									}
-									
-									
-									//Ask if auto-rollback is needed
-									var rollback = confirm("Do you want auto-rollback performed upon failed deployment?");
-									if (rollback == true) 
-									{
-										var rollbackFlag = "-rollback";
-									}
-									
-									
-									
-									//Post request if custom SHA is not needed or when user decided to provide a specific client revision (SHA value)
-									if (r_on_rev == false || (r_on_rev == true &amp;&amp; ClientRevision != null))
-									{
-									
-										if (r_on_rev == false &amp;&amp; rollback == true)
-										{
-											buildUrl = baseUrl + "/buildWithParameters?CoreVersion=" + coreVersion + "&amp;Client=" + compSubstr + "&amp;Env=" + env + "&amp;Rollback=" + rollbackFlag + "&amp;delay=0sec";
-											
+											//specify custom SHA value
+											buildUrl = baseUrl + "/buildWithParameters?CoreVersion=" + coreVersion + "&amp;Client=" + compSubstr + "&amp;Env=" + env + "&amp;ClientRevision=" + ClientRevision + "&amp;delay=0sec";
+
 										}
 										
-										if (r_on_rev == true &amp;&amp; ClientRevision != null &amp;&amp; rollback == true)
-									    {
-											buildUrl = baseUrl + "/buildWithParameters?CoreVersion=" + coreVersion + "&amp;Client=" + compSubstr + "&amp;Env=" + env + "&amp;ClientRevision=" + ClientRevision + "&amp;Rollback=" + rollbackFlag + "&amp;delay=0sec";
-											
-										}
-									
-										xmlHttp.open("POST", buildUrl, true); // true for asynchronous 
-										xmlHttp.send(null);
-										window.location.replace(baseUrl);
+									}
+								
+								}
+								
+								
+								//Custom SHA is not needed
+								if (r_on_rev == false)
+								{
+									buildUrl = baseUrl + "/buildWithParameters?CoreVersion=" + coreVersion + "&amp;Client=" + compSubstr + "&amp;Env=" + env + "&amp;delay=0sec";
+								}
+								
+								
+								//Ask if auto-rollback is needed
+								var rollback = confirm("Do you want auto-rollback performed upon failed deployment?");
+								if (rollback == true) 
+								{
+									var rollbackFlag = "-rollback";
+								}
+								
+								
+								
+								//Post request if custom SHA is not needed or when user decided to provide a specific client revision (SHA value)
+								if (r_on_rev == false || (r_on_rev == true &amp;&amp; ClientRevision != null))
+								{
+								
+									if (r_on_rev == false &amp;&amp; rollback == true)
+									{
+										buildUrl = baseUrl + "/buildWithParameters?CoreVersion=" + coreVersion + "&amp;Client=" + compSubstr + "&amp;Env=" + env + "&amp;Rollback=" + rollbackFlag + "&amp;delay=0sec";
+										
 									}
 									
+									if (r_on_rev == true &amp;&amp; ClientRevision != null &amp;&amp; rollback == true)
+									{
+										buildUrl = baseUrl + "/buildWithParameters?CoreVersion=" + coreVersion + "&amp;Client=" + compSubstr + "&amp;Env=" + env + "&amp;ClientRevision=" + ClientRevision + "&amp;Rollback=" + rollbackFlag + "&amp;delay=0sec";
+										
+									}
+								
+									xmlHttp.open("POST", buildUrl, true); // true for asynchronous 
+									xmlHttp.send(null);
+									window.location.replace(baseUrl);
 								}
+								
 							}
-							*/
 							
 							
 						}
@@ -636,13 +643,16 @@
 <div id="dialog" style="display:none;">
 	<p id="dialogTitle">Placeholder for Deployment Information</p>
 	<label id="ClientRevisionLabel">ClientRevision</label>
-	<input type="text" id="ClientRevision"></input><br></br>
+	<input type="text" id="ClientRevision"/><br></br>
 	<label id="ClientRevisionDescriptionLabel">SHA value (checksum hash represented as 40 digits long hexadecimal number which is a GitHub commit) and represents a client version to deploy after core deployment completes</label><br></br>
 	<br></br>
 	<input type="checkbox" id="norollback">Do not perform auto-rollback upon failed deployment</input><br></br>
 	<br></br>
 	<br></br>
-	<span id="submit" onclick="closeDynamicDialog()">Submit</span>
-	<span id="cancel" onclick="closeDynamicDialog()">Cancel</span>
+	<input type="hidden" id="clientAcronym" value=""/>
+	<input type="hidden" id="environment" value=""/>
+	<input type="hidden" id="core_version" value=""/>
+	<span id="submit" onclick="startJobBackendDeploy(document.getElementById('clientAcronym').value,document.getElementById('environment').value,document.getElementById('core_version').value)">Submit</span>
+	<span id="cancel" onclick="closeBackendDepDynamicDialog()">Cancel</span>
 </div>
 </j:jelly>
