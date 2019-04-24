@@ -427,11 +427,12 @@
 					<script language="javascript">
 											
 						//Hide the dynamic dialog initially after the page loads					
-						$(document).ready(function()
+						Q(document).ready(function()
 						{
-							Q("#overlay, #dialog").hide();
+							Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env").hide();
 							
 						});
+					
 					
 						function closeBackendDepDynamicDialog()
 						{
@@ -445,7 +446,12 @@
 						
 						function showBackendDepDynamicDialog(comp, env, coreVersion) 
 						{ 
-							 Q("#overlay, #dialog").show(); 
+							 Q("#overlay, #dialog").show();
+
+							 if (env != "DEV")
+							 {
+								Q("#non-dev-env").show();
+							 }
 							
 							 //Set the html elements
 							 var compSubstr = comp.substring(0, comp.indexOf(' '))
@@ -456,10 +462,30 @@
 							 
 						}
 						
+						function CheckClientRevisionDecision()
+						{
+							if (Q("#ClientRevisionDecision").val() == "yes")
+							{
+								Q("#ClientRevisionSection").show();
+							}
+							else
+							{
+								Q("#ClientRevisionSection").hide();
+							}
+						}
 						
 						function startJobBackendDeploy(comp, env, coreVersion)
 						{
 							alert(Q("#ClientRevision").val());
+							
+							  var inpObj = document.getElementById("ClientRevision");
+							  if (!inpObj.checkValidity()) {
+								document.getElementById("ClientRevisionValidation").innerHTML = inpObj.validationMessage;
+							  } else {
+								document.getElementById("ClientRevisionValidation").innerHTML = "Input OK";
+							  } 
+							
+							
 							
 							var compSubstr = comp.substring(0, comp.indexOf(' '))
 							
@@ -639,20 +665,42 @@
 		</tbody>
 	</table>
 </div>
-<div id="overlay" style="display:none;"></div>
-<div id="dialog" style="display:none;">
+<div id="overlay"></div>
+<div id="dialog">
 	<p id="dialogTitle">Placeholder for Deployment Information</p>
+
+	<div id="non-dev-env" style="text-align: left"> 
+	<label id="ClientRevisionLabelQuestion">Do you want to provide specific client revision with this backend deployment?</label>
+    <div class="divider"/>
+	<select id="ClientRevisionDecision" onchange="CheckClientRevisionDecision()">
+	<option value="empty"></option>
+    <option value="no">No</option>
+    <option value="yes">Yes</option>
+    </select>
+	</div>
+	
+	<div id="ClientRevisionSection">
+	<h5>Please enter SHA value of client revision (please make sure the build is stable) to use with this backend deployment</h5>
 	<label id="ClientRevisionLabel">ClientRevision</label>
-	<input type="text" id="ClientRevision"/><br></br>
+	<input type="text" id="ClientRevision" pattern=".{40,40}"/><br></br>
 	<label id="ClientRevisionDescriptionLabel">SHA value (checksum hash represented as 40 digits long hexadecimal number which is a GitHub commit) and represents a client version to deploy after core deployment completes</label><br></br>
+	<p id="ClientRevisionValidation"></p>
+	</div>
+	
 	<br></br>
 	<input type="checkbox" id="norollback">Do not perform auto-rollback upon failed deployment</input><br></br>
 	<br></br>
 	<br></br>
+	
 	<input type="hidden" id="clientAcronym" value=""/>
 	<input type="hidden" id="environment" value=""/>
 	<input type="hidden" id="core_version" value=""/>
+	
+	<div id="buttons" style="text-align: center">
 	<span id="submit" onclick="startJobBackendDeploy(document.getElementById('clientAcronym').value,document.getElementById('environment').value,document.getElementById('core_version').value)">Submit</span>
+	<div class="divider"/>
 	<span id="cancel" onclick="closeBackendDepDynamicDialog()">Cancel</span>
+	</div>
+	
 </div>
 </j:jelly>
