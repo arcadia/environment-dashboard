@@ -427,20 +427,33 @@
 					<script language="javascript">
 											
 						//Hide the dynamic dialog initially after the page loads					
-						Q(document).ready(function()
-						{
+						Q(document).ready(function(){
+						
 							Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env").hide();
+							
+							
+							Q("#submit").click(function(){
+								startJobBackendDeploy(Q("#clientAcronym").val(),Q("#environment").val(),Q("#core_version").val());
+							});
+							
+							Q("#cancel").click(closeBackendDepDynamicDialog);
+							Q("#ClientRevisionDecision").change(CheckClientRevisionDecision);
+							
 							
 						});
 					
 					
 						function closeBackendDepDynamicDialog()
 						{
-							Q("#overlay, #dialog").hide();
 							
-							//Reset values of html elements
-							Q("#ClientRevision").val("");
-							Q("#norollback").prop("checked", false);
+							Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env").hide();
+							
+							//Reset values and selections of html elements
+							Q("#dialog").find("input:hidden").val("");
+							Q("#dialog").find("input:text").val("");
+							Q("#dialog").find("input:checkbox").prop("checked", false);
+							Q("#dialog").find("option").prop("selected", false);
+							
 						}
 					
 						
@@ -476,6 +489,9 @@
 						
 						function startJobBackendDeploy(comp, env, coreVersion)
 						{
+							alert(comp);
+							alert(env);
+							alert(coreVersion);
 							alert(Q("#ClientRevision").val());
 							
 							  var inpObj = document.getElementById("ClientRevision");
@@ -486,7 +502,7 @@
 							  } 
 							
 							
-							
+							/*
 							var compSubstr = comp.substring(0, comp.indexOf(' '))
 							
 							if (coreVersion != null) 
@@ -565,7 +581,7 @@
 								}
 								
 							}
-							
+							*/
 							
 						}
 
@@ -672,7 +688,7 @@
 	<div id="non-dev-env" style="text-align: left"> 
 	<label id="ClientRevisionLabelQuestion">Do you want to provide specific client revision with this backend deployment?</label>
     <div class="divider"/>
-	<select id="ClientRevisionDecision" onchange="CheckClientRevisionDecision()">
+	<select id="ClientRevisionDecision">
 	<option value="empty"></option>
     <option value="no">No</option>
     <option value="yes">Yes</option>
@@ -681,8 +697,11 @@
 	
 	<div id="ClientRevisionSection">
 	<h5>Please enter SHA value of client revision (please make sure the build is stable) to use with this backend deployment</h5>
+	<div style="text-align: left">
 	<label id="ClientRevisionLabel">ClientRevision</label>
+	<div class="divider"/>
 	<input type="text" id="ClientRevision" pattern=".{40,40}"/><br></br>
+	</div>
 	<label id="ClientRevisionDescriptionLabel">SHA value (checksum hash represented as 40 digits long hexadecimal number which is a GitHub commit) and represents a client version to deploy after core deployment completes</label><br></br>
 	<p id="ClientRevisionValidation"></p>
 	</div>
@@ -697,9 +716,10 @@
 	<input type="hidden" id="core_version" value=""/>
 	
 	<div id="buttons" style="text-align: center">
-	<span id="submit" onclick="startJobBackendDeploy(document.getElementById('clientAcronym').value,document.getElementById('environment').value,document.getElementById('core_version').value)">Submit</span>
+	<span id="submit">Submit</span>
 	<div class="divider"/>
-	<span id="cancel" onclick="closeBackendDepDynamicDialog()">Cancel</span>
+	<span id="cancel">Cancel</span>
+	<input type="reset"/>
 	</div>
 	
 </div>
