@@ -144,7 +144,7 @@
 																   <j:if test="${comp.indexOf('Backend') == -1}">
 																		<j:switch on="${deployment.get('buildstatus')}">
 																			<j:case value="SUCCESS">
-																				 <a title="Promote" href="javascript:startJob('${comp}','${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1]}','${deployment.get('buildNum')}');">Promote</a>
+																				 <a title="Promote" href="javascript:showClientDepDynamicDialog('${comp}','${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1]}','${deployment.get('buildNum')}');">Promote</a>
 																			</j:case>
 																			<j:case value="FAILURE">
 																				 <a title="Promote" href="javascript:void(0)" class="disabled">Promote</a>
@@ -334,7 +334,7 @@
 															<j:if test="${comps.indexOf('Backend') == -1}">
 															<j:switch on="${deployment.get('buildstatus')}">
 																<j:case value="SUCCESS">
-																	 <a title="Promote" href="javascript:startJob('${comps}','${orderOfEnvs[orderOfEnvs.indexOf(env)+1]}','${deployment.get('buildNum')}');">Promote${it.envVars}</a>
+																	 <a title="Promote" href="javascript:showClientDepDynamicDialog('${comps}','${orderOfEnvs[orderOfEnvs.indexOf(env)+1]}','${deployment.get('buildNum')}');">Promote${it.envVars}</a>
 																</j:case>
 																<j:default>																	
 																	  <a title="Promote" href="javascript:void(0)" class="disabled">Promote</a>
@@ -405,7 +405,7 @@
 														<div style="margin-right:30px; float:right;">
 															<j:switch on="${deployment.get('buildstatus')}">
 																<j:case value="SUCCESS">
-																	  <a href="javascript:javascript:startJob('${comps}','${env_promote}','${deployment.get('buildNum')}');">Promote to ${env_promote}</a>
+																	  <a href="javascript:javascript:showClientDepDynamicDialog('${comps}','${env_promote}','${deployment.get('buildNum')}');">Promote to ${env_promote}</a>
 																</j:case>
 																<j:default>																	
 																	  <a href="javascript:void(0)" class="disabled">Promote to ${env_promote}</a>												
@@ -432,7 +432,14 @@
 							Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env").hide();
 							
 							Q("#submit").click(function(){
-								validateTheForm();
+								if (Q("#build_num").val().length != 0 &amp;&amp; Q("#core_version").val().length == 0)
+								{
+									startJob(Q("#clientAcronym").val(),Q("#environment").val(),Q("#build_num").val());
+								}
+								else
+								{
+									validateTheForm();
+								}
 							});
 							
 							Q("#reset").click(function(){
@@ -441,7 +448,7 @@
 								Q("#ClientRevisionSection").hide();
 							});
 							
-							Q("#cancel").click(closeBackendDepDynamicDialog);
+							Q("#cancel").click(closeDynamicDialog);
 							Q("#ClientRevisionDecision").change(CheckClientRevisionDecision);
 							
 							
@@ -455,7 +462,7 @@
 							if (Q("#ClientRevisionDecision").val() == "yes")
 							{
 								
-								alert(Q("#ClientRevision").val().length);
+								//alert(Q("#ClientRevision").val().length);
 								
 								if (Q("#ClientRevision").val().length != SHA_length) 
 								{
@@ -483,7 +490,7 @@
 							}
 						}
 					
-						function closeBackendDepDynamicDialog()
+						function closeDynamicDialog()
 						{
 							
 							Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env").hide();
@@ -529,10 +536,10 @@
 						
 						function startJobBackendDeploy(comp, env, coreVersion)
 						{
-							alert(comp);
-							alert(env);
-							alert(coreVersion);
-							alert(Q("#ClientRevision").val());
+							//alert(comp);
+							//alert(env);
+							//alert(coreVersion);
+							//alert(Q("#ClientRevision").val());
 							
 							var compSubstr = comp.substring(0, comp.indexOf(' '))
 							
@@ -597,7 +604,7 @@
 										
 									}
 								
-									closeBackendDepDynamicDialog();
+									closeDynamicDialog();
 									xmlHttp.open("POST", buildUrl, true); // true for asynchronous 
 									xmlHttp.send(null);
 									window.location.replace(baseUrl);
@@ -608,35 +615,45 @@
 							
 						}
 
+						
+						function showClientDepDynamicDialog(comp, env, buildNum) 
+						{
+
+							 Q("#overlay, #dialog").show();
+
+							 //Set the html elements
+							 Q("#dialogTitle").text("Deploying " + comp + " to " + env + " for " + buildNum);
+							 Q("#clientAcronym").val(comp);
+							 Q("#environment").val(env);
+							 Q("#build_num").val(buildNum);
+						
+						}
+						
 						function startJob(comp, env, buildNum)
 						{
 							
-                            
-							var r = confirm("Deploying " + comp + " to " + env + " for " + buildNum);
-							if (r == true) {
+							var xmlHttp = new XMLHttpRequest();
+							var baseUrl = "/job/Client_Deploy";
+							var buildUrl = "";
+							var norollback = false;
 							
-								var xmlHttp = new XMLHttpRequest();
-								var baseUrl = "/job/Client_Deploy";
-								var buildUrl = "";
-								var rollback = false;
-								
-						        //Ask if auto-rollback is needed
-								var rollback = confirm("Do you want auto-rollback performed upon failed deployment?");
-								if (rollback == true) 
-								{
-									var rollbackFlag = "-rollback";
-									buildUrl = baseUrl + "/buildWithParameters?SourceBuildID=" + buildNum + "&amp;Client=" + comp + "&amp;Env=" + env + "&amp;Rollback=" + rollbackFlag + "&amp;delay=0sec";
-								}
-								else
-								{
-									buildUrl = baseUrl + "/buildWithParameters?SourceBuildID=" + buildNum + "&amp;Client=" + comp + "&amp;Env=" + env + "&amp;delay=0sec";
-								}
-								
-								
-								xmlHttp.open("POST", buildUrl, true); // true for asynchronous 
-								xmlHttp.send(null);
-								window.location.replace(baseUrl);
+							//Check if no auto-rollback was checked
+							if (Q("#norollback").prop("checked"))
+							{
+								norollback = true;
+								var norollbackFlag = "-no_rollback";
+								buildUrl = baseUrl + "/buildWithParameters?SourceBuildID=" + buildNum + "&amp;Client=" + comp + "&amp;Env=" + env + "&amp;NoRollback=" + norollbackFlag + "&amp;delay=0sec";
 							}
+							else
+							{
+								buildUrl = baseUrl + "/buildWithParameters?SourceBuildID=" + buildNum + "&amp;Client=" + comp + "&amp;Env=" + env + "&amp;delay=0sec";
+							}
+							
+							closeDynamicDialog();
+							xmlHttp.open("POST", buildUrl, true); // true for asynchronous 
+							xmlHttp.send(null);
+							window.location.replace(baseUrl);
+							
 						}
 
 						function reloadPage()
@@ -737,6 +754,7 @@
 	<input type="hidden" id="clientAcronym" value=""/>
 	<input type="hidden" id="environment" value=""/>
 	<input type="hidden" id="core_version" value=""/>
+	<input type="hidden" id="build_num" value=""/>
 	
 	<div id="buttons" style="text-align: center">
 	<span id="submit">Submit</span>
