@@ -5,6 +5,9 @@
 <link href="${rootURL}/plugin/environment-dashboard/css/blink.css" type="text/css" rel="stylesheet"/>
 <link href="${rootURL}/plugin/environment-dashboard/css/dropdown_button.css" type="text/css" rel="stylesheet"/>
 <link href="${rootURL}/plugin/environment-dashboard/css/dynamic_dialog.css" type="text/css" rel="stylesheet"/>
+<link href="${rootURL}/plugin/environment-dashboard/css/jquery.datetimepicker.css" type="text/css" rel="stylesheet"/>
+<script src="${rootURL}/plugin/environment-dashboard/js/jquery.datetimepicker.full.min.js"></script>
+<script src="${rootURL}/plugin/environment-dashboard/js/jquery.validate.js"></script>
 <div class="overlay" style="display:none; background-color: rgba(0, 0, 0, 0.4); position:absolute; top: 0; left:0; bottom:0; right:0;" onclick="hideAll()"></div>
 <div class="popup" id="popup" style="position: absolute; width: 300px; height:150; display:none; background-color: white; text-align: center; top:50%; left:50%; margin-left: -150px; margin-top: -75;"></div>
 <div id="startDashboard" style="margin-left: -360px; margin-right: 360px;">
@@ -429,15 +432,38 @@
 						//Hide the dynamic dialog initially after the page loads					
 						Q(document).ready(function(){
 						
-							Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env").hide();
+							Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env, #PRDsection").hide();
+							
+							var validationObj = Q("#dialog").validate({ // initialize the plugin
+								rules: {
+									ClientRevision: {
+										minlength: 40,
+										maxlength: 40
+									}
+								},
+								messages: {
+									ClientRevision: "value needs to be 40 characters long"
+								}
+							});
+							
+							validationObj.form();
 							
 							Q("#submit").click(function(){
+							
+								//calculate seconds so we know when the jenkins build needs to be triggered
+								var futureDateTime = new Date(Q("#datetimepicker").val());
+								var now = new Date();
+								var diff = Math.round((futureDateTime - now)/1000);
+								Q("#secondsToWait").val(diff);
+								alert(Q("#secondsToWait").val());
+							
 								if (Q("#build_num").val().length != 0 &amp;&amp; Q("#core_version").val().length == 0)
 								{
 									startJob(Q("#clientAcronym").val(),Q("#environment").val(),Q("#build_num").val());
 								}
 								else
 								{
+																		
 									validateTheForm();
 								}
 							});
@@ -446,11 +472,14 @@
 								Q("#dialog").trigger("reset");
 								Q("#ClientRevisionValidation").empty();
 								Q("#ClientRevisionSection").hide();
+								
 							});
 							
 							Q("#cancel").click(closeDynamicDialog);
 							Q("#ClientRevisionDecision").change(CheckClientRevisionDecision);
 							
+							
+							Q("#datetimepicker").datetimepicker();
 							
 						});
 					
@@ -493,7 +522,7 @@
 						function closeDynamicDialog()
 						{
 							
-							Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env").hide();
+							Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env, #PRDsection").hide();
 							
 							//Reset values and selections of html elements
 							Q("#dialog").trigger("reset");
@@ -511,6 +540,11 @@
 							 if (env != "DEV")
 							 {
 								Q("#non-dev-env").show();
+								
+								if (env == "PRD")
+								{
+									Q("#PRDsection").show();
+								}
 							 }
 							
 							 //Set the html elements
@@ -519,6 +553,8 @@
 							 Q("#clientAcronym").val(comp);
 							 Q("#environment").val(env);
 							 Q("#core_version").val(coreVersion);
+							 Q("#secondsToWait").val(0);
+							 
 							 
 						}
 						
@@ -526,11 +562,12 @@
 						{
 							if (Q("#ClientRevisionDecision").val() == "yes")
 							{
-								Q("#ClientRevisionSection").show();
+								Q("#ClientRevisionSection").show(500);
+								
 							}
 							else
 							{
-								Q("#ClientRevisionSection").hide();
+								Q("#ClientRevisionSection").hide(500);
 							}
 						}
 						
@@ -565,7 +602,7 @@
 										ClientRevision = Q("#ClientRevision").val();
 											
 										//specify custom SHA value
-										buildUrl = baseUrl + "/buildWithParameters?CoreVersion=" + coreVersion + "&amp;Client=" + compSubstr + "&amp;Env=" + env + "&amp;ClientRevision=" + ClientRevision + "&amp;delay=0sec";
+										buildUrl = baseUrl + "/buildWithParameters?CoreVersion=" + coreVersion + "&amp;Client=" + compSubstr + "&amp;Env=" + env + "&amp;ClientRevision=" + ClientRevision + "&amp;delay=" + Q("#secondsToWait").val() + "sec";
 
 									}
 								
@@ -575,7 +612,7 @@
 								//Custom SHA is not needed
 								if (r_on_rev == false)
 								{
-									buildUrl = baseUrl + "/buildWithParameters?CoreVersion=" + coreVersion + "&amp;Client=" + compSubstr + "&amp;Env=" + env + "&amp;delay=0sec";
+									buildUrl = baseUrl + "/buildWithParameters?CoreVersion=" + coreVersion + "&amp;Client=" + compSubstr + "&amp;Env=" + env + "&amp;delay" + Q("#secondsToWait").val() + "sec";
 								}
 								
 								
@@ -594,13 +631,13 @@
 								
 									if (r_on_rev == false &amp;&amp; norollback == true)
 									{
-										buildUrl = baseUrl + "/buildWithParameters?CoreVersion=" + coreVersion + "&amp;Client=" + compSubstr + "&amp;Env=" + env + "&amp;NoRollback=" + norollbackFlag + "&amp;delay=0sec";
+										buildUrl = baseUrl + "/buildWithParameters?CoreVersion=" + coreVersion + "&amp;Client=" + compSubstr + "&amp;Env=" + env + "&amp;NoRollback=" + norollbackFlag + "&amp;delay" + Q("#secondsToWait").val() + "sec";
 										
 									}
 									
 									if (r_on_rev == true &amp;&amp; ClientRevision != null &amp;&amp; norollback == true)
 									{
-										buildUrl = baseUrl + "/buildWithParameters?CoreVersion=" + coreVersion + "&amp;Client=" + compSubstr + "&amp;Env=" + env + "&amp;ClientRevision=" + ClientRevision + "&amp;NoRollback=" + norollbackFlag + "&amp;delay=0sec";
+										buildUrl = baseUrl + "/buildWithParameters?CoreVersion=" + coreVersion + "&amp;Client=" + compSubstr + "&amp;Env=" + env + "&amp;ClientRevision=" + ClientRevision + "&amp;NoRollback=" + norollbackFlag + "&amp;delay" + Q("#secondsToWait").val() + "sec";
 										
 									}
 								
@@ -626,6 +663,7 @@
 							 Q("#clientAcronym").val(comp);
 							 Q("#environment").val(env);
 							 Q("#build_num").val(buildNum);
+							 Q("#secondsToWait").val(0);
 						
 						}
 						
@@ -642,11 +680,11 @@
 							{
 								norollback = true;
 								var norollbackFlag = "-no_rollback";
-								buildUrl = baseUrl + "/buildWithParameters?SourceBuildID=" + buildNum + "&amp;Client=" + comp + "&amp;Env=" + env + "&amp;NoRollback=" + norollbackFlag + "&amp;delay=0sec";
+								buildUrl = baseUrl + "/buildWithParameters?SourceBuildID=" + buildNum + "&amp;Client=" + comp + "&amp;Env=" + env + "&amp;NoRollback=" + norollbackFlag + "&amp;delay" + Q("#secondsToWait").val() + "sec";
 							}
 							else
 							{
-								buildUrl = baseUrl + "/buildWithParameters?SourceBuildID=" + buildNum + "&amp;Client=" + comp + "&amp;Env=" + env + "&amp;delay=0sec";
+								buildUrl = baseUrl + "/buildWithParameters?SourceBuildID=" + buildNum + "&amp;Client=" + comp + "&amp;Env=" + env + "&amp;delay" + Q("#secondsToWait").val() + "sec";
 							}
 							
 							closeDynamicDialog();
@@ -725,6 +763,10 @@
 <form id="dialog" style="display:none;">
 	<p id="dialogTitle">Placeholder for Deployment Information</p>
 
+	<label id="datetimepickerLabel">Jira Ticket</label>
+	<div class="divider"/>
+	<input id="jiraticket" type="text"/>
+	
 	<div id="non-dev-env" style="text-align: left"> 
 	<label id="ClientRevisionLabelQuestion">Do you want to provide specific client revision with this backend deployment?</label>
     <div class="divider"/>
@@ -736,27 +778,51 @@
 	</div>
 	
 	<div id="ClientRevisionSection">
-	<h5>Please enter SHA value of client revision (please make sure the build is stable) to use with this backend deployment</h5>
+	<label id="requestforSHA">Please enter SHA value of client revision (please make sure the build is stable) to use with this backend deployment</label><br></br>
 	<div style="text-align: left">
-	<label id="ClientRevisionLabel">ClientRevision</label>
+	<label id="ClientRevisionLabel">Client revision</label>
 	<div class="divider"/>
-	<input type="text" id="ClientRevision"/><br></br>
+	<!--<input type="text" id="ClientRevision"/><br></br>-->
+	<input type="text" id="ClientRevision" name="ClientRevision"/><br></br>
 	</div>
 	<label id="ClientRevisionDescriptionLabel">SHA value (checksum hash represented as 40 digits long hexadecimal number which is a GitHub commit) and represents a client version to deploy after core deployment completes</label><br></br>
 	<p id="ClientRevisionValidation"></p>
 	</div>
 	
 	<br></br>
-	<input type="checkbox" id="norollback">Do not perform auto-rollback upon failed deployment</input><br></br>
-	<br></br>
-	<br></br>
+	<label class="container">Do not perform auto-rollback upon failed deployment
+	<input type="checkbox" id="norollback"></input>
+	<span class="checkmark"></span>
+	</label>
+		
+	<div id="PRDsection">
+	<label class="container">Start change request job
+	<input type="checkbox" id="startcrjob"></input>
+	<span class="checkmark"></span>
+	</label>
+	<label class="container">Start nightly job
+	<input type="checkbox" id="startnj"></input>
+	<span class="checkmark"></span>
+	</label>
+	<label id="njstartstepLabel">Nightly job start step</label>
+	<div class="divider"/>
+	<input type="text" id="njstartstep"/><br></br>
+	<label id="datetimepickerLabel">Deployment kick off</label>
+	<div class="divider"/>
+	<input id="datetimepicker" type="text"/>
+	</div>
+	
 	
 	<input type="hidden" id="clientAcronym" value=""/>
 	<input type="hidden" id="environment" value=""/>
 	<input type="hidden" id="core_version" value=""/>
 	<input type="hidden" id="build_num" value=""/>
+	<input type="hidden" id="secondsToWait" value=""/>
 	
-	<div id="buttons" style="text-align: center">
+	<br></br>
+	<br></br>
+	<br></br>
+	<div id="buttons" style="text-align: right">
 	<span id="submit">Submit</span>
 	<div class="divider"/>
 	<span id="reset">Reset</span>
