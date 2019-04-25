@@ -431,9 +431,13 @@
 						
 							Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env").hide();
 							
-							
 							Q("#submit").click(function(){
-								startJobBackendDeploy(Q("#clientAcronym").val(),Q("#environment").val(),Q("#core_version").val());
+								validateTheForm();
+							});
+							
+							Q("#reset").click(function(){
+								Q("#dialog").trigger("reset");
+								Q("#ClientRevisionSection").hide();
 							});
 							
 							Q("#cancel").click(closeBackendDepDynamicDialog);
@@ -442,6 +446,41 @@
 							
 						});
 					
+						function validateTheForm()
+						{
+							var proceed = false;
+							var SHA_length = 40; //SHA value should always be 40 characters long
+							
+							if (Q("#ClientRevisionDecision").val() == "yes")
+							{
+								
+								alert(Q("#ClientRevision").val().length);
+								
+								if (Q("#ClientRevision").val().length != SHA_length) 
+								{
+									Q("#ClientRevisionValidation").html("It looks like some characters are missing since SHA value should be 40 characters long. Please enter the correct value.");
+									Q("#ClientRevisionValidation").css("color", "red");
+									Q("#ClientRevision").focus();
+								}
+								else
+								{
+									Q("#ClientRevisionValidation").html("Input OK");
+									Q("#ClientRevisionValidation").css("color", "green");
+									proceed = true;
+								}
+								
+								
+							}
+							else
+							{
+								proceed = true;
+							}
+							
+							if (proceed == true)
+							{
+								startJobBackendDeploy(Q("#clientAcronym").val(),Q("#environment").val(),Q("#core_version").val());
+							}
+						}
 					
 						function closeBackendDepDynamicDialog()
 						{
@@ -449,16 +488,15 @@
 							Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env").hide();
 							
 							//Reset values and selections of html elements
-							Q("#dialog").find("input:hidden").val("");
-							Q("#dialog").find("input:text").val("");
-							Q("#dialog").find("input:checkbox").prop("checked", false);
-							Q("#dialog").find("option").prop("selected", false);
-							
+							Q("#dialog").trigger("reset");
 						}
 					
 						
 						function showBackendDepDynamicDialog(comp, env, coreVersion) 
 						{ 
+							//alert( "You are running jQuery version: " + Q.fn.jquery );
+							//alert(Q().jquery); //it is 1.7.2
+							
 							 Q("#overlay, #dialog").show();
 
 							 if (env != "DEV")
@@ -494,16 +532,10 @@
 							alert(coreVersion);
 							alert(Q("#ClientRevision").val());
 							
-							  var inpObj = document.getElementById("ClientRevision");
-							  if (!inpObj.checkValidity()) {
-								document.getElementById("ClientRevisionValidation").innerHTML = inpObj.validationMessage;
-							  } else {
-								document.getElementById("ClientRevisionValidation").innerHTML = "Input OK";
-							  } 
-							
 							
 							/*
 							var compSubstr = comp.substring(0, comp.indexOf(' '))
+							
 							
 							if (coreVersion != null) 
 							{
@@ -519,6 +551,7 @@
 
 								if (env != "DEV")
 								{
+								
 									//Ask user if he/she would like to provide custom client revision
 									r_on_rev = confirm("Do you want to provide specific client revision with this backend deployment?");
 									if (r_on_rev == true)
@@ -579,10 +612,10 @@
 									xmlHttp.send(null);
 									window.location.replace(baseUrl);
 								}
-								
+									
 							}
-							*/
 							
+							*/
 						}
 
 						function startJob(comp, env, buildNum)
@@ -682,7 +715,7 @@
 	</table>
 </div>
 <div id="overlay"></div>
-<div id="dialog">
+<form id="dialog">
 	<p id="dialogTitle">Placeholder for Deployment Information</p>
 
 	<div id="non-dev-env" style="text-align: left"> 
@@ -700,7 +733,7 @@
 	<div style="text-align: left">
 	<label id="ClientRevisionLabel">ClientRevision</label>
 	<div class="divider"/>
-	<input type="text" id="ClientRevision" pattern=".{40,40}"/><br></br>
+	<input type="text" id="ClientRevision"/><br></br>
 	</div>
 	<label id="ClientRevisionDescriptionLabel">SHA value (checksum hash represented as 40 digits long hexadecimal number which is a GitHub commit) and represents a client version to deploy after core deployment completes</label><br></br>
 	<p id="ClientRevisionValidation"></p>
@@ -718,9 +751,10 @@
 	<div id="buttons" style="text-align: center">
 	<span id="submit">Submit</span>
 	<div class="divider"/>
+	<span id="reset">Reset</span>
+	<div class="divider"/>
 	<span id="cancel">Cancel</span>
-	<input type="reset"/>
 	</div>
 	
-</div>
+</form>
 </j:jelly>
