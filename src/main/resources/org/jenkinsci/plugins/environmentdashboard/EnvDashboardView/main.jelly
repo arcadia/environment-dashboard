@@ -437,6 +437,7 @@
 							
 							Q("#reset").click(function(){
 								Q("#dialog").trigger("reset");
+								Q("#ClientRevisionValidation").empty();
 								Q("#ClientRevisionSection").hide();
 							});
 							
@@ -458,13 +459,13 @@
 								
 								if (Q("#ClientRevision").val().length != SHA_length) 
 								{
-									Q("#ClientRevisionValidation").html("It looks like some characters are missing since SHA value should be 40 characters long. Please enter the correct value.");
+									Q("#ClientRevisionValidation").text("It looks like some characters are missing since SHA value should be 40 characters long. Please enter the correct value.");
 									Q("#ClientRevisionValidation").css("color", "red");
 									Q("#ClientRevision").focus();
 								}
 								else
 								{
-									Q("#ClientRevisionValidation").html("Input OK");
+									Q("#ClientRevisionValidation").text("Input OK");
 									Q("#ClientRevisionValidation").css("color", "green");
 									proceed = true;
 								}
@@ -489,6 +490,7 @@
 							
 							//Reset values and selections of html elements
 							Q("#dialog").trigger("reset");
+							Q("#ClientRevisionValidation").empty();
 						}
 					
 						
@@ -532,8 +534,6 @@
 							alert(coreVersion);
 							alert(Q("#ClientRevision").val());
 							
-							
-							/*
 							var compSubstr = comp.substring(0, comp.indexOf(' '))
 							
 							
@@ -545,32 +545,21 @@
 								var baseUrl = "/job/Backend_Deploy";
 								var buildUrl = "";
 								var r_on_rev = false;
-								var rollback = false;
+								var norollback = false;
 								var SHA_length = 40; //SHA value should always be 40 characters long
 								
-
 								if (env != "DEV")
 								{
-								
-									//Ask user if he/she would like to provide custom client revision
-									r_on_rev = confirm("Do you want to provide specific client revision with this backend deployment?");
-									if (r_on_rev == true)
+									//Check if custom client revision was provided
+									if (Q("#ClientRevisionDecision").val() == "yes" &amp;&amp; Q("#ClientRevision").val().length == SHA_length) 
 									{
+										r_on_rev = true;
 										//Get SHA value
-										var ClientRevision = prompt("Please enter SHA value of client revision (please make sure the build is stable) to use with this backend deployment");
-										if (ClientRevision != null) 
-										{
-											while (ClientRevision.length != SHA_length)
-											{
-												ClientRevision = prompt("It looks like some characters are missing since SHA value should be 40 characters long. Please enter the correct value.");
-												
-											}
+										ClientRevision = Q("#ClientRevision").val();
 											
-											//specify custom SHA value
-											buildUrl = baseUrl + "/buildWithParameters?CoreVersion=" + coreVersion + "&amp;Client=" + compSubstr + "&amp;Env=" + env + "&amp;ClientRevision=" + ClientRevision + "&amp;delay=0sec";
+										//specify custom SHA value
+										buildUrl = baseUrl + "/buildWithParameters?CoreVersion=" + coreVersion + "&amp;Client=" + compSubstr + "&amp;Env=" + env + "&amp;ClientRevision=" + ClientRevision + "&amp;delay=0sec";
 
-										}
-										
 									}
 								
 								}
@@ -583,31 +572,32 @@
 								}
 								
 								
-								//Ask if auto-rollback is needed
-								var rollback = confirm("Do you want auto-rollback performed upon failed deployment?");
-								if (rollback == true) 
+								//Check if no auto-rollback was checked
+								<!--if (Q("#norollback").is(":checked"))--> //working statement but prefer below approach instead
+								if (Q("#norollback").prop("checked"))
 								{
-									var rollbackFlag = "-rollback";
+									norollback = true;
+									var norollbackFlag = "-no_rollback";
 								}
 								
-								
-								
+																
 								//Post request if custom SHA is not needed or when user decided to provide a specific client revision (SHA value)
 								if (r_on_rev == false || (r_on_rev == true &amp;&amp; ClientRevision != null))
 								{
 								
-									if (r_on_rev == false &amp;&amp; rollback == true)
+									if (r_on_rev == false &amp;&amp; norollback == true)
 									{
-										buildUrl = baseUrl + "/buildWithParameters?CoreVersion=" + coreVersion + "&amp;Client=" + compSubstr + "&amp;Env=" + env + "&amp;Rollback=" + rollbackFlag + "&amp;delay=0sec";
+										buildUrl = baseUrl + "/buildWithParameters?CoreVersion=" + coreVersion + "&amp;Client=" + compSubstr + "&amp;Env=" + env + "&amp;NoRollback=" + norollbackFlag + "&amp;delay=0sec";
 										
 									}
 									
-									if (r_on_rev == true &amp;&amp; ClientRevision != null &amp;&amp; rollback == true)
+									if (r_on_rev == true &amp;&amp; ClientRevision != null &amp;&amp; norollback == true)
 									{
-										buildUrl = baseUrl + "/buildWithParameters?CoreVersion=" + coreVersion + "&amp;Client=" + compSubstr + "&amp;Env=" + env + "&amp;ClientRevision=" + ClientRevision + "&amp;Rollback=" + rollbackFlag + "&amp;delay=0sec";
+										buildUrl = baseUrl + "/buildWithParameters?CoreVersion=" + coreVersion + "&amp;Client=" + compSubstr + "&amp;Env=" + env + "&amp;ClientRevision=" + ClientRevision + "&amp;NoRollback=" + norollbackFlag + "&amp;delay=0sec";
 										
 									}
 								
+									closeBackendDepDynamicDialog();
 									xmlHttp.open("POST", buildUrl, true); // true for asynchronous 
 									xmlHttp.send(null);
 									window.location.replace(baseUrl);
@@ -615,7 +605,7 @@
 									
 							}
 							
-							*/
+							
 						}
 
 						function startJob(comp, env, buildNum)
@@ -714,8 +704,8 @@
 		</tbody>
 	</table>
 </div>
-<div id="overlay"></div>
-<form id="dialog">
+<div id="overlay" style="display:none;"></div>
+<form id="dialog" style="display:none;">
 	<p id="dialogTitle">Placeholder for Deployment Information</p>
 
 	<div id="non-dev-env" style="text-align: left"> 
