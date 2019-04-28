@@ -432,7 +432,7 @@
 						//Hide the dynamic dialog initially after the page loads					
 						Q(document).ready(function(){
 						
-							Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env, #PRDsection").hide();
+							Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection").hide();
 							
 							var validationObj = Q("#dialog").validate({ // initialize the plugin
 								rules: {
@@ -451,11 +451,26 @@
 									},
 									ClientRevisionDecision: {
 										required: true
+									},
+									njstartstep: {
+										required: true,
+										// Using the normalizer to trim the value of the element
+										// before validating it.
+										//
+										// The value of `this` inside the `normalizer` is the corresponding
+										// DOMElement. In this example, `this` references the `username` element.
+										normalizer: function(value) {
+											return Q.trim(value);
+										}
+									},
+									njStartStepDecision: {
+										required: true
 									}
 								},
 								messages: {
 									ClientRevision: "value needs to be 40 characters long",
-									ClientRevisionDecision: "please make a choice"
+									ClientRevisionDecision: "please make a choice",
+									njStartStepDecision: "please make a choice"
 								}
 							});
 							
@@ -507,13 +522,27 @@
 							Q("#reset").click(function(){
 								Q("#dialog").trigger("reset");
 								Q("#ClientRevisionValidation").empty();
-								Q("#ClientRevisionSection").hide();
+								Q("#ClientRevisionSection, #njstartstepSection").hide();
 								
 							});
 							
 							
 							Q("#cancel").click(closeDynamicDialog);
 							Q("#ClientRevisionDecision").change(CheckClientRevisionDecision);
+							
+							Q("#startnj").change(function(){
+								if(this.checked) 
+								{
+									Q("#prd-env, #njstartstepSection").show();
+								}
+								else
+								{
+									Q("#prd-env, #njstartstepSection").hide();
+								}
+								
+							});
+							
+							Q("#njStartStepDecision").change(ChecknjStartStepDecision);
 							
 							Q("#datetimepicker").datetimepicker();
 							
@@ -523,7 +552,7 @@
 						function closeDynamicDialog()
 						{
 							
-							Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env, #PRDsection").hide();
+							Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection").hide();
 							
 							//Reset values and selections of html elements
 							Q("#dialog").trigger("reset");
@@ -572,6 +601,19 @@
 							}
 						}
 						
+						function ChecknjStartStepDecision()
+						{
+							if (Q("#njStartStepDecision").val() == "yes")
+							{
+								Q("#njstartstepSection").show(500);
+								
+							}
+							else
+							{
+								Q("#njstartstepSection").hide(500);
+							}
+						}
+						
 						function startJobBackendDeploy(comp, env, coreVersion)
 						{
 							//alert(comp);
@@ -598,7 +640,7 @@
 								if(Q("#norollback").is(":checked")){DoNotPerformRollback="-no_rollback";}else{DoNotPerformRollback="";}
 								if(Q("#startcrjob").is(":checked")){StartCRjob="-start_cr_job";}else{StartCRjob="";}
 								if(Q("#startnj").is(":checked")){StartNJ="-start_nightly_job";}else{StartNJ="";}
-								if(!Q("#njstartstep").val()){nightly_job_start_step="NA";}else{StartNJ=Q("#njstartstep").val();}
+								if(!Q("#njstartstep").val().trim()){nightly_job_start_step="NA";}else{nightly_job_start_step=Q("#njstartstep").val().trim().replace(/['"]+/g, '');}
 									
 								buildUrl = baseUrl + "/buildWithParameters?" +
 											"CoreVersion=" + coreVersion +
@@ -657,7 +699,7 @@
 							if(Q("#norollback").is(":checked")){DoNotPerformRollback="-no_rollback";}else{DoNotPerformRollback="";}
 							if(Q("#startcrjob").is(":checked")){StartCRjob="-start_cr_job";}else{StartCRjob="";}
 							if(Q("#startnj").is(":checked")){StartNJ="-start_nightly_job";}else{StartNJ="";}
-							if(!Q("#njstartstep").val()){nightly_job_start_step="NA";}else{StartNJ=Q("#njstartstep").val();}
+							if(!Q("#njstartstep").val().trim()){nightly_job_start_step="NA";}else{nightly_job_start_step=Q("#njstartstep").val().trim().replace(/['"]+/g, '');}
 							
 							
 							buildUrl = baseUrl + "/buildWithParameters?" +
@@ -749,7 +791,7 @@
 <form id="dialog" style="display:none;" method="get">
 	<p id="dialogTitle">Placeholder for Deployment Information</p>
 
-	<label id="datetimepickerLabel">Jira Ticket</label>
+	<label id="datetimepickerLabel">Jira Ticket (e.g., ACM-123)</label>
 	<div class="divider"/>
 	<input id="jiraticket" type="text"/>
 	<br></br><br></br>
@@ -769,30 +811,37 @@
 	<div style="text-align: left">
 	<label id="ClientRevisionLabel">Client revision</label>
 	<div class="divider"/>
-	<!--<input type="text" id="ClientRevision"/><br></br>-->
 	<input type="text" id="ClientRevision" name="ClientRevision"/><br></br>
 	</div>
 	<label id="ClientRevisionDescriptionLabel">SHA value (checksum hash represented as 40 digits long hexadecimal number which is a GitHub commit) and represents a client version to deploy after core deployment completes</label><br></br>
 	</div>
 	
 	<br></br>
-	<label class="container">Do not perform auto-rollback upon failed deployment
-	<input type="checkbox" id="norollback"></input>
-	<span class="checkmark"></span>
-	</label>
-		
+
+	<input type="checkbox" id="norollback">Do not perform auto-rollback upon failed deployment</input><br></br>
+
+	
 	<div id="PRDsection">
-	<label class="container">Start change request job upon successful deployment
-	<input type="checkbox" id="startcrjob"></input>
-	<span class="checkmark"></span>
-	</label>
-	<label class="container">Start nightly job upon successful execution of deployment and/or change request job
-	<input type="checkbox" id="startnj"></input>
-	<span class="checkmark"></span>
-	</label>
+	<input type="checkbox" id="startcrjob">Start change request job upon successful deployment</input><br></br>
+	<input type="checkbox" id="startnj">Start nightly job upon successful execution of deployment and/or change request job</input><br></br>
+
+	<div id="prd-env" style="text-align: left"> 
+	<label id="njStartStepLabelQuestion">Do you want to start nightly job from a specific step (If no, the NJ will start from configured step which is usually step 1)?</label>
+    <div class="divider"/>
+	<select id="njStartStepDecision" name="njStartStepDecision">
+	<option value="">Choose...</option>
+    <option value="no">No</option>
+    <option value="yes">Yes</option>
+    </select>
+	</div>
+	
+	<div id="njstartstepSection">
 	<label id="njstartstepLabel">Nightly job start step</label>
 	<div class="divider"/>
-	<input type="text" id="njstartstep"/><br></br>
+    <input type="text" id="njstartstep"/><br></br>
+	</div>
+	
+	<br></br>
 	<label id="datetimepickerLabel">Deployment kick off date and time</label>
 	<div class="divider"/>
 	<input id="datetimepicker" type="text"/>
