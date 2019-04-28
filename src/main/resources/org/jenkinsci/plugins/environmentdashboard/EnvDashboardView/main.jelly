@@ -437,6 +437,7 @@
 							var validationObj = Q("#dialog").validate({ // initialize the plugin
 								rules: {
 									ClientRevision: {
+										required: true,
 										minlength: 40,
 										maxlength: 40,
 										// Using the normalizer to trim the value of the element
@@ -447,51 +448,65 @@
 										normalizer: function(value) {
 											return Q.trim(value);
 										}
+									},
+									ClientRevisionDecision: {
+										required: true
 									}
 								},
 								messages: {
-									ClientRevision: "value needs to be 40 characters long"
+									ClientRevision: "value needs to be 40 characters long",
+									ClientRevisionDecision: "please make a choice"
 								}
 							});
 							
 							validationObj.form();
 							Q("form").submit(function(e){ 
-							if(!validationObj.form()){ 
-							  alert("Form Errors"); 
-							  e.preventDefault(); } });
-							
-							
-							Q("#submit").click(function(){
-
-								//calculate seconds so we know when the jenkins build needs to be triggered
-								if(Q("#secondsToWait").val())
-								{
-									var futureDateTime = new Date(Q("#datetimepicker").val());
-									var now = new Date();
-									var diff = Math.round((futureDateTime - now)/1000);
-									Q("#secondsToWait").val(diff);
+								if(!validationObj.form())
+								{ 
+								  alert("Form Errors"); 
+								  e.preventDefault(); 
 								}
 								else
 								{
-									Q("#secondsToWait").val(0);
+									// Stop form from submitting normally
+									e.preventDefault();
+									
+									//calculate seconds so we know when the jenkins build needs to be triggered
+									if(Q("#datetimepicker").val())
+									{
+										var futureDateTime = new Date(Q("#datetimepicker").val());
+										var now = new Date();
+										var diff = Math.round((futureDateTime - now)/1000);
+										Q("#secondsToWait").val(diff);
+									}
+									else
+									{
+										Q("#secondsToWait").val(0);
+									}
+									
+									//alert(Q("#secondsToWait").val());
+									
+									
+									//Determine what type of deployment needs to be performed		
+									if (Q("#build_num").val().length != 0 &amp;&amp; Q("#core_version").val().length == 0)
+									{
+										//Perform client deployment
+										startJob(Q("#clientAcronym").val(),Q("#environment").val(),Q("#build_num").val());
+									}
+									else
+									{
+										//Perform backend deployment
+										startJobBackendDeploy(Q("#clientAcronym").val(),Q("#environment").val(),Q("#core_version").val());
+									}
+								
 								}
 								
-																	
-								if (Q("#build_num").val().length != 0 &amp;&amp; Q("#core_version").val().length == 0)
-								{
-									startJob(Q("#clientAcronym").val(),Q("#environment").val(),Q("#build_num").val());
-								}
-								else
-								{
-									validateTheForm();
-								}
 							});
 							
 							
 							Q("#reset").click(function(){
 								Q("#dialog").trigger("reset");
 								Q("#ClientRevisionValidation").empty();
-								Q("#secondsToWait").empty();
 								Q("#ClientRevisionSection").hide();
 								
 							});
@@ -505,43 +520,6 @@
 						});
 					
 					
-					
-						function validateTheForm()
-						{
-							var proceed = false;
-							var SHA_length = 40; //SHA value should always be 40 characters long
-							
-							if (Q("#ClientRevisionDecision").val() == "yes")
-							{
-								
-								//alert(Q("#ClientRevision").val().length);
-								
-								if (Q("#ClientRevision").val().length != SHA_length) 
-								{
-									Q("#ClientRevisionValidation").text("It looks like some characters are missing since SHA value should be 40 characters long. Please enter the correct value.");
-									Q("#ClientRevisionValidation").css("color", "red");
-									Q("#ClientRevision").focus();
-								}
-								else
-								{
-									Q("#ClientRevisionValidation").text("Input OK");
-									Q("#ClientRevisionValidation").css("color", "green");
-									proceed = true;
-								}
-								
-								
-							}
-							else
-							{
-								proceed = true;
-							}
-							
-							if (proceed == true)
-							{
-								startJobBackendDeploy(Q("#clientAcronym").val(),Q("#environment").val(),Q("#core_version").val());
-							}
-						}
-					
 						function closeDynamicDialog()
 						{
 							
@@ -549,8 +527,8 @@
 							
 							//Reset values and selections of html elements
 							Q("#dialog").trigger("reset");
-							Q("#ClientRevisionValidation").empty();
-							Q("#secondsToWait").empty();
+
+							
 						}
 					
 						
@@ -626,7 +604,7 @@
 											"CoreVersion=" + coreVersion +
 											"&amp;Client=" + compSubstr +
 											"&amp;Env=" + env +
-											"&amp;ClientRevision=" + Q("#ClientRevision").val() +
+											"&amp;ClientRevision=" + Q("#ClientRevision").val().trim() +
 											"&amp;NoRollback=" + DoNotPerformRollback +
 											"&amp;StartCRjob=" + StartCRjob +
 											"&amp;StartNJ=" + StartNJ +
@@ -660,7 +638,7 @@
 							 Q("#clientAcronym").val(comp);
 							 Q("#environment").val(env);
 							 Q("#build_num").val(buildNum);
-							 Q("#secondsToWait").val(0);
+							 
 						
 						}
 						
@@ -768,7 +746,7 @@
 	</table>
 </div>
 <div id="overlay" style="display:none;"></div>
-<form id="dialog" style="display:none;">
+<form id="dialog" style="display:none;" method="get">
 	<p id="dialogTitle">Placeholder for Deployment Information</p>
 
 	<label id="datetimepickerLabel">Jira Ticket</label>
@@ -779,8 +757,8 @@
 	<div id="non-dev-env" style="text-align: left"> 
 	<label id="ClientRevisionLabelQuestion">Do you want to provide specific client revision with this backend deployment?</label>
     <div class="divider"/>
-	<select id="ClientRevisionDecision">
-	<option value="empty"></option>
+	<select id="ClientRevisionDecision" name="ClientRevisionDecision">
+	<option value="">Choose...</option>
     <option value="no">No</option>
     <option value="yes">Yes</option>
     </select>
@@ -795,7 +773,6 @@
 	<input type="text" id="ClientRevision" name="ClientRevision"/><br></br>
 	</div>
 	<label id="ClientRevisionDescriptionLabel">SHA value (checksum hash represented as 40 digits long hexadecimal number which is a GitHub commit) and represents a client version to deploy after core deployment completes</label><br></br>
-	<p id="ClientRevisionValidation"></p>
 	</div>
 	
 	<br></br>
@@ -832,7 +809,7 @@
 	<br></br>
 	<br></br>
 	<div id="buttons" style="text-align: right">
-	<span id="submit">Submit</span>
+	<input type="submit" id="submit" value="Submit"/>
 	<div class="divider"/>
 	<span id="reset">Reset</span>
 	<div class="divider"/>
