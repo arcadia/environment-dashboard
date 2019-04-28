@@ -475,7 +475,7 @@
 							});
 							
 							validationObj.form();
-							Q("form").submit(function(e){ 
+							Q("#dialog").submit(function(e){ 
 								if(!validationObj.form())
 								{ 
 								  alert("Form Errors"); 
@@ -522,7 +522,7 @@
 							Q("#reset").click(function(){
 								Q("#dialog").trigger("reset");
 								Q("#ClientRevisionValidation").empty();
-								Q("#ClientRevisionSection, #njstartstepSection").hide();
+								Q("#ClientRevisionSection, #njstartstepSection, #prd-env").hide();
 								
 							});
 							
@@ -556,6 +556,7 @@
 							
 							//Reset values and selections of html elements
 							Q("#dialog").trigger("reset");
+							
 
 							
 						}
@@ -675,11 +676,19 @@
 
 							 Q("#overlay, #dialog").show();
 
+							if (env == "PRD")
+							{
+								Q("#PRDsection").show();
+							}
+							 
 							 //Set the html elements
 							 Q("#dialogTitle").text("Deploying " + comp + " to " + env + " for " + buildNum);
 							 Q("#clientAcronym").val(comp);
 							 Q("#environment").val(env);
 							 Q("#build_num").val(buildNum);
+							 
+							 
+
 							 
 						
 						}
@@ -788,7 +797,7 @@
 	</table>
 </div>
 <div id="overlay" style="display:none;"></div>
-<form id="dialog" style="display:none;" method="get">
+<form id="dialog" style="display:none;" autocomplete="off">
 	<p id="dialogTitle">Placeholder for Deployment Information</p>
 
 	<label id="datetimepickerLabel">Jira Ticket (e.g., ACM-123)</label>
@@ -818,9 +827,6 @@
 	
 	<br></br>
 
-	<input type="checkbox" id="norollback">Do not perform auto-rollback upon failed deployment</input><br></br>
-
-	
 	<div id="PRDsection">
 	<input type="checkbox" id="startcrjob">Start change request job upon successful deployment</input><br></br>
 	<input type="checkbox" id="startnj">Start nightly job upon successful execution of deployment and/or change request job</input><br></br>
@@ -847,7 +853,6 @@
 	<input id="datetimepicker" type="text"/>
 	</div>
 	
-	
 	<input type="hidden" id="clientAcronym" value=""/>
 	<input type="hidden" id="environment" value=""/>
 	<input type="hidden" id="core_version" value=""/>
@@ -857,6 +862,8 @@
 	<br></br>
 	<br></br>
 	<br></br>
+	<input type="checkbox" id="norollback">Do not perform auto-rollback upon failed deployment</input><br></br>
+	
 	<div id="buttons" style="text-align: right">
 	<input type="submit" id="submit" value="Submit"/>
 	<div class="divider"/>
