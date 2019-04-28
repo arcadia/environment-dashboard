@@ -651,7 +651,7 @@
 											"&amp;StartCRjob=" + StartCRjob +
 											"&amp;StartNJ=" + StartNJ +
 											"&amp;NJstartStep=" + nightly_job_start_step +
-											"&amp;JiraTicket=" + Q("#jiraticket").val() +
+											"&amp;JiraTicket=" + Q("#jiraticket").val().trim().replace(/['"]+/g, '') +
 											"&amp;delay=" + Number(Q("#secondsToWait").val()) + "sec";
 									
 									
@@ -710,7 +710,7 @@
 										"&amp;StartCRjob=" + StartCRjob +
 										"&amp;StartNJ=" + StartNJ +
 										"&amp;NJstartStep=" + nightly_job_start_step +
-										"&amp;JiraTicket=" + Q("#jiraticket").val() +
+										"&amp;JiraTicket=" + Q("#jiraticket").val().trim().replace(/['"]+/g, '') +
 										"&amp;delay=" + Number(Q("#secondsToWait").val()) + "sec";
 							
 							alert(buildUrl);
