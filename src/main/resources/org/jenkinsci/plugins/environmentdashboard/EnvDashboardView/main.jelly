@@ -455,6 +455,11 @@
 							});
 							
 							validationObj.form();
+							Q("form").submit(function(e){ 
+							if(!validationObj.form()){ 
+							  alert("Form Errors"); 
+							  e.preventDefault(); } });
+							
 							
 							Q("#submit").click(function(){
 
@@ -471,8 +476,6 @@
 									Q("#secondsToWait").val(0);
 								}
 								
-								alert(Q("#secondsToWait").val());
-								
 																	
 								if (Q("#build_num").val().length != 0 &amp;&amp; Q("#core_version").val().length == 0)
 								{
@@ -488,6 +491,7 @@
 							Q("#reset").click(function(){
 								Q("#dialog").trigger("reset");
 								Q("#ClientRevisionValidation").empty();
+								Q("#secondsToWait").empty();
 								Q("#ClientRevisionSection").hide();
 								
 							});
@@ -546,6 +550,7 @@
 							//Reset values and selections of html elements
 							Q("#dialog").trigger("reset");
 							Q("#ClientRevisionValidation").empty();
+							Q("#secondsToWait").empty();
 						}
 					
 						
