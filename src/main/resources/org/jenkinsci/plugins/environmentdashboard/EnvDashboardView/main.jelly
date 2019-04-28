@@ -438,7 +438,15 @@
 								rules: {
 									ClientRevision: {
 										minlength: 40,
-										maxlength: 40
+										maxlength: 40,
+										// Using the normalizer to trim the value of the element
+										// before validating it.
+										//
+										// The value of `this` inside the `normalizer` is the corresponding
+										// DOMElement. In this example, `this` references the `username` element.
+										normalizer: function(value) {
+											return Q.trim(value);
+										}
 									}
 								},
 								messages: {
@@ -449,24 +457,33 @@
 							validationObj.form();
 							
 							Q("#submit").click(function(){
-							
+
 								//calculate seconds so we know when the jenkins build needs to be triggered
-								var futureDateTime = new Date(Q("#datetimepicker").val());
-								var now = new Date();
-								var diff = Math.round((futureDateTime - now)/1000);
-								Q("#secondsToWait").val(diff);
+								if(Q("#secondsToWait").val())
+								{
+									var futureDateTime = new Date(Q("#datetimepicker").val());
+									var now = new Date();
+									var diff = Math.round((futureDateTime - now)/1000);
+									Q("#secondsToWait").val(diff);
+								}
+								else
+								{
+									Q("#secondsToWait").val(0);
+								}
+								
 								alert(Q("#secondsToWait").val());
-							
+								
+																	
 								if (Q("#build_num").val().length != 0 &amp;&amp; Q("#core_version").val().length == 0)
 								{
 									startJob(Q("#clientAcronym").val(),Q("#environment").val(),Q("#build_num").val());
 								}
 								else
 								{
-																		
 									validateTheForm();
 								}
 							});
+							
 							
 							Q("#reset").click(function(){
 								Q("#dialog").trigger("reset");
@@ -475,13 +492,15 @@
 								
 							});
 							
+							
 							Q("#cancel").click(closeDynamicDialog);
 							Q("#ClientRevisionDecision").change(CheckClientRevisionDecision);
-							
 							
 							Q("#datetimepicker").datetimepicker();
 							
 						});
+					
+					
 					
 						function validateTheForm()
 						{
@@ -553,7 +572,6 @@
 							 Q("#clientAcronym").val(comp);
 							 Q("#environment").val(env);
 							 Q("#core_version").val(coreVersion);
-							 Q("#secondsToWait").val(0);
 							 
 							 
 						}
@@ -588,64 +606,38 @@
 								var xmlHttp = new XMLHttpRequest();
 								var baseUrl = "/job/Backend_Deploy";
 								var buildUrl = "";
-								var r_on_rev = false;
-								var norollback = false;
-								var SHA_length = 40; //SHA value should always be 40 characters long
+								var DoNotPerformRollback;
+								var StartCRjob;
+								var StartNJ;
+								var nightly_job_start_step;
 								
-								if (env != "DEV")
-								{
-									//Check if custom client revision was provided
-									if (Q("#ClientRevisionDecision").val() == "yes" &amp;&amp; Q("#ClientRevision").val().length == SHA_length) 
-									{
-										r_on_rev = true;
-										//Get SHA value
-										ClientRevision = Q("#ClientRevision").val();
-											
-										//specify custom SHA value
-										buildUrl = baseUrl + "/buildWithParameters?CoreVersion=" + coreVersion + "&amp;Client=" + compSubstr + "&amp;Env=" + env + "&amp;ClientRevision=" + ClientRevision + "&amp;delay=" + Q("#secondsToWait").val() + "sec";
-
-									}
-								
-								}
-								
-								
-								//Custom SHA is not needed
-								if (r_on_rev == false)
-								{
-									buildUrl = baseUrl + "/buildWithParameters?CoreVersion=" + coreVersion + "&amp;Client=" + compSubstr + "&amp;Env=" + env + "&amp;delay" + Q("#secondsToWait").val() + "sec";
-								}
-								
-								
-								//Check if no auto-rollback was checked
-								<!--if (Q("#norollback").is(":checked"))--> //working statement but prefer below approach instead
-								if (Q("#norollback").prop("checked"))
-								{
-									norollback = true;
-									var norollbackFlag = "-no_rollback";
-								}
-								
-																
-								//Post request if custom SHA is not needed or when user decided to provide a specific client revision (SHA value)
-								if (r_on_rev == false || (r_on_rev == true &amp;&amp; ClientRevision != null))
-								{
-								
-									if (r_on_rev == false &amp;&amp; norollback == true)
-									{
-										buildUrl = baseUrl + "/buildWithParameters?CoreVersion=" + coreVersion + "&amp;Client=" + compSubstr + "&amp;Env=" + env + "&amp;NoRollback=" + norollbackFlag + "&amp;delay" + Q("#secondsToWait").val() + "sec";
-										
-									}
+								//Prepare switches and parameters for passing to Jenkins
+								if(Q("#norollback").is(":checked")){DoNotPerformRollback="-no_rollback";}else{DoNotPerformRollback="";}
+								if(Q("#startcrjob").is(":checked")){StartCRjob="-start_cr_job";}else{StartCRjob="";}
+								if(Q("#startnj").is(":checked")){StartNJ="-start_nightly_job";}else{StartNJ="";}
+								if(!Q("#njstartstep").val()){nightly_job_start_step="NA";}else{StartNJ=Q("#njstartstep").val();}
 									
-									if (r_on_rev == true &amp;&amp; ClientRevision != null &amp;&amp; norollback == true)
-									{
-										buildUrl = baseUrl + "/buildWithParameters?CoreVersion=" + coreVersion + "&amp;Client=" + compSubstr + "&amp;Env=" + env + "&amp;ClientRevision=" + ClientRevision + "&amp;NoRollback=" + norollbackFlag + "&amp;delay" + Q("#secondsToWait").val() + "sec";
-										
-									}
+								buildUrl = baseUrl + "/buildWithParameters?" +
+											"CoreVersion=" + coreVersion +
+											"&amp;Client=" + compSubstr +
+											"&amp;Env=" + env +
+											"&amp;ClientRevision=" + Q("#ClientRevision").val() +
+											"&amp;NoRollback=" + DoNotPerformRollback +
+											"&amp;StartCRjob=" + StartCRjob +
+											"&amp;StartNJ=" + StartNJ +
+											"&amp;NJstartStep=" + nightly_job_start_step +
+											"&amp;JiraTicket=" + Q("#jiraticket").val() +
+											"&amp;delay=" + Number(Q("#secondsToWait").val()) + "sec";
+									
+									
+								alert(buildUrl);
 								
-									closeDynamicDialog();
-									xmlHttp.open("POST", buildUrl, true); // true for asynchronous 
-									xmlHttp.send(null);
-									window.location.replace(baseUrl);
-								}
+								
+								closeDynamicDialog();
+								xmlHttp.open("POST", buildUrl, true); // true for asynchronous 
+								xmlHttp.send(null);
+								window.location.replace(baseUrl);
+								
 									
 							}
 							
@@ -672,20 +664,31 @@
 							
 							var xmlHttp = new XMLHttpRequest();
 							var baseUrl = "/job/Client_Deploy";
-							var buildUrl = "";
-							var norollback = false;
+							var buildUrl = "";							
+							var DoNotPerformRollback;
+							var StartCRjob;
+							var StartNJ;
+							var nightly_job_start_step;
 							
-							//Check if no auto-rollback was checked
-							if (Q("#norollback").prop("checked"))
-							{
-								norollback = true;
-								var norollbackFlag = "-no_rollback";
-								buildUrl = baseUrl + "/buildWithParameters?SourceBuildID=" + buildNum + "&amp;Client=" + comp + "&amp;Env=" + env + "&amp;NoRollback=" + norollbackFlag + "&amp;delay" + Q("#secondsToWait").val() + "sec";
-							}
-							else
-							{
-								buildUrl = baseUrl + "/buildWithParameters?SourceBuildID=" + buildNum + "&amp;Client=" + comp + "&amp;Env=" + env + "&amp;delay" + Q("#secondsToWait").val() + "sec";
-							}
+							//Prepare switches and parameters for passing to Jenkins
+							if(Q("#norollback").is(":checked")){DoNotPerformRollback="-no_rollback";}else{DoNotPerformRollback="";}
+							if(Q("#startcrjob").is(":checked")){StartCRjob="-start_cr_job";}else{StartCRjob="";}
+							if(Q("#startnj").is(":checked")){StartNJ="-start_nightly_job";}else{StartNJ="";}
+							if(!Q("#njstartstep").val()){nightly_job_start_step="NA";}else{StartNJ=Q("#njstartstep").val();}
+							
+							
+							buildUrl = baseUrl + "/buildWithParameters?" +
+										"SourceBuildID=" + buildNum + 
+										"&amp;Client=" + comp + 
+										"&amp;Env=" + env + 
+										"&amp;NoRollback=" + DoNotPerformRollback +
+										"&amp;StartCRjob=" + StartCRjob +
+										"&amp;StartNJ=" + StartNJ +
+										"&amp;NJstartStep=" + nightly_job_start_step +
+										"&amp;JiraTicket=" + Q("#jiraticket").val() +
+										"&amp;delay=" + Number(Q("#secondsToWait").val()) + "sec";
+							
+							alert(buildUrl);
 							
 							closeDynamicDialog();
 							xmlHttp.open("POST", buildUrl, true); // true for asynchronous 
@@ -766,6 +769,7 @@
 	<label id="datetimepickerLabel">Jira Ticket</label>
 	<div class="divider"/>
 	<input id="jiraticket" type="text"/>
+	<br></br><br></br>
 	
 	<div id="non-dev-env" style="text-align: left"> 
 	<label id="ClientRevisionLabelQuestion">Do you want to provide specific client revision with this backend deployment?</label>
@@ -796,18 +800,18 @@
 	</label>
 		
 	<div id="PRDsection">
-	<label class="container">Start change request job
+	<label class="container">Start change request job upon successful deployment
 	<input type="checkbox" id="startcrjob"></input>
 	<span class="checkmark"></span>
 	</label>
-	<label class="container">Start nightly job
+	<label class="container">Start nightly job upon successful execution of deployment and/or change request job
 	<input type="checkbox" id="startnj"></input>
 	<span class="checkmark"></span>
 	</label>
 	<label id="njstartstepLabel">Nightly job start step</label>
 	<div class="divider"/>
 	<input type="text" id="njstartstep"/><br></br>
-	<label id="datetimepickerLabel">Deployment kick off</label>
+	<label id="datetimepickerLabel">Deployment kick off date and time</label>
 	<div class="divider"/>
 	<input id="datetimepicker" type="text"/>
 	</div>
