@@ -6,8 +6,10 @@
 <link href="${rootURL}/plugin/environment-dashboard/css/dropdown_button.css" type="text/css" rel="stylesheet"/>
 <link href="${rootURL}/plugin/environment-dashboard/css/dynamic_dialog.css" type="text/css" rel="stylesheet"/>
 <link href="${rootURL}/plugin/environment-dashboard/css/jquery.datetimepicker.css" type="text/css" rel="stylesheet"/>
+<link href="${rootURL}/plugin/environment-dashboard/css/jquery-ui.css" type="text/css" rel="stylesheet"/>
 <script src="${rootURL}/plugin/environment-dashboard/js/jquery.datetimepicker.full.min.js"></script>
 <script src="${rootURL}/plugin/environment-dashboard/js/jquery.validate.js"></script>
+<script src="${rootURL}/plugin/environment-dashboard/js/jquery-ui.js"></script>
 <div class="overlay" style="display:none; background-color: rgba(0, 0, 0, 0.4); position:absolute; top: 0; left:0; bottom:0; right:0;" onclick="hideAll()"></div>
 <div class="popup" id="popup" style="position: absolute; width: 300px; height:150; display:none; background-color: white; text-align: center; top:50%; left:50%; margin-left: -150px; margin-top: -75;"></div>
 <div id="startDashboard" style="margin-left: -360px; margin-right: 360px;">
@@ -433,6 +435,7 @@
 						Q(document).ready(function(){
 						
 							Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection").hide();
+							Q("#dialog").draggable();
 							
 							var validationObj = Q("#dialog").validate({ // initialize the plugin
 								rules: {
@@ -465,12 +468,16 @@
 									},
 									njStartStepDecision: {
 										required: true
+									},
+									datetimepicker: {
+										required: true
 									}
 								},
 								messages: {
 									ClientRevision: "value needs to be 40 characters long",
 									ClientRevisionDecision: "please make a choice",
-									njStartStepDecision: "please make a choice"
+									njStartStepDecision: "please make a choice",
+									datetimepicker: "please schedule this PRD deployment"
 								}
 							});
 							
@@ -487,6 +494,9 @@
 									e.preventDefault();
 									
 									//calculate seconds so we know when the jenkins build needs to be triggered
+									//need to validate the date first
+									
+									
 									if(Q("#datetimepicker").val())
 									{
 										var futureDateTime = new Date(Q("#datetimepicker").val());
@@ -533,7 +543,7 @@
 							Q("#startnj").change(function(){
 								if(this.checked) 
 								{
-									Q("#prd-env, #njstartstepSection").show();
+									Q("#prd-env").show();
 								}
 								else
 								{
@@ -545,6 +555,99 @@
 							Q("#njStartStepDecision").change(ChecknjStartStepDecision);
 							
 							Q("#datetimepicker").datetimepicker();
+							
+							
+							
+							//Pre-populate the NJ steps
+							Q( function() {
+								var availableNJsteps = [
+									"Check if Previous Job Failed on Cut off Check",
+									"Set Currently Processing To One",
+									"Auto Reprocess",
+									"Staging Load With SSIS",
+									"Send Mail on SSIS Staging Load Failure",
+									"Informatica Load",
+									"Send Mail on Informatica Failure",
+									"Update Staging DB Stats",
+									"Patient Scrub",
+									"Patient Load",
+									"Scrub",
+									"DW Plan Load",
+									"Load SSIS Plan Cache",
+									"Load Plan_Claim_Header",
+									"Load Plan_Claim_Line",
+									"Load Plan_Claim_Diagnosis",
+									"DW Plan 2 Load",
+									"Delete Inactive Patients",
+									"MPI",
+									"Update Patient Freeze/Destroy Indicator",
+									"Destroy Patient/Clinical Information",
+									"Load SSIS Clinical Cache",
+									"Load Encounter",
+									"Drop indexed view indexes",
+									"DW Clinical Load",
+									"DW Provider Organization Hierarchy Load",
+									"Load MedicationList",
+									"Load Prescription",
+									"Load Order",
+									"Load Result",
+									"Load Maintenance",
+									"Load Charge",
+									"Load ProgressNote",
+									"Load UnstructuredText",
+									"Post Load Updates",
+									"Load RAPS File",
+									"Check Cutoff Time",
+									"Populate Top Plan Claim Line",
+									"Load plan_member_month",
+									"Load Person Demographic",
+									"Populate Provider Person",
+									"Populate MedRx, MedDispense, RXCUI tables",
+									"Recreate indexes for indexed views",
+									"Populate POS Location Table",
+									"Delete Events",
+									"Update PersonID In Events",
+									"Update PersonID In RAPSDetail",
+									"Update Location In Events",
+									"Update Provider In Events",
+									"Load Event",
+									"Load EdEvent table",
+									"Populate Attribution",
+									"Populate Fills Report",
+									"Populate Medical Expense",
+									"Populate Dx Hierarchy",
+									"Update Common Report Fields",
+									"Populate Complete Member Product",
+									"Risk Score Calculation And Common Report Fields Post Update",
+									"Populate Interaction and Appointment Sorted",
+									"Populate Comorbidity",
+									"Immunizations Details",
+									"Populate Care Gaps",
+									"Populate PersonLastPCPVisit",
+									"Populate PersonNextPCPAppointment",
+									"Cost Management Fact",
+									"Admission Events",
+									"Update Provider/Location in ImmDetails",
+									"Calculate Measure Enrollment",
+									"Update Warehouse DB Stats and create periods",
+									"Measure Processing",
+									"Populate MeasureSubjectCombined",
+									"Geocode",
+									"Remove Deleted Patients From Measures",
+									"Populate Pre Visit Data",
+									"Populate Member Roster",
+									"Trigger to Populate System Lists",
+									"Run System List Procedure",
+									"Set Currently Processing To Zero and Update Measure Stats",
+									"Update Stats Web DB",
+									"Maintenance Timing Errors",
+									"StartClientBackupJob",
+									"Report job errors"
+								];
+								Q("#njstartstep").autocomplete({
+								  source: availableNJsteps
+								});
+							} );
 							
 						});
 					
@@ -568,7 +671,7 @@
 							//alert(Q().jquery); //it is 1.7.2
 							
 							 Q("#overlay, #dialog").show();
-
+							 
 							 if (env != "DEV")
 							 {
 								Q("#non-dev-env").show();
@@ -850,7 +953,7 @@
 	<br></br>
 	<label id="datetimepickerLabel">Deployment kick off date and time</label>
 	<div class="divider"/>
-	<input id="datetimepicker" type="text"/>
+	<input id="datetimepicker" name="datetimepicker" type="text"/>
 	</div>
 	
 	<input type="hidden" id="clientAcronym" value=""/>
