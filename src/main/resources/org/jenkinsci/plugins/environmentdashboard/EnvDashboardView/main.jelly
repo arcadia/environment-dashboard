@@ -465,7 +465,6 @@
 									},
 									njstartstep: {
 										required: true,
-										minlength: 1,
 										// Using the normalizer to trim the value of the element
 										// before validating it.
 										//
@@ -484,7 +483,11 @@
 									}
 								},
 								messages: {
-									ClientRevision: "value needs to be 40 characters long",
+									ClientRevision: {
+										required: "please enter client revision",
+										minlength: "value needs to be 40 characters long",
+										maxlength: "value needs to be 40 characters long"
+									},
 									ClientRevisionDecision: "please make a choice",
 									njStartStepDecision: "please make a choice",
 									datetimepicker: {
@@ -495,11 +498,10 @@
 								}
 							});
 							
-							validationObj.form();
+							
 							Q("#dialog").submit(function(e){ 
 								if(!validationObj.form())
-								{ 
-								  alert("Form Errors"); 
+								{  
 								  e.preventDefault(); 
 								}
 								else
@@ -507,10 +509,7 @@
 									// Stop form from submitting normally
 									e.preventDefault();
 									
-									//calculate seconds so we know when the jenkins build needs to be triggered
-									//need to validate the date first
-									
-									
+									//calculate seconds so we know when the jenkins build needs to be triggered									
 									if(Q("#datetimepicker").val())
 									{
 										var futureDateTime = new Date(Q("#datetimepicker").val());
@@ -522,9 +521,7 @@
 									{
 										Q("#secondsToWait").val(0);
 									}
-									
-									//alert(Q("#secondsToWait").val());
-									
+																		
 									
 									//Determine what type of deployment needs to be performed		
 									if (Q("#build_num").val().length != 0 &amp;&amp; Q("#core_version").val().length == 0)
@@ -569,8 +566,6 @@
 							Q("#njStartStepDecision").change(ChecknjStartStepDecision);
 							
 							Q("#datetimepicker").datetimepicker();
-							
-							
 							
 							//Pre-populate the NJ steps
 							var availableNJsteps = [
@@ -658,10 +653,8 @@
 								"Report job errors"
 							];
 							
-							Q("#njstartstep").click(function(){
-								Q("#njstartstep").autocomplete({
-								  source: availableNJsteps
-								})
+							Q("#njstartstep").autocomplete({
+							  source: availableNJsteps
 							});
 							
 						});
@@ -669,14 +662,10 @@
 					
 						function closeDynamicDialog()
 						{
-							
 							Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection").hide();
 							
 							//Reset values and selections of html elements
 							Q("#dialog").trigger("reset");
-							
-
-							
 						}
 					
 						
@@ -734,10 +723,6 @@
 						
 						function startJobBackendDeploy(comp, env, coreVersion)
 						{
-							//alert(comp);
-							//alert(env);
-							//alert(coreVersion);
-							//alert(Q("#ClientRevision").val());
 							
 							var compSubstr = comp.substring(0, comp.indexOf(' '))
 							
@@ -773,8 +758,7 @@
 											"&amp;delay=" + Number(Q("#secondsToWait").val()) + "sec";
 									
 									
-								alert(buildUrl);
-								
+								//alert(buildUrl);
 								
 								closeDynamicDialog();
 								xmlHttp.open("POST", buildUrl, true); // true for asynchronous 
@@ -839,7 +823,7 @@
 										"&amp;JiraTicket=" + Q("#jiraticket").val().trim().replace(/['"]+/g, '') +
 										"&amp;delay=" + Number(Q("#secondsToWait").val()) + "sec";
 							
-							alert(buildUrl);
+							//alert(buildUrl);
 							
 							closeDynamicDialog();
 							xmlHttp.open("POST", buildUrl, true); // true for asynchronous 
@@ -917,57 +901,47 @@
 <form id="dialog" style="display:none;" autocomplete="off">
 	<p id="dialogTitle">Placeholder for Deployment Information</p>
 
-	<label id="datetimepickerLabel">Jira Ticket (e.g., ACM-123)</label>
-	<div class="divider"/>
-	<input id="jiraticket" type="text"/>
+	<label id="datetimepickerLabel">Jira Ticket (e.g., ACM-123)</label>	<div class="divider"/><input id="jiraticket" type="text"/>
+	
 	<br></br><br></br>
 	
 	<div id="non-dev-env" style="text-align: left"> 
-	<label id="ClientRevisionLabelQuestion">Do you want to provide specific client revision with this backend deployment?</label>
-    <div class="divider"/>
-	<select id="ClientRevisionDecision" name="ClientRevisionDecision">
-	<option value="">Choose...</option>
-    <option value="no">No</option>
-    <option value="yes">Yes</option>
-    </select>
+		<label id="ClientRevisionLabelQuestion">Do you want to provide specific client revision with this backend deployment?</label><div class="divider"/>
+		<select id="ClientRevisionDecision" name="ClientRevisionDecision">
+			<option value="">Choose...</option>
+			<option value="no">No</option>
+			<option value="yes">Yes</option>
+		</select>
 	</div>
 	
 	<div id="ClientRevisionSection">
-	<label id="requestforSHA">Please enter SHA value of client revision (please make sure the build is stable) to use with this backend deployment</label><br></br>
-	<div style="text-align: left">
-	<label id="ClientRevisionLabel">Client revision</label>
-	<div class="divider"/>
-	<input type="text" id="ClientRevision" name="ClientRevision"/><br></br>
-	</div>
-	<label id="ClientRevisionDescriptionLabel">SHA value (checksum hash represented as 40 digits long hexadecimal number which is a GitHub commit) and represents a client version to deploy after core deployment completes</label><br></br>
+		<label id="requestforSHA">Please enter SHA value of client revision (please make sure the build is stable) to use with this backend deployment</label><br></br>
+		<label id="ClientRevisionLabel">Client revision</label><div class="divider"/><input type="text" id="ClientRevision" name="ClientRevision"/><br></br>
+		<label id="ClientRevisionDescriptionLabel">SHA value (checksum hash represented as 40 digits long hexadecimal number which is a GitHub commit) and represents a client version to deploy after core deployment completes</label><br></br>
 	</div>
 	
 	<br></br>
 
 	<div id="PRDsection">
-	<input type="checkbox" id="startcrjob">Start change request job upon successful deployment</input><br></br>
-	<input type="checkbox" id="startnj">Start nightly job upon successful execution of deployment and/or change request job</input><br></br>
+		<input type="checkbox" id="startcrjob">Start change request job upon successful deployment</input><br></br>
+		<input type="checkbox" id="startnj">Start nightly job upon successful execution of deployment and/or change request job</input><br></br>
 
-	<div id="prd-env" style="text-align: left">
-	<label id="njStartStepLabelQuestion">Do you want to start nightly job from a specific step (If no, the NJ will start from configured step which is usually step 1)?</label>
-    <div class="divider"/>
-	<select id="njStartStepDecision" name="njStartStepDecision">
-	<option value="">Choose...</option>
-    <option value="no">No</option>
-    <option value="yes">Yes</option>
-    </select>
-	</div>
-	
-	<div id="njstartstepSection">
-	<label id="njstartstepLabel">Nightly job start step</label>
-	<div class="divider"/>
-    <input type="text" id="njstartstep"/><br></br>
-	</div>
-	
-	<br></br>
-	<label id="datetimepickerLabel">Deployment kick off date and time</label>
-	<div class="divider"/>
-	<input id="datetimepicker" name="datetimepicker" type="text"/>
+		<div id="prd-env" style="text-align: left">
+			<label id="njStartStepLabelQuestion">Do you want to start nightly job from a specific step (If no, the NJ will start from configured step which is usually step 1)?</label><div class="divider"/>
+			<select id="njStartStepDecision" name="njStartStepDecision">
+				<option value="">Choose...</option>
+				<option value="no">No</option>
+				<option value="yes">Yes</option>
+			</select>
+		</div>
+		
+		<div id="njstartstepSection">
+			<label id="njstartstepLabel">Nightly job start step</label><div class="divider"/><input type="text" id="njstartstep" name="njstartstep"/><br></br>
+		</div>
+		
+		<br></br>
+		
+		<label id="datetimepickerLabel">Deployment kick off date and time</label><div class="divider"/><input id="datetimepicker" name="datetimepicker" type="text"/>
 	</div>
 	
 	<input type="hidden" id="clientAcronym" value=""/>
@@ -979,14 +953,13 @@
 	<br></br>
 	<br></br>
 	<br></br>
-	<input type="checkbox" id="norollback">Do not perform auto-rollback upon failed deployment</input><br></br>
+	
+	<input type="checkbox" id="norollback">Do not perform auto-rollback upon failed deployment</input>
+	
+	<br></br>
 	
 	<div id="buttons" style="text-align: right">
-	<input type="submit" id="submit" value="Submit"/>
-	<div class="divider"/>
-	<span id="reset">Reset</span>
-	<div class="divider"/>
-	<span id="cancel">Cancel</span>
+		<input type="submit" id="submit" value="Submit"/><div class="divider"/><span id="reset">Reset</span><div class="divider"/><span id="cancel">Cancel</span>
 	</div>
 	
 </form>
