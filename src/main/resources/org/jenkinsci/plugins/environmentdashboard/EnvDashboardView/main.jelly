@@ -437,6 +437,14 @@
 							Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection").hide();
 							Q("#dialog").draggable();
 							
+							
+							Q.validator.addMethod("dateTime", function(value, element) {
+								var futureDateTime = new Date(value);
+								var now = new Date();
+								return this.optional(element) || (futureDateTime &gt; now);
+							});
+							
+							
 							var validationObj = Q("#dialog").validate({ // initialize the plugin
 								rules: {
 									ClientRevision: {
@@ -457,6 +465,7 @@
 									},
 									njstartstep: {
 										required: true,
+										minlength: 1,
 										// Using the normalizer to trim the value of the element
 										// before validating it.
 										//
@@ -470,14 +479,19 @@
 										required: true
 									},
 									datetimepicker: {
-										required: true
+										required: true,
+										dateTime: true
 									}
 								},
 								messages: {
 									ClientRevision: "value needs to be 40 characters long",
 									ClientRevisionDecision: "please make a choice",
 									njStartStepDecision: "please make a choice",
-									datetimepicker: "please schedule this PRD deployment"
+									datetimepicker: {
+										required: "please schedule this PRD deployment",
+										dateTime: "please enter the date into the future"
+									},
+									njstartstep: "please enter name of the step"
 								}
 							});
 							
@@ -559,95 +573,96 @@
 							
 							
 							//Pre-populate the NJ steps
-							Q( function() {
-								var availableNJsteps = [
-									"Check if Previous Job Failed on Cut off Check",
-									"Set Currently Processing To One",
-									"Auto Reprocess",
-									"Staging Load With SSIS",
-									"Send Mail on SSIS Staging Load Failure",
-									"Informatica Load",
-									"Send Mail on Informatica Failure",
-									"Update Staging DB Stats",
-									"Patient Scrub",
-									"Patient Load",
-									"Scrub",
-									"DW Plan Load",
-									"Load SSIS Plan Cache",
-									"Load Plan_Claim_Header",
-									"Load Plan_Claim_Line",
-									"Load Plan_Claim_Diagnosis",
-									"DW Plan 2 Load",
-									"Delete Inactive Patients",
-									"MPI",
-									"Update Patient Freeze/Destroy Indicator",
-									"Destroy Patient/Clinical Information",
-									"Load SSIS Clinical Cache",
-									"Load Encounter",
-									"Drop indexed view indexes",
-									"DW Clinical Load",
-									"DW Provider Organization Hierarchy Load",
-									"Load MedicationList",
-									"Load Prescription",
-									"Load Order",
-									"Load Result",
-									"Load Maintenance",
-									"Load Charge",
-									"Load ProgressNote",
-									"Load UnstructuredText",
-									"Post Load Updates",
-									"Load RAPS File",
-									"Check Cutoff Time",
-									"Populate Top Plan Claim Line",
-									"Load plan_member_month",
-									"Load Person Demographic",
-									"Populate Provider Person",
-									"Populate MedRx, MedDispense, RXCUI tables",
-									"Recreate indexes for indexed views",
-									"Populate POS Location Table",
-									"Delete Events",
-									"Update PersonID In Events",
-									"Update PersonID In RAPSDetail",
-									"Update Location In Events",
-									"Update Provider In Events",
-									"Load Event",
-									"Load EdEvent table",
-									"Populate Attribution",
-									"Populate Fills Report",
-									"Populate Medical Expense",
-									"Populate Dx Hierarchy",
-									"Update Common Report Fields",
-									"Populate Complete Member Product",
-									"Risk Score Calculation And Common Report Fields Post Update",
-									"Populate Interaction and Appointment Sorted",
-									"Populate Comorbidity",
-									"Immunizations Details",
-									"Populate Care Gaps",
-									"Populate PersonLastPCPVisit",
-									"Populate PersonNextPCPAppointment",
-									"Cost Management Fact",
-									"Admission Events",
-									"Update Provider/Location in ImmDetails",
-									"Calculate Measure Enrollment",
-									"Update Warehouse DB Stats and create periods",
-									"Measure Processing",
-									"Populate MeasureSubjectCombined",
-									"Geocode",
-									"Remove Deleted Patients From Measures",
-									"Populate Pre Visit Data",
-									"Populate Member Roster",
-									"Trigger to Populate System Lists",
-									"Run System List Procedure",
-									"Set Currently Processing To Zero and Update Measure Stats",
-									"Update Stats Web DB",
-									"Maintenance Timing Errors",
-									"StartClientBackupJob",
-									"Report job errors"
-								];
+							var availableNJsteps = [
+								"Check if Previous Job Failed on Cut off Check",
+								"Set Currently Processing To One",
+								"Auto Reprocess",
+								"Staging Load With SSIS",
+								"Send Mail on SSIS Staging Load Failure",
+								"Informatica Load",
+								"Send Mail on Informatica Failure",
+								"Update Staging DB Stats",
+								"Patient Scrub",
+								"Patient Load",
+								"Scrub",
+								"DW Plan Load",
+								"Load SSIS Plan Cache",
+								"Load Plan_Claim_Header",
+								"Load Plan_Claim_Line",
+								"Load Plan_Claim_Diagnosis",
+								"DW Plan 2 Load",
+								"Delete Inactive Patients",
+								"MPI",
+								"Update Patient Freeze/Destroy Indicator",
+								"Destroy Patient/Clinical Information",
+								"Load SSIS Clinical Cache",
+								"Load Encounter",
+								"Drop indexed view indexes",
+								"DW Clinical Load",
+								"DW Provider Organization Hierarchy Load",
+								"Load MedicationList",
+								"Load Prescription",
+								"Load Order",
+								"Load Result",
+								"Load Maintenance",
+								"Load Charge",
+								"Load ProgressNote",
+								"Load UnstructuredText",
+								"Post Load Updates",
+								"Load RAPS File",
+								"Check Cutoff Time",
+								"Populate Top Plan Claim Line",
+								"Load plan_member_month",
+								"Load Person Demographic",
+								"Populate Provider Person",
+								"Populate MedRx, MedDispense, RXCUI tables",
+								"Recreate indexes for indexed views",
+								"Populate POS Location Table",
+								"Delete Events",
+								"Update PersonID In Events",
+								"Update PersonID In RAPSDetail",
+								"Update Location In Events",
+								"Update Provider In Events",
+								"Load Event",
+								"Load EdEvent table",
+								"Populate Attribution",
+								"Populate Fills Report",
+								"Populate Medical Expense",
+								"Populate Dx Hierarchy",
+								"Update Common Report Fields",
+								"Populate Complete Member Product",
+								"Risk Score Calculation And Common Report Fields Post Update",
+								"Populate Interaction and Appointment Sorted",
+								"Populate Comorbidity",
+								"Immunizations Details",
+								"Populate Care Gaps",
+								"Populate PersonLastPCPVisit",
+								"Populate PersonNextPCPAppointment",
+								"Cost Management Fact",
+								"Admission Events",
+								"Update Provider/Location in ImmDetails",
+								"Calculate Measure Enrollment",
+								"Update Warehouse DB Stats and create periods",
+								"Measure Processing",
+								"Populate MeasureSubjectCombined",
+								"Geocode",
+								"Remove Deleted Patients From Measures",
+								"Populate Pre Visit Data",
+								"Populate Member Roster",
+								"Trigger to Populate System Lists",
+								"Run System List Procedure",
+								"Set Currently Processing To Zero and Update Measure Stats",
+								"Update Stats Web DB",
+								"Maintenance Timing Errors",
+								"StartClientBackupJob",
+								"Report job errors"
+							];
+							
+							Q("#njstartstep").click(function(){
 								Q("#njstartstep").autocomplete({
 								  source: availableNJsteps
-								});
-							} );
+								})
+							});
 							
 						});
 					
@@ -710,7 +725,6 @@
 							if (Q("#njStartStepDecision").val() == "yes")
 							{
 								Q("#njstartstepSection").show(500);
-								
 							}
 							else
 							{
@@ -934,7 +948,7 @@
 	<input type="checkbox" id="startcrjob">Start change request job upon successful deployment</input><br></br>
 	<input type="checkbox" id="startnj">Start nightly job upon successful execution of deployment and/or change request job</input><br></br>
 
-	<div id="prd-env" style="text-align: left"> 
+	<div id="prd-env" style="text-align: left">
 	<label id="njStartStepLabelQuestion">Do you want to start nightly job from a specific step (If no, the NJ will start from configured step which is usually step 1)?</label>
     <div class="divider"/>
 	<select id="njStartStepDecision" name="njStartStepDecision">
