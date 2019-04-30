@@ -431,6 +431,8 @@
 
 					<script language="javascript">
 											
+						var validationObj;
+						
 						//Hide the dynamic dialog initially after the page loads					
 						Q(document).ready(function(){
 						
@@ -445,7 +447,7 @@
 							});
 							
 							
-							var validationObj = Q("#dialog").validate({ // initialize the plugin
+							validationObj = Q("#dialog").validate({ // initialize the plugin
 								rules: {
 									ClientRevision: {
 										required: true,
@@ -542,6 +544,7 @@
 							
 							Q("#reset").click(function(){
 								Q("#dialog").trigger("reset");
+								validationObj.resetForm();
 								Q("#ClientRevisionValidation").empty();
 								Q("#ClientRevisionSection, #njstartstepSection, #prd-env").hide();
 								
@@ -662,10 +665,15 @@
 					
 						function closeDynamicDialog()
 						{
-							Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection").hide();
-							
+						
 							//Reset values and selections of html elements
 							Q("#dialog").trigger("reset");
+							validationObj.resetForm();
+		
+							
+							Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection").hide();
+							
+
 						}
 					
 						
@@ -901,7 +909,8 @@
 <form id="dialog" style="display:none;" autocomplete="off">
 	<p id="dialogTitle">Placeholder for Deployment Information</p>
 
-	<label id="datetimepickerLabel">Jira Ticket (e.g., ACM-123)</label>	<div class="divider"/><input id="jiraticket" type="text"/>
+	<label id="datetimepickerLabel">Jira Ticket (e.g., ACM-123)</label>	<div class="divider"/><input id="jiraticket" type="text"/><br></br>
+	<label id="datetimepickerDescriptionLabel">Used for automatic ticket update</label>
 	
 	<br></br><br></br>
 	
