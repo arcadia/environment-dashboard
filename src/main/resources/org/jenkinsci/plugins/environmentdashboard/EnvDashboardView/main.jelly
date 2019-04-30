@@ -932,8 +932,9 @@
 	<br></br>
 
 	<div id="PRDsection">
-		<input type="checkbox" id="startcrjob">Start change request job upon successful deployment</input><br></br>
-		<input type="checkbox" id="startnj">Start nightly job upon successful execution of deployment and/or change request job</input><br></br>
+		<input type="checkbox" id="startcrjob"> Start change request job upon successful deployment</input><br></br>
+		<input type="checkbox" id="startnj"> Start nightly job upon successful execution of deployment and/or change request job</input><br></br>
+		
 
 		<div id="prd-env" style="text-align: left">
 			<label id="njStartStepLabelQuestion">Do you want to start nightly job from a specific step (If no, the NJ will start from configured step which is usually step 1)?</label><div class="divider"/>
@@ -963,7 +964,8 @@
 	<br></br>
 	<br></br>
 	
-	<input type="checkbox" id="norollback">Do not perform auto-rollback upon failed deployment</input>
+
+	<input type="checkbox" id="norollback"> Do not perform auto-rollback upon failed deployment</input>
 	
 	<br></br>
 	
