@@ -932,8 +932,11 @@
 	<br></br>
 
 	<div id="PRDsection">
-		<input type="checkbox" id="startcrjob"> Start change request job upon successful deployment</input><br></br>
-		<input type="checkbox" id="startnj"> Start nightly job upon successful execution of deployment and/or change request job</input><br></br>
+		<input type="checkbox" id="startcrjob"></input>
+		<label for="startcrjob"> Start change request job upon successful deployment</label><br></br>
+		
+		<input type="checkbox" id="startnj"></input>
+		<label for="startnj"> Start nightly job upon successful execution of deployment and/or change request job</label><br></br>
 		
 
 		<div id="prd-env" style="text-align: left">
@@ -964,8 +967,10 @@
 	<br></br>
 	<br></br>
 	
-
-	<input type="checkbox" id="norollback"> Do not perform auto-rollback upon failed deployment</input>
+	
+	<input type="checkbox" id="norollback"></input>
+	<label for="norollback"> Do not perform auto-rollback upon failed deployment</label>
+	
 	
 	<br></br>
 	
