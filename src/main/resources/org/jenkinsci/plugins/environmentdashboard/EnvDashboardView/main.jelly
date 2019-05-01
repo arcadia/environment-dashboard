@@ -529,12 +529,15 @@
 									if (Q("#build_num").val().length != 0 &amp;&amp; Q("#core_version").val().length == 0)
 									{
 										//Perform client deployment
-										startJob(Q("#clientAcronym").val(),Q("#environment").val(),Q("#build_num").val());
+										startDeployment("client",Q("#clientAcronym").val(),Q("#environment").val(),Q("#build_num").val())
 									}
 									else
 									{
 										//Perform backend deployment
-										startJobBackendDeploy(Q("#clientAcronym").val(),Q("#environment").val(),Q("#core_version").val());
+										var comp = Q("#clientAcronym").val();
+										var compSubstr = comp.substring(0, comp.indexOf(' '))
+										
+										startDeployment("backend",compSubstr,Q("#environment").val(),Q("#core_version").val());
 									}
 								
 								}
@@ -729,56 +732,6 @@
 							}
 						}
 						
-						function startJobBackendDeploy(comp, env, coreVersion)
-						{
-							
-							var compSubstr = comp.substring(0, comp.indexOf(' '))
-							
-							
-							if (coreVersion != null) 
-							{
-								var SpaceIndex = comp.indexOf(" ", 1);														 
-								var client = comp.substring(0, SpaceIndex);
-								var xmlHttp = new XMLHttpRequest();
-								var baseUrl = "/job/Backend_Deploy";
-								var buildUrl = "";
-								var DoNotPerformRollback;
-								var StartCRjob;
-								var StartNJ;
-								var nightly_job_start_step;
-								
-								//Prepare switches and parameters for passing to Jenkins
-								if(Q("#norollback").is(":checked")){DoNotPerformRollback="-no_rollback";}else{DoNotPerformRollback="";}
-								if(Q("#startcrjob").is(":checked")){StartCRjob="-start_cr_job";}else{StartCRjob="";}
-								if(Q("#startnj").is(":checked")){StartNJ="-start_nightly_job";}else{StartNJ="";}
-								if(!Q("#njstartstep").val().trim()){nightly_job_start_step="NA";}else{nightly_job_start_step=Q("#njstartstep").val().trim().replace(/['"]+/g, '');}
-									
-								buildUrl = baseUrl + "/buildWithParameters?" +
-											"CoreVersion=" + coreVersion +
-											"&amp;Client=" + compSubstr +
-											"&amp;Env=" + env +
-											"&amp;ClientRevision=" + Q("#ClientRevision").val().trim() +
-											"&amp;NoRollback=" + DoNotPerformRollback +
-											"&amp;StartCRjob=" + StartCRjob +
-											"&amp;StartNJ=" + StartNJ +
-											"&amp;NJstartStep=" + nightly_job_start_step +
-											"&amp;JiraTicket=" + Q("#jiraticket").val().trim().replace(/['"]+/g, '') +
-											"&amp;delay=" + Number(Q("#secondsToWait").val()) + "sec";
-									
-									
-								//alert(buildUrl);
-								
-								closeDynamicDialog();
-								xmlHttp.open("POST", buildUrl, true); // true for asynchronous 
-								xmlHttp.send(null);
-								window.location.replace(baseUrl);
-								
-									
-							}
-							
-							
-						}
-
 						
 						function showClientDepDynamicDialog(comp, env, buildNum) 
 						{
@@ -796,17 +749,24 @@
 							 Q("#environment").val(env);
 							 Q("#build_num").val(buildNum);
 							 
-							 
-
-							 
 						
 						}
 						
-						function startJob(comp, env, buildNum)
+						
+						
+						function startDeployment(type, comp, env, version)
 						{
-							
 							var xmlHttp = new XMLHttpRequest();
-							var baseUrl = "/job/Client_Deploy";
+							
+							if (type == "client")
+							{
+								var baseUrl = "/job/Client_Deploy";
+							}
+							else
+							{
+								var baseUrl = "/job/Backend_Deploy";
+							}
+							
 							var buildUrl = "";							
 							var DoNotPerformRollback;
 							var StartCRjob;
@@ -821,7 +781,6 @@
 							
 							
 							buildUrl = baseUrl + "/buildWithParameters?" +
-										"SourceBuildID=" + buildNum + 
 										"&amp;Client=" + comp + 
 										"&amp;Env=" + env + 
 										"&amp;NoRollback=" + DoNotPerformRollback +
@@ -831,15 +790,31 @@
 										"&amp;JiraTicket=" + Q("#jiraticket").val().trim().replace(/['"]+/g, '') +
 										"&amp;delay=" + Number(Q("#secondsToWait").val()) + "sec";
 							
+							if (type == "client")
+							{
+								buildUrl = buildUrl + 
+										"&amp;SourceBuildID=" + version;
+								
+							}
+							else
+							{
+								buildUrl = buildUrl +
+										"&amp;CoreVersion=" + version +
+										"&amp;ClientRevision=" + Q("#ClientRevision").val().trim();
+							}
+							
+							
 							//alert(buildUrl);
 							
 							closeDynamicDialog();
 							xmlHttp.open("POST", buildUrl, true); // true for asynchronous 
 							xmlHttp.send(null);
 							window.location.replace(baseUrl);
-							
+						
 						}
-
+						
+						
+						
 						function reloadPage()
 						{
 							location.reload(true);
