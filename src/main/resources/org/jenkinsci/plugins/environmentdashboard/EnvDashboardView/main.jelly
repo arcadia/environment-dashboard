@@ -137,19 +137,12 @@
 														<td>
 														  <code>
 															
-																															<head>
-																<style>									
-																a.disabled {
-																  color:grey;
-																}
-																</style>
-															   </head>
 																<j:if test="${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1] != null}">
 	 
 																   <j:if test="${comp.indexOf('Backend') == -1}">
 																		<j:switch on="${deployment.get('buildstatus')}">
 																			<j:case value="SUCCESS">
-																				 <a title="Promote" href="javascript:showClientDepDynamicDialog('${comp}','${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1]}','${deployment.get('buildNum')}');">Promote</a>
+																				 <a title="Promote" href="javascript:showClientDepDynamicDialog('${comp}',null,'${deployment.get('buildNum')}');">Promote</a>
 																			</j:case>
 																			<j:case value="FAILURE">
 																				 <a title="Promote" href="javascript:void(0)" class="disabled">Promote</a>
@@ -328,14 +321,7 @@
 											<code>
 												<j:if test="${orderOfEnvs[orderOfEnvs.indexOf(env)+1] != null}">
 													<j:if test="${orderOfEnvs.indexOf(env) != 0}">
-														
-														 <head>
-															<style>									
-															a.disabled {
-															  color:grey;
-															}
-															</style>
-															   </head>
+											
 															<j:if test="${comps.indexOf('Backend') == -1}">
 															<j:switch on="${deployment.get('buildstatus')}">
 																<j:case value="SUCCESS">
@@ -397,7 +383,7 @@
 																		</j:if>
 																	</j:if>
 																	<j:if test="${env_promote != 'DEV' || lastcommit.get('buildstatus') == 'SUCCESS'}">
-																		<a href="javascript:showBackendDepDynamicDialog(  '${comps}','${env_promote}', '${tag}');">${tag}</a>
+																		<a href="javascript:showBackendDepDynamicDialog('${comps}','${env_promote}', '${tag}');">${tag}</a>
 																	</j:if>
 																</j:forEach>
 															</code>
@@ -436,7 +422,7 @@
 						//Hide the dynamic dialog initially after the page loads					
 						Q(document).ready(function(){
 						
-							Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection").hide();
+							Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection, #envSection").hide();
 							Q("#dialog").draggable();
 							
 							
@@ -482,6 +468,9 @@
 									datetimepicker: {
 										required: true,
 										dateTime: true
+									},
+								    EnvDecision: {
+										required: true
 									}
 								},
 								messages: {
@@ -496,7 +485,8 @@
 										required: "please schedule this PRD deployment",
 										dateTime: "please enter the date into the future"
 									},
-									njstartstep: "please enter name of the step"
+									njstartstep: "please enter name of the step",
+									EnvDecision: "please make a choice"
 								}
 							});
 							
@@ -533,11 +523,8 @@
 									}
 									else
 									{
-										//Perform backend deployment
-										var comp = Q("#clientAcronym").val();
-										var compSubstr = comp.substring(0, comp.indexOf(' '))
-										
-										startDeployment("backend",compSubstr,Q("#environment").val(),Q("#core_version").val());
+										//Perform backend deployment		
+										startDeployment("backend",Q("#clientAcronym").val(),Q("#environment").val(),Q("#core_version").val());
 									}
 								
 								}
@@ -550,12 +537,20 @@
 								validationObj.resetForm();
 								Q("#ClientRevisionValidation").empty();
 								Q("#ClientRevisionSection, #njstartstepSection, #prd-env").hide();
+								Q('#' + Q("#clientAcronym").val() + "_clientVersions").hide();
 								
 							});
 							
 							
 							Q("#cancel").click(closeDynamicDialog);
 							Q("#ClientRevisionDecision").change(CheckClientRevisionDecision);
+							Q("#EnvDecision").change(CheckEnvDecision);
+							
+							Q("#ClientRevision").click(function(){
+							
+								Q('#' + Q("#clientAcronym").val() + "_clientVersions").show(500);
+								
+							});
 							
 							Q("#startnj").change(function(){
 								if(this.checked) 
@@ -663,8 +658,25 @@
 							  source: availableNJsteps
 							});
 							
+							
+							Q("input[name=clientBuilds]").change(function(){
+								
+								//var clientBuildJSON = "/" + Q("input[name=clientBuilds]").filter(":checked").val() + "api/json?tree=actions[lastBuiltRevision[SHA1]]";
+								var clientBuildXML = "/" + Q("input[name=clientBuilds]").filter(":checked").val() + "api/xml?xpath=/freeStyleBuild/action/lastBuiltRevision/SHA1";
+								
+								//alert(clientBuildXML);
+								Q.get(clientBuildXML, updateTable);
+								
+							});
+							
 						});
 					
+						function updateTable(data)
+						{
+							var sha = Q(data).find("SHA1").text();
+							Q("#ClientRevision").val(sha);
+						
+						}
 					
 						function closeDynamicDialog()
 						{
@@ -675,7 +687,7 @@
 		
 							
 							Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection").hide();
-							
+							Q('#' + Q("#clientAcronym").val() + "_clientVersions").hide();
 
 						}
 					
@@ -700,7 +712,7 @@
 							 //Set the html elements
 							 var compSubstr = comp.substring(0, comp.indexOf(' '))
 							 Q("#dialogTitle").text("Backend deploy " + compSubstr + " to " + env + " for " + coreVersion);
-							 Q("#clientAcronym").val(comp);
+							 Q("#clientAcronym").val(compSubstr);
 							 Q("#environment").val(env);
 							 Q("#core_version").val(coreVersion);
 							 
@@ -712,12 +724,28 @@
 							if (Q("#ClientRevisionDecision").val() == "yes")
 							{
 								Q("#ClientRevisionSection").show(500);
-								
 							}
 							else
 							{
 								Q("#ClientRevisionSection").hide(500);
+								Q('#' + Q("#clientAcronym").val() + "_clientVersions").hide(500);
 							}
+							
+						}
+						
+						function CheckEnvDecision()
+						{
+							if (Q("#EnvDecision").val() == "PRD")
+							{
+								Q("#PRDsection").show(500);
+								
+							}
+							else
+							{
+								Q("#PRDsection").hide(500);
+							}
+							
+							Q("#environment").val(Q("#EnvDecision").val());
 						}
 						
 						function ChecknjStartStepDecision()
@@ -738,16 +766,31 @@
 
 							 Q("#overlay, #dialog").show();
 
-							if (env == "PRD")
-							{
-								Q("#PRDsection").show();
-							}
+							 if (env == null)
+							 {
 							 
-							 //Set the html elements
-							 Q("#dialogTitle").text("Deploying " + comp + " to " + env + " for " + buildNum);
-							 Q("#clientAcronym").val(comp);
-							 Q("#environment").val(env);
-							 Q("#build_num").val(buildNum);
+								 Q("#envSection").show();
+								
+								 Q("#dialogTitle").text("Deploying " + comp + " for " + buildNum);
+								 Q("#clientAcronym").val(comp);
+								 Q("#build_num").val(buildNum);
+								 
+							 }
+							 else
+							 {
+							 
+							 	if (env == "PRD")
+								{
+									Q("#PRDsection").show();
+								}
+								 
+								 //Set the html elements
+								 Q("#dialogTitle").text("Deploying " + comp + " to " + env + " for " + buildNum);
+								 Q("#clientAcronym").val(comp);
+								 Q("#environment").val(env);
+								 Q("#build_num").val(buildNum);
+							 
+							 }
 							 
 						
 						}
@@ -804,7 +847,7 @@
 							}
 							
 							
-							//alert(buildUrl);
+							alert(buildUrl);
 							
 							closeDynamicDialog();
 							xmlHttp.open("POST", buildUrl, true); // true for asynchronous 
@@ -889,6 +932,18 @@
 	
 	<br></br><br></br>
 	
+	<div id="envSection" style="text-align: left"> 
+		<label id="EnvLabelQuestion">Please choose client's environment to deploy to</label><div class="divider"/>
+		<select id="EnvDecision" name="EnvDecision">
+			<option value="">Choose...</option>
+			<option value="DEV">DEV</option>
+			<option value="QA">QA</option>
+			<option value="UAT">UAT</option>
+			<option value="PRD">PRD</option>
+		</select>
+	</div>
+	
+	
 	<div id="non-dev-env" style="text-align: left"> 
 		<label id="ClientRevisionLabelQuestion">Do you want to provide specific client revision with this backend deployment?</label><div class="divider"/>
 		<select id="ClientRevisionDecision" name="ClientRevisionDecision">
@@ -898,11 +953,62 @@
 		</select>
 	</div>
 	
+	<!--
 	<div id="ClientRevisionSection">
 		<label id="requestforSHA">Please enter SHA value of client revision (please make sure the build is stable) to use with this backend deployment</label><br></br>
 		<label id="ClientRevisionLabel">Client revision</label><div class="divider"/><input type="text" id="ClientRevision" name="ClientRevision"/><br></br>
 		<label id="ClientRevisionDescriptionLabel">SHA value (checksum hash represented as 40 digits long hexadecimal number which is a GitHub commit) and represents a client version to deploy after core deployment completes</label><br></br>
 	</div>
+	-->
+	
+	<div id="ClientRevisionSection">
+		<label id="requestforSHA">Please enter SHA value of client revision (please make sure the build is stable) to use with this backend deployment</label><br></br>
+		<label id="ClientRevisionLabel">Client revision</label><div class="divider"/><input type="text" id="ClientRevision" name="ClientRevision"/><br></br>
+		<label id="ClientRevisionDescriptionLabel">SHA value (checksum hash represented as 40 digits long hexadecimal number which is a GitHub commit) and represents a client version to deploy after core deployment completes</label><br></br>
+	</div>
+
+	
+	<!-- Show history of last client builds  -->
+	<j:forEach items="${orderOfComps}" var="comp">
+			<table id="${comp}_clientVersions" style="width=100%;display:none" class="table table-bordered table-striped table-condensed">
+				<tbody>
+					<th style="width: 8%;text-align:center">Build</th>
+					<th style="width:8%;text-align:center">Status</th>				
+					<th style="text-align:center">Time</th>
+				</tbody>
+				<j:forEach items="${it.getDeploymentsByCompEnv(comp, 'Last Commit', limitDeploy)}" var="deployment">
+				<tr>
+					<td>
+						<a title="View Deployment" href="${deployment.get('jobUrl')}">${deployment.get('buildNum')}</a>
+					</td>
+					<td>
+						<j:switch on="${deployment.get('buildstatus')}">
+							<j:case value="SUCCESS">
+								<!--<span title="SUCCESS" style="color:green;">&#10004;</span>-->
+								<input type="radio" name="clientBuilds" id="${deployment.get('buildNum')}" value="${deployment.get('jobUrl')}"></input>
+								<label title="SUCCESS" style="color:green;" for="${deployment.get('buildNum')}">       &#10004;</label>
+							</j:case>
+							<j:case value="FAILURE">
+								<span title="FAILURE" style="color:darkred;">&#x2716;</span>
+							</j:case>
+							<j:case value="RUNNING">
+								<span title="RUNNING" style="color:blue;">&#9658;</span>
+							</j:case>
+							<j:default>
+								<span title="UNKNOWN" style="color:orange;">&#63;</span>
+							</j:default>
+						</j:switch>
+					</td>
+					<td>
+						<a title="View Deployment" href="${deployment.get('jobUrl')}">${it.getNiceTimeStamp(deployment.get('created_at'))}</a>
+					</td>
+				</tr>
+				</j:forEach>
+			</table>
+	</j:forEach>
+	
+	
+	
 	
 	<br></br>
 
@@ -952,6 +1058,8 @@
 	<div id="buttons" style="text-align: right">
 		<input type="submit" id="submit" value="Submit"/><div class="divider"/><span id="reset">Reset</span><div class="divider"/><span id="cancel">Cancel</span>
 	</div>
+	
+	
 	
 </form>
 </j:jelly>
