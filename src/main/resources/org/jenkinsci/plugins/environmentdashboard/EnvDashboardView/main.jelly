@@ -418,6 +418,8 @@
 					<script language="javascript">
 											
 						var validationObj;
+						var refreshIntervalId;
+						var prevBuildForFoundSHA;
 						
 						//Hide the dynamic dialog initially after the page loads					
 						Q(document).ready(function(){
@@ -435,18 +437,8 @@
 							
 							validationObj = Q("#dialog").validate({ // initialize the plugin
 								rules: {
-									ClientRevision: {
-										required: true,
-										minlength: 40,
-										maxlength: 40,
-										// Using the normalizer to trim the value of the element
-										// before validating it.
-										//
-										// The value of `this` inside the `normalizer` is the corresponding
-										// DOMElement. In this example, `this` references the `username` element.
-										normalizer: function(value) {
-											return Q.trim(value);
-										}
+									clientBuilds: {
+										required: true
 									},
 									ClientRevisionDecision: {
 										required: true
@@ -474,11 +466,7 @@
 									}
 								},
 								messages: {
-									ClientRevision: {
-										required: "please enter client revision",
-										minlength: "value needs to be 40 characters long",
-										maxlength: "value needs to be 40 characters long"
-									},
+									clientBuilds: "please choose the stable build",
 									ClientRevisionDecision: "please make a choice",
 									njStartStepDecision: "please make a choice",
 									datetimepicker: {
@@ -487,6 +475,14 @@
 									},
 									njstartstep: "please enter name of the step",
 									EnvDecision: "please make a choice"
+								},
+								errorPlacement: function(error, element) {
+									if (element.attr("name") == "clientBuilds" )
+										Q("#customErrorPlacement").text(Q(error).text());
+									else
+									{
+										error.insertAfter(element);	
+									}
 								}
 							});
 							
@@ -533,12 +529,13 @@
 							
 							
 							Q("#reset").click(function(){
+								Q('.' + Q("input[name=clientBuilds]").filter(":checked").prop('id') + "_sha_forReplacement").html('TBD');
 								Q("#dialog").trigger("reset");
 								validationObj.resetForm();
-								Q("#ClientRevisionValidation").empty();
 								Q("#ClientRevisionSection, #njstartstepSection, #prd-env").hide();
 								Q('#' + Q("#clientAcronym").val() + "_clientVersions").hide();
-								
+								Q("#customErrorPlacement").text("");
+								Q("#ClientRevision").val("");
 							});
 							
 							
@@ -546,11 +543,6 @@
 							Q("#ClientRevisionDecision").change(CheckClientRevisionDecision);
 							Q("#EnvDecision").change(CheckEnvDecision);
 							
-							Q("#ClientRevision").click(function(){
-							
-								Q('#' + Q("#clientAcronym").val() + "_clientVersions").show(500);
-								
-							});
 							
 							Q("#startnj").change(function(){
 								if(this.checked) 
@@ -661,20 +653,82 @@
 							
 							Q("input[name=clientBuilds]").change(function(){
 								
+								if(prevBuildForFoundSHA)
+								{
+									Q('.' + prevBuildForFoundSHA + "_sha_forReplacement").html('TBD');
+								}
+								
+								Q("#customErrorPlacement").text("")
 								//var clientBuildJSON = "/" + Q("input[name=clientBuilds]").filter(":checked").val() + "api/json?tree=actions[lastBuiltRevision[SHA1]]";
 								var clientBuildXML = "/" + Q("input[name=clientBuilds]").filter(":checked").val() + "api/xml?xpath=/freeStyleBuild/action/lastBuiltRevision/SHA1";
 								
 								//alert(clientBuildXML);
-								Q.get(clientBuildXML, updateTable);
+								
+								
+								Q('.' + Q("input[name=clientBuilds]").filter(":checked").prop('id') + "_sha_forReplacement").html('searching for SHA value...');
+								
+								//start blinking indicating the search is happening
+								Q('.' + Q("input[name=clientBuilds]").filter(":checked").prop('id') + "_sha_forReplacement").each(function() {
+									var elem = Q(this);
+									refreshIntervalId = setInterval(function() {
+										if (elem.css('visibility') == 'hidden') {
+											elem.css('visibility', 'visible');
+										} else {
+											elem.css('visibility', 'hidden');
+										}    
+									}, 500);
+									
+									
+								});
+								
+								//Get the corresponding SHA value for client build
+								Q.get(clientBuildXML, updateTable)
+									//.done(success)
+									.fail(failure);
+									//.always(always);
+								
 								
 							});
 							
 						});
 					
+						/*
+						function success(msg)
+						{
+							alert("You May Pass!" + msg); 
+						}
+						*/
+						
+						function failure(jqXHR, textStatus, error)
+						{ 
+							//alert("You May not Pass!" + textStatus); 
+							//alert("You May not Pass!" + error); 
+							
+							Q('.' + Q("input[name=clientBuilds]").filter(":checked").prop('id') + "_sha_forReplacement").html(error);
+							prevBuildForFoundSHA = Q("input[name=clientBuilds]").filter(":checked").prop('id');
+							
+							//stop blinking
+							clearInterval(refreshIntervalId);
+						}
+						
+						/*
+						function always()
+						{ 
+							alert("Questions Answered."); 
+						}
+						*/
+					
 						function updateTable(data)
 						{
+							//alert("Inside updateTable function");
+							//Retrieve SHA value for client build
 							var sha = Q(data).find("SHA1").text();
 							Q("#ClientRevision").val(sha);
+							Q('.' + Q("input[name=clientBuilds]").filter(":checked").prop('id') + "_sha_forReplacement").html(sha);
+							prevBuildForFoundSHA = Q("input[name=clientBuilds]").filter(":checked").prop('id');
+							
+							//stop blinking
+							clearInterval(refreshIntervalId);
 						
 						}
 					
@@ -682,13 +736,13 @@
 						{
 						
 							//Reset values and selections of html elements
+							Q('.' + Q("input[name=clientBuilds]").filter(":checked").prop('id') + "_sha_forReplacement").html('TBD');
 							Q("#dialog").trigger("reset");
 							validationObj.resetForm();
-		
-							
 							Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection").hide();
 							Q('#' + Q("#clientAcronym").val() + "_clientVersions").hide();
-
+							Q("#customErrorPlacement").text("");
+							Q("#ClientRevision").val("");
 						}
 					
 						
@@ -724,6 +778,7 @@
 							if (Q("#ClientRevisionDecision").val() == "yes")
 							{
 								Q("#ClientRevisionSection").show(500);
+								Q('#' + Q("#clientAcronym").val() + "_clientVersions").show(500);
 							}
 							else
 							{
@@ -953,59 +1008,54 @@
 		</select>
 	</div>
 	
-	<!--
 	<div id="ClientRevisionSection">
-		<label id="requestforSHA">Please enter SHA value of client revision (please make sure the build is stable) to use with this backend deployment</label><br></br>
-		<label id="ClientRevisionLabel">Client revision</label><div class="divider"/><input type="text" id="ClientRevision" name="ClientRevision"/><br></br>
-		<label id="ClientRevisionDescriptionLabel">SHA value (checksum hash represented as 40 digits long hexadecimal number which is a GitHub commit) and represents a client version to deploy after core deployment completes</label><br></br>
-	</div>
-	-->
-	
-	<div id="ClientRevisionSection">
-		<label id="requestforSHA">Please enter SHA value of client revision (please make sure the build is stable) to use with this backend deployment</label><br></br>
-		<label id="ClientRevisionLabel">Client revision</label><div class="divider"/><input type="text" id="ClientRevision" name="ClientRevision"/><br></br>
-		<label id="ClientRevisionDescriptionLabel">SHA value (checksum hash represented as 40 digits long hexadecimal number which is a GitHub commit) and represents a client version to deploy after core deployment completes</label><br></br>
+		<label id="requestforSHA">Please select the stable build (client version) to deploy after core upgrade during backend deployment   </label>
+		<span id="customErrorPlacement" style="color:red; font-weight:bold"></span><br></br>
+		<!-- Show history of last client builds  -->
+		<j:forEach items="${orderOfComps}" var="comp">
+				<table id="${comp}_clientVersions" style="width=100%;display:none" class="table table-bordered table-striped table-condensed">
+					<tbody>
+						<th style="width: 8%;text-align:center">Build</th>
+						<th style="width: 8%;text-align:center">SHA</th>
+						<th style="text-align:center">Time</th>
+						<th style="width:8%;text-align:center">Status</th>
+					</tbody>
+					<j:forEach items="${it.getDeploymentsByCompEnv(comp, 'Last Commit', limitDeploy)}" var="deployment">
+					<tr>
+						<td>
+							<a title="View Deployment" href="${deployment.get('jobUrl')}" target="_blank" rel="noopener noreferrer">${deployment.get('buildNum')}</a>
+						</td>
+						<td>
+							<span class="${deployment.get('buildNum')}_sha_forReplacement">TBD</span>
+						</td>
+						<td>
+							<a title="View Deployment" href="${deployment.get('jobUrl')}" target="_blank" rel="noopener noreferrer">${it.getNiceTimeStamp(deployment.get('created_at'))}</a>
+						</td>
+						<td>
+							<j:switch on="${deployment.get('buildstatus')}">
+								<j:case value="SUCCESS">
+									<!--<span title="SUCCESS" style="color:green;">&#10004;</span>-->
+									<input type="radio" name="clientBuilds" id="${deployment.get('buildNum')}" value="${deployment.get('jobUrl')}"></input>
+									<label title="SUCCESS" style="color:green;" for="${deployment.get('buildNum')}">       &#10004;</label>
+								</j:case>
+								<j:case value="FAILURE">
+									<span title="FAILURE" style="color:darkred;">&#x2716;</span>
+								</j:case>
+								<j:case value="RUNNING">
+									<span title="RUNNING" style="color:blue;">&#9658;</span>
+								</j:case>
+								<j:default>
+									<span title="UNKNOWN" style="color:orange;">&#63;</span>
+								</j:default>
+							</j:switch>
+						</td>
+					</tr>
+					</j:forEach>
+				</table>
+		</j:forEach>
 	</div>
 
 	
-	<!-- Show history of last client builds  -->
-	<j:forEach items="${orderOfComps}" var="comp">
-			<table id="${comp}_clientVersions" style="width=100%;display:none" class="table table-bordered table-striped table-condensed">
-				<tbody>
-					<th style="width: 8%;text-align:center">Build</th>
-					<th style="width:8%;text-align:center">Status</th>				
-					<th style="text-align:center">Time</th>
-				</tbody>
-				<j:forEach items="${it.getDeploymentsByCompEnv(comp, 'Last Commit', limitDeploy)}" var="deployment">
-				<tr>
-					<td>
-						<a title="View Deployment" href="${deployment.get('jobUrl')}">${deployment.get('buildNum')}</a>
-					</td>
-					<td>
-						<j:switch on="${deployment.get('buildstatus')}">
-							<j:case value="SUCCESS">
-								<!--<span title="SUCCESS" style="color:green;">&#10004;</span>-->
-								<input type="radio" name="clientBuilds" id="${deployment.get('buildNum')}" value="${deployment.get('jobUrl')}"></input>
-								<label title="SUCCESS" style="color:green;" for="${deployment.get('buildNum')}">       &#10004;</label>
-							</j:case>
-							<j:case value="FAILURE">
-								<span title="FAILURE" style="color:darkred;">&#x2716;</span>
-							</j:case>
-							<j:case value="RUNNING">
-								<span title="RUNNING" style="color:blue;">&#9658;</span>
-							</j:case>
-							<j:default>
-								<span title="UNKNOWN" style="color:orange;">&#63;</span>
-							</j:default>
-						</j:switch>
-					</td>
-					<td>
-						<a title="View Deployment" href="${deployment.get('jobUrl')}">${it.getNiceTimeStamp(deployment.get('created_at'))}</a>
-					</td>
-				</tr>
-				</j:forEach>
-			</table>
-	</j:forEach>
 	
 	
 	
@@ -1043,6 +1093,7 @@
 	<input type="hidden" id="core_version" value=""/>
 	<input type="hidden" id="build_num" value=""/>
 	<input type="hidden" id="secondsToWait" value=""/>
+	<input type="hidden" id="ClientRevision" value=""/>
 	
 	<br></br>
 	<br></br>
