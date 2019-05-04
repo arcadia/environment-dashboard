@@ -420,6 +420,7 @@
 						var validationObj;
 						var refreshIntervalId;
 						var prevBuildForFoundSHA;
+						var typeofDeployment;
 						
 						//Hide the dynamic dialog initially after the page loads					
 						Q(document).ready(function(){
@@ -511,16 +512,24 @@
 									}
 																		
 									
+									alert(Q("#build_num").val().length);
+									alert(Q("#core_version").val().length);
+									alert(typeofDeployment);
+									
 									//Determine what type of deployment needs to be performed		
-									if (Q("#build_num").val().length != 0 &amp;&amp; Q("#core_version").val().length == 0)
+									if (Q("#build_num").val().length != 0 &amp;&amp; Q("#core_version").val().length == 0 &amp;&amp; typeofDeployment == "client")
 									{
 										//Perform client deployment
 										startDeployment("client",Q("#clientAcronym").val(),Q("#environment").val(),Q("#build_num").val())
 									}
-									else
+									else if (Q("#core_version").val().length != 0 &amp;&amp; Q("#build_num").val().length == 0 &amp;&amp; typeofDeployment == "backend")
 									{
 										//Perform backend deployment		
 										startDeployment("backend",Q("#clientAcronym").val(),Q("#environment").val(),Q("#core_version").val());
+									}
+									else
+									{
+										alert("something went wrong");
 									}
 								
 								}
@@ -528,18 +537,22 @@
 							});
 							
 							
+							
+							
 							Q("#reset").click(function(){
-								Q('.' + Q("input[name=clientBuilds]").filter(":checked").prop('id') + "_sha_forReplacement").html('TBD');
-								Q("#dialog").trigger("reset");
-								validationObj.resetForm();
-								Q("#ClientRevisionSection, #njstartstepSection, #prd-env").hide();
-								Q('#' + Q("#clientAcronym").val() + "_clientVersions").hide();
-								Q("#customErrorPlacement").text("");
-								Q("#ClientRevision").val("");
+								CloseResetDynamicDialog("reset");
+							});
+							
+							Q("#cancel").click(function(){
+								CloseResetDynamicDialog("close");
 							});
 							
 							
-							Q("#cancel").click(closeDynamicDialog);
+							//Q("#reset").click(CloseResetDynamicDialog("reset"));
+							
+							//Q("#cancel").click(CloseResetDynamicDialog("close"));
+							
+							
 							Q("#ClientRevisionDecision").change(CheckClientRevisionDecision);
 							Q("#EnvDecision").change(CheckEnvDecision);
 							
@@ -692,6 +705,32 @@
 							
 						});
 					
+						
+						function CloseResetDynamicDialog(typeOfAction)
+						{
+						
+							//Reset values and selections of html elements
+							Q('.' + Q("input[name=clientBuilds]").filter(":checked").prop('id') + "_sha_forReplacement").html('TBD');
+							Q("#dialog").trigger("reset");
+							validationObj.resetForm();
+							
+							if (typeOfAction == "close")
+							{
+								Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection").hide();
+							}
+							else
+							{
+								Q("#ClientRevisionSection, #njstartstepSection, #prd-env").hide();
+							}
+							
+							Q('#' + Q("#clientAcronym").val() + "_clientVersions").hide();
+							Q("#customErrorPlacement").text("");
+							Q("#ClientRevision").val("");
+						
+						
+						
+						}
+					
 						/*
 						function success(msg)
 						{
@@ -732,24 +771,14 @@
 						
 						}
 					
-						function closeDynamicDialog()
-						{
-						
-							//Reset values and selections of html elements
-							Q('.' + Q("input[name=clientBuilds]").filter(":checked").prop('id') + "_sha_forReplacement").html('TBD');
-							Q("#dialog").trigger("reset");
-							validationObj.resetForm();
-							Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection").hide();
-							Q('#' + Q("#clientAcronym").val() + "_clientVersions").hide();
-							Q("#customErrorPlacement").text("");
-							Q("#ClientRevision").val("");
-						}
 					
 						
 						function showBackendDepDynamicDialog(comp, env, coreVersion) 
 						{ 
 							//alert( "You are running jQuery version: " + Q.fn.jquery );
 							//alert(Q().jquery); //it is 1.7.2
+							
+							typeofDeployment = "backend";
 							
 							 Q("#overlay, #dialog").show();
 							 
@@ -784,6 +813,8 @@
 							{
 								Q("#ClientRevisionSection").hide(500);
 								Q('#' + Q("#clientAcronym").val() + "_clientVersions").hide(500);
+								Q('.' + Q("input[name=clientBuilds]").filter(":checked").prop('id') + "_sha_forReplacement").html('TBD');
+								Q("input[name=clientBuilds]").filter(":checked").prop('checked', false);
 							}
 							
 						}
@@ -818,6 +849,8 @@
 						
 						function showClientDepDynamicDialog(comp, env, buildNum) 
 						{
+						
+							typeofDeployment = "client";
 
 							 Q("#overlay, #dialog").show();
 
@@ -904,7 +937,7 @@
 							
 							alert(buildUrl);
 							
-							closeDynamicDialog();
+							CloseResetDynamicDialog("close");
 							xmlHttp.open("POST", buildUrl, true); // true for asynchronous 
 							xmlHttp.send(null);
 							window.location.replace(baseUrl);
