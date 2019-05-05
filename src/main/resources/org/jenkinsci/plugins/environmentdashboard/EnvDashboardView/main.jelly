@@ -530,9 +530,9 @@
 									}
 																		
 									
-									//alert(Q("#build_num").val().length);
-									//alert(Q("#core_version").val().length);
-									//alert(typeofDeployment);
+									alert("client version " + Q("#build_num").val());
+									alert("core version " + Q("#core_version").val());
+									alert("type of deployment is " + typeofDeployment);
 									
 									//Determine what type of deployment needs to be performed		
 									if (Q("#build_num").val().length != 0 &amp;&amp; Q("#core_version").val().length == 0 &amp;&amp; typeofDeployment == "client")
@@ -701,6 +701,9 @@
 									Q('.' + prevBuildForFoundSHA + "_sha_forReplacement").css('visibility', 'visible');
 								}
 								
+								prevBuildForFoundSHA = Q("input[name=clientBuilds]").filter(":checked").prop('id');
+								
+								
 								Q("#customErrorPlacement").text("")
 								//var clientBuildJSON = "/" + Q("input[name=clientBuilds]").filter(":checked").val() + "api/json?tree=actions[lastBuiltRevision[SHA1]]";
 								var clientBuildXML = "/" + Q("input[name=clientBuilds]").filter(":checked").val() + "api/xml?xpath=/freeStyleBuild/action/lastBuiltRevision/SHA1";
@@ -711,6 +714,8 @@
 								Q('.' + Q("input[name=clientBuilds]").filter(":checked").prop('id') + "_sha_forReplacement").html('searching for SHA value...');
 								
 								//start blinking indicating the search is happening
+								
+								/*
 								Q('.' + Q("input[name=clientBuilds]").filter(":checked").prop('id') + "_sha_forReplacement").each(function() {
 									var elem = Q(this);
 									refreshIntervalId = setInterval(function() {
@@ -721,8 +726,21 @@
 										}    
 									}, 500);
 									
-									
 								});
+								*/
+								
+								var flashSearch = Q('.' + Q("input[name=clientBuilds]").filter(":checked").prop('id') + "_sha_forReplacement");
+								refreshIntervalId = setInterval(function(){
+									if (flashSearch.css('visibility') == 'hidden') 
+									{
+										flashSearch.css('visibility', 'visible');
+									}
+									else 
+									{
+										flashSearch.css('visibility', 'hidden');
+									}    
+								}, 500);
+								
 								
 								//Get the corresponding SHA value for client build
 								Q.get(clientBuildXML, updateTable)
@@ -777,8 +795,20 @@
 							Q("#customErrorPlacement").text("");
 							Q("#ClientRevision").val("");
 							Q("#buildNumber").val("");
+							Q("#core_version").val("");
+							Q("#build_num").val("");
 						
 						
+							if(prevBuildForFoundSHA)
+							{
+								Q('.' + prevBuildForFoundSHA + "_sha_forReplacement").html('TBD');
+							}
+							
+							if(refreshIntervalId)
+							{
+								clearInterval(refreshIntervalId);
+								Q('.' + prevBuildForFoundSHA + "_sha_forReplacement").css('visibility', 'visible');
+							}
 						
 						}
 					
@@ -795,7 +825,7 @@
 							//alert("You May not Pass!" + error); 
 							
 							Q('.' + Q("input[name=clientBuilds]").filter(":checked").prop('id') + "_sha_forReplacement").html(error);
-							prevBuildForFoundSHA = Q("input[name=clientBuilds]").filter(":checked").prop('id');
+							//prevBuildForFoundSHA = Q("input[name=clientBuilds]").filter(":checked").prop('id');
 							
 							//stop blinking
 							clearInterval(refreshIntervalId);
@@ -817,7 +847,7 @@
 							Q("#ClientRevision").val(sha);
 							Q("#buildNumber").val(Q("input[name=clientBuilds]").filter(":checked").prop('id'));
 							Q('.' + Q("input[name=clientBuilds]").filter(":checked").prop('id') + "_sha_forReplacement").html(sha);
-							prevBuildForFoundSHA = Q("input[name=clientBuilds]").filter(":checked").prop('id');
+							//prevBuildForFoundSHA = Q("input[name=clientBuilds]").filter(":checked").prop('id');
 							
 							//stop blinking
 							clearInterval(refreshIntervalId);
@@ -942,14 +972,18 @@
 						function startDeployment(type, comp, env, version)
 						{
 							var xmlHttp = new XMLHttpRequest();
+							var baseUrl;
+							var windowName;
 							
 							if (type == "client")
 							{
-								var baseUrl = "/job/Client_Deploy";
+								baseUrl = "/job/Client_Deploy";
+								windowName = "AnalyticsClientDeployments";
 							}
 							else
 							{
-								var baseUrl = "/job/Backend_Deploy";
+								baseUrl = "/job/Backend_Deploy";
+								windowName = "AnalyticsBackendDeployments";
 							}
 							
 							var buildUrl = "";							
@@ -994,7 +1028,7 @@
 							CloseResetDynamicDialog("close");
 							xmlHttp.open("POST", buildUrl, true); // true for asynchronous 
 							xmlHttp.send(null);
-							window.location.replace(baseUrl);
+							window.open(baseUrl,windowName);
 						
 						}
 						
@@ -1116,13 +1150,13 @@
 					<j:forEach items="${it.getDeploymentsByCompEnv(comp, 'Last Commit', limitDeploy)}" var="deployment">
 					<tr>
 						<td>
-							<a title="View Deployment" href="${deployment.get('jobUrl')}" target="_blank" rel="noopener noreferrer">${deployment.get('buildNum')}</a>
+							<a title="View Deployment" href="${deployment.get('jobUrl')}" target="AnalyticsClientBuilds">${deployment.get('buildNum')}</a>
 						</td>
 						<td>
 							<span class="${deployment.get('buildNum')}_sha_forReplacement">TBD</span>
 						</td>
 						<td>
-							<a title="View Deployment" href="${deployment.get('jobUrl')}" target="_blank" rel="noopener noreferrer">${it.getNiceTimeStamp(deployment.get('created_at'))}</a>
+							<a title="View Deployment" href="${deployment.get('jobUrl')}" target="AnalyticsClientBuilds">${it.getNiceTimeStamp(deployment.get('created_at'))}</a>
 						</td>
 						<td>
 							<j:switch on="${deployment.get('buildstatus')}">
