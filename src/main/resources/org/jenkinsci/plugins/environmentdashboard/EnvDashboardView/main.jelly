@@ -65,7 +65,7 @@
 												<td>${deployment.get("compName")}</td>
 												<td>
 													<j:switch on="${deployment.get('buildstatus')}">
-														<a title="View" href="${deployment.get('buildJobUrl')}">${deployment.get("buildNum")}</a>
+														<a title="View" href="${deployment.get('buildJobUrl')}" target="AnalyticsBuildsDeployments">${deployment.get("buildNum")}</a>
 														<j:case value="SUCCESS">
 															<span title="SUCCESS" style="color:green;">&#10004;</span>
 														</j:case>
@@ -86,7 +86,7 @@
 													</td>
 												</j:if>
 												<td>
-													<a title="View Deployment" href="${deployment.get('jobUrl')}">${it.getNiceTimeStamp(time)}</a>
+													<a title="View Deployment" href="${deployment.get('jobUrl')}" target="AnalyticsBuildsDeployments">${it.getNiceTimeStamp(time)}</a>
 												</td>
 											</tr>
 										</j:forEach>
@@ -120,7 +120,7 @@
 											<j:forEach items="${it.getDeploymentsByCompEnv(comp, envsHeader, limitDeploy)}" var="deployment">
 													<tr>
 														<td >
-															<a title="View Deployment" href="${deployment.get('jobUrl')}">${deployment.get('buildNum')}</a>
+															<a title="View Deployment" href="${deployment.get('jobUrl')}" target="AnalyticsBuildsDeployments">${deployment.get('buildNum')}</a>
 														</td>
 														<j:if test="${compLastDeployed.get('packageName') != null &amp;&amp; !compLastDeployed.get('packageName').equals('')}">
 															<td style="word-wrap:break-word">
@@ -189,7 +189,7 @@
 															</j:switch>
 														</td>
 														<td>
-															<a title="View Deployment" href="${deployment.get('jobUrl')}">${it.getNiceTimeStamp(deployment.get('created_at'))}</a>
+															<a title="View Deployment" href="${deployment.get('jobUrl')}" target="AnalyticsBuildsDeployments">${it.getNiceTimeStamp(deployment.get('created_at'))}</a>
 														</td>
 													</tr>
 											</j:forEach>	  
@@ -223,7 +223,7 @@
 														${deployment.get('envName')}
 													</td>
 													<td>
-														<a title="View Deployment" href="${deployment.get('jobUrl')}">${deployment.get('buildNum')}</a>
+														<a title="View Deployment" href="${deployment.get('jobUrl')}" target="AnalyticsBuildsDeployments">${deployment.get('buildNum')}</a>
 													</td>
 													<td>
 														<j:switch on="${deployment.get('buildstatus')}">
@@ -247,7 +247,7 @@
 														</td>
 													</j:if>
 													<td>
-														<a title="View Deployment" href="${deployment.get('jobUrl')}">${it.getNiceTimeStamp(deployment.get('created_at'))}</a>
+														<a title="View Deployment" href="${deployment.get('jobUrl')}" target="AnalyticsBuildsDeployments">${it.getNiceTimeStamp(deployment.get('created_at'))}</a>
 													</td>
 												</tr>
 											</j:forEach>	  
@@ -314,7 +314,7 @@
 										</a>
 										<div align="right">
 											<code>
-												<a style="font-size:small; text-decoration:none;" title="View Deployment" href="${deployment.get('jobUrl')}${extn}">[${it.getNiceTimeStamp(deployment.get('created_at'))}]</a>
+												<a style="font-size:small; text-decoration:none;" title="View Deployment" href="${deployment.get('jobUrl')}${extn}" target="AnalyticsBuildsDeployments">[${it.getNiceTimeStamp(deployment.get('created_at'))}]</a>
 											</code>
 										</div>
 										<div align="right">
@@ -713,22 +713,7 @@
 								
 								Q('.' + Q("input[name=clientBuilds]").filter(":checked").prop('id') + "_sha_forReplacement").html('searching for SHA value...');
 								
-								//start blinking indicating the search is happening
-								
-								/*
-								Q('.' + Q("input[name=clientBuilds]").filter(":checked").prop('id') + "_sha_forReplacement").each(function() {
-									var elem = Q(this);
-									refreshIntervalId = setInterval(function() {
-										if (elem.css('visibility') == 'hidden') {
-											elem.css('visibility', 'visible');
-										} else {
-											elem.css('visibility', 'hidden');
-										}    
-									}, 500);
-									
-								});
-								*/
-								
+								//start blinking indicating the search is happening								
 								var flashSearch = Q('.' + Q("input[name=clientBuilds]").filter(":checked").prop('id') + "_sha_forReplacement");
 								refreshIntervalId = setInterval(function(){
 									if (flashSearch.css('visibility') == 'hidden') 
@@ -747,7 +732,6 @@
 									//.done(success)
 									.fail(failure);
 									//.always(always);
-								
 								
 								
 							});
@@ -784,7 +768,7 @@
 							
 							if (typeOfAction == "close")
 							{
-								Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection").hide();
+								Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection, #envSection").hide();
 							}
 							else
 							{
@@ -852,6 +836,7 @@
 							//stop blinking
 							clearInterval(refreshIntervalId);
 							Q('.' + Q("input[name=clientBuilds]").filter(":checked").prop('id') + "_sha_forReplacement").css('visibility', 'visible');
+							Q('#' + Q("#clientAcronym").val() + "_clientVersions").hide(500);
 						
 						}
 					
@@ -891,12 +876,13 @@
 							if (Q("#ClientRevisionDecision").val() == "yes")
 							{
 								Q("#ClientRevisionSection").show(500);
-								//Q('#' + Q("#clientAcronym").val() + "_clientVersions").show(500);
+								Q('#' + Q("#clientAcronym").val() + "_clientVersions").show(500);
 							}
 							else
 							{
+								Q("#build_num").val("");
 								Q("#ClientRevisionSection").hide(500);
-								//Q('#' + Q("#clientAcronym").val() + "_clientVersions").hide(500);
+								Q('#' + Q("#clientAcronym").val() + "_clientVersions").hide(500);
 								Q('.' + Q("input[name=clientBuilds]").filter(":checked").prop('id') + "_sha_forReplacement").html('TBD');
 								Q("input[name=clientBuilds]").filter(":checked").prop('checked', false);
 							}
@@ -973,17 +959,17 @@
 						{
 							var xmlHttp = new XMLHttpRequest();
 							var baseUrl;
-							var windowName;
+							var windowName = "AnalyticsBuildsDeployments";
 							
 							if (type == "client")
 							{
 								baseUrl = "/job/Client_Deploy";
-								windowName = "AnalyticsClientDeployments";
+								
 							}
 							else
 							{
 								baseUrl = "/job/Backend_Deploy";
-								windowName = "AnalyticsBackendDeployments";
+								
 							}
 							
 							var buildUrl = "";							
@@ -1024,6 +1010,7 @@
 							
 							
 							alert(buildUrl);
+							
 							
 							CloseResetDynamicDialog("close");
 							xmlHttp.open("POST", buildUrl, true); // true for asynchronous 
@@ -1150,13 +1137,13 @@
 					<j:forEach items="${it.getDeploymentsByCompEnv(comp, 'Last Commit', limitDeploy)}" var="deployment">
 					<tr>
 						<td>
-							<a title="View Deployment" href="${deployment.get('jobUrl')}" target="AnalyticsClientBuilds">${deployment.get('buildNum')}</a>
+							<a title="View Deployment" href="${deployment.get('jobUrl')}" target="AnalyticsBuildsDeployments">${deployment.get('buildNum')}</a>
 						</td>
 						<td>
 							<span class="${deployment.get('buildNum')}_sha_forReplacement">TBD</span>
 						</td>
 						<td>
-							<a title="View Deployment" href="${deployment.get('jobUrl')}" target="AnalyticsClientBuilds">${it.getNiceTimeStamp(deployment.get('created_at'))}</a>
+							<a title="View Deployment" href="${deployment.get('jobUrl')}" target="AnalyticsBuildsDeployments">${it.getNiceTimeStamp(deployment.get('created_at'))}</a>
 						</td>
 						<td>
 							<j:switch on="${deployment.get('buildstatus')}">
