@@ -438,6 +438,19 @@
 							
 							validationObj = Q("#dialog").validate({ // initialize the plugin
 								rules: {
+									ClientRevision: {
+										required: true,
+										minlength: 40,
+										maxlength: 40,
+										// Using the normalizer to trim the value of the element
+										// before validating it.
+										//
+										// The value of `this` inside the `normalizer` is the corresponding
+										// DOMElement. In this example, `this` references the `username` element.
+										normalizer: function(value) {
+											return Q.trim(value);
+										}
+									},
 									clientBuilds: {
 										required: true
 									},
@@ -467,6 +480,11 @@
 									}
 								},
 								messages: {
+									ClientRevision: {
+										required: "client revision is required",
+										minlength: "value needs to be 40 characters long",
+										maxlength: "value needs to be 40 characters long"
+									},
 									clientBuilds: "please choose the stable build",
 									ClientRevisionDecision: "please make a choice",
 									njStartStepDecision: "please make a choice",
@@ -512,9 +530,9 @@
 									}
 																		
 									
-									alert(Q("#build_num").val().length);
-									alert(Q("#core_version").val().length);
-									alert(typeofDeployment);
+									//alert(Q("#build_num").val().length);
+									//alert(Q("#core_version").val().length);
+									//alert(typeofDeployment);
 									
 									//Determine what type of deployment needs to be performed		
 									if (Q("#build_num").val().length != 0 &amp;&amp; Q("#core_version").val().length == 0 &amp;&amp; typeofDeployment == "client")
@@ -660,15 +678,27 @@
 							];
 							
 							Q("#njstartstep").autocomplete({
-							  source: availableNJsteps
+							  source: availableNJsteps,
+							  minLength: 0
 							});
 							
+							
+							Q("#njstartstep").focus(function (){
+								Q("#njstartstep").autocomplete( "search", "" );
+							});
+
 							
 							Q("input[name=clientBuilds]").change(function(){
 								
 								if(prevBuildForFoundSHA)
 								{
 									Q('.' + prevBuildForFoundSHA + "_sha_forReplacement").html('TBD');
+								}
+								
+								if(refreshIntervalId)
+								{
+									clearInterval(refreshIntervalId);
+									Q('.' + prevBuildForFoundSHA + "_sha_forReplacement").css('visibility', 'visible');
 								}
 								
 								Q("#customErrorPlacement").text("")
@@ -701,7 +731,27 @@
 									//.always(always);
 								
 								
+								
 							});
+							
+							
+							
+							Q("#showHideCBS").click(function(){
+								
+								
+								if (Q('#' + Q("#clientAcronym").val() + "_clientVersions").is(":hidden"))
+								{
+									Q('#' + Q("#clientAcronym").val() + "_clientVersions").show(500);
+								}
+								else
+								{
+									Q('#' + Q("#clientAcronym").val() + "_clientVersions").hide(500);
+								}
+									
+							});
+							
+							
+							
 							
 						});
 					
@@ -726,6 +776,7 @@
 							Q('#' + Q("#clientAcronym").val() + "_clientVersions").hide();
 							Q("#customErrorPlacement").text("");
 							Q("#ClientRevision").val("");
+							Q("#buildNumber").val("");
 						
 						
 						
@@ -748,6 +799,7 @@
 							
 							//stop blinking
 							clearInterval(refreshIntervalId);
+							Q('.' + Q("input[name=clientBuilds]").filter(":checked").prop('id') + "_sha_forReplacement").css('visibility', 'visible');
 						}
 						
 						/*
@@ -763,11 +815,13 @@
 							//Retrieve SHA value for client build
 							var sha = Q(data).find("SHA1").text();
 							Q("#ClientRevision").val(sha);
+							Q("#buildNumber").val(Q("input[name=clientBuilds]").filter(":checked").prop('id'));
 							Q('.' + Q("input[name=clientBuilds]").filter(":checked").prop('id') + "_sha_forReplacement").html(sha);
 							prevBuildForFoundSHA = Q("input[name=clientBuilds]").filter(":checked").prop('id');
 							
 							//stop blinking
 							clearInterval(refreshIntervalId);
+							Q('.' + Q("input[name=clientBuilds]").filter(":checked").prop('id') + "_sha_forReplacement").css('visibility', 'visible');
 						
 						}
 					
@@ -807,12 +861,12 @@
 							if (Q("#ClientRevisionDecision").val() == "yes")
 							{
 								Q("#ClientRevisionSection").show(500);
-								Q('#' + Q("#clientAcronym").val() + "_clientVersions").show(500);
+								//Q('#' + Q("#clientAcronym").val() + "_clientVersions").show(500);
 							}
 							else
 							{
 								Q("#ClientRevisionSection").hide(500);
-								Q('#' + Q("#clientAcronym").val() + "_clientVersions").hide(500);
+								//Q('#' + Q("#clientAcronym").val() + "_clientVersions").hide(500);
 								Q('.' + Q("input[name=clientBuilds]").filter(":checked").prop('id') + "_sha_forReplacement").html('TBD');
 								Q("input[name=clientBuilds]").filter(":checked").prop('checked', false);
 							}
@@ -1042,11 +1096,17 @@
 	</div>
 	
 	<div id="ClientRevisionSection">
-		<label id="requestforSHA">Please select the stable build (client version) to deploy after core upgrade during backend deployment   </label>
-		<span id="customErrorPlacement" style="color:red; font-weight:bold"></span><br></br>
+		<label id="ClientRevisionLabel">Selected client build</label>
+		<div class="divider"/><input type="text" id="buildNumber" name="buildNumber" readonly="readonly"/><br></br>
+		<label id="ClientRevisionLabel">Selected client revision</label>
+		<div class="divider"/><input type="text" id="ClientRevision" name="ClientRevision" readonly="readonly"/><br></br>
+		<button type="button" id="showHideCBS">Show/Hide client builds</button><br></br>
 		<!-- Show history of last client builds  -->
 		<j:forEach items="${orderOfComps}" var="comp">
-				<table id="${comp}_clientVersions" style="width=100%;display:none" class="table table-bordered table-striped table-condensed">
+			<div id="${comp}_clientVersions" style="display: none; height:200px; overflow: auto;">
+				<label id="requestforSHA">Please select the stable build (client version) to deploy after core upgrade during backend deployment     </label>
+				<span id="customErrorPlacement" style="color:red; font-weight:bold"></span><br></br>
+				<table style="width=100%;" class="table table-bordered table-striped table-condensed">
 					<tbody>
 						<th style="width: 8%;text-align:center">Build</th>
 						<th style="width: 8%;text-align:center">SHA</th>
@@ -1085,6 +1145,7 @@
 					</tr>
 					</j:forEach>
 				</table>
+			</div>
 		</j:forEach>
 	</div>
 
