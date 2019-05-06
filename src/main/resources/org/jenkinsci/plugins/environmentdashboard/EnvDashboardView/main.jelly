@@ -530,9 +530,9 @@
 									}
 																		
 									
-									alert("client version " + Q("#build_num").val());
-									alert("core version " + Q("#core_version").val());
-									alert("type of deployment is " + typeofDeployment);
+									//alert("client version " + Q("#build_num").val());
+									//alert("core version " + Q("#core_version").val());
+									//alert("type of deployment is " + typeofDeployment);
 									
 									//Determine what type of deployment needs to be performed		
 									if (Q("#build_num").val().length != 0 &amp;&amp; Q("#core_version").val().length == 0 &amp;&amp; typeofDeployment == "client")
@@ -960,6 +960,7 @@
 							var xmlHttp = new XMLHttpRequest();
 							var baseUrl;
 							var windowName = "AnalyticsBuildsDeployments";
+							var windowObjectReference = null;
 							
 							if (type == "client")
 							{
@@ -1009,13 +1010,16 @@
 							}
 							
 							
-							alert(buildUrl);
+							//alert(buildUrl);
 							
 							
 							CloseResetDynamicDialog("close");
 							xmlHttp.open("POST", buildUrl, true); // true for asynchronous 
 							xmlHttp.send(null);
-							window.open(baseUrl,windowName);
+							
+							//Keep the same tab/window for showing the newly initiated deployments
+							windowObjectReference = window.open(baseUrl,windowName);
+							windowObjectReference.focus();
 						
 						}
 						
@@ -1186,7 +1190,7 @@
 		
 
 		<div id="prd-env" style="text-align: left">
-			<label id="njStartStepLabelQuestion">Do you want to start nightly job from a specific step (If no, the NJ will start from configured step which is usually step 1)?</label><div class="divider"/>
+			<label id="njStartStepLabelQuestion">Do you want to start nightly job from a specific step (If No, the NJ will start from configured step which is usually step 1)?</label><div class="divider"/>
 			<select id="njStartStepDecision" name="njStartStepDecision">
 				<option value="">Choose...</option>
 				<option value="no">No</option>
