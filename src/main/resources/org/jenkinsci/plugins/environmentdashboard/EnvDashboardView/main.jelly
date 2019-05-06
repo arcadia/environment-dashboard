@@ -1131,7 +1131,7 @@
 			<div id="${comp}_clientVersions" style="display: none; height:200px; overflow: auto;">
 				<label id="requestforSHA">Please select the stable build (client version) to deploy after core upgrade during backend deployment     </label>
 				<span id="customErrorPlacement" style="color:red; font-weight:bold"></span><br></br>
-				<table style="width=100%;" class="table table-bordered table-striped table-condensed">
+				<table style="width=100%;" class="table table-bordered table-striped table-condensed hoverable-table-in-dialog">
 					<tbody>
 						<th style="width: 8%;text-align:center">Build</th>
 						<th style="width: 8%;text-align:center">SHA</th>
