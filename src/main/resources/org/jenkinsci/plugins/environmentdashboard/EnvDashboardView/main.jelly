@@ -1020,6 +1020,9 @@
 							//Keep the same tab/window for showing the newly initiated deployments
 							windowObjectReference = window.open(baseUrl,windowName);
 							windowObjectReference.focus();
+							
+							window.location.reload(true);
+							
 						
 						}
 						
@@ -1050,6 +1053,8 @@
 						    }       
 						  }
 						}
+						
+						
 						
 						function toggle(showHideDiv) {
 							hideAll()
