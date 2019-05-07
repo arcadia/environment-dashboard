@@ -987,7 +987,7 @@
 							
 							
 							buildUrl = baseUrl + "/buildWithParameters?" +
-										"&amp;Client=" + comp + 
+										"Client=" + comp + 
 										"&amp;Env=" + env + 
 										"&amp;NoRollback=" + DoNotPerformRollback +
 										"&amp;StartCRjob=" + StartCRjob +
