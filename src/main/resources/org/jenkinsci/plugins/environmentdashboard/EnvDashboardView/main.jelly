@@ -769,18 +769,34 @@
 							if (typeOfAction == "close")
 							{
 								Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection, #envSection").hide();
+								Q("#buildNumber").val("");
+								Q("#core_version").val("");
+								Q("#build_num").val("");
 							}
 							else
 							{
 								Q("#ClientRevisionSection, #njstartstepSection, #prd-env").hide();
+								
+								//There is a bug somewhere here
+								
+								if (typeofDeployment == "backend")
+								{
+									Q("#buildNumber").val("");
+									Q("#build_num").val("");
+								
+								}
+								else
+								{
+									Q("#core_version").val("");
+								}
+								
 							}
 							
 							Q('#' + Q("#clientAcronym").val() + "_clientVersions").hide();
 							Q("#customErrorPlacement").text("");
 							Q("#ClientRevision").val("");
-							Q("#buildNumber").val("");
-							Q("#core_version").val("");
-							Q("#build_num").val("");
+							
+
 						
 						
 							if(prevBuildForFoundSHA)
@@ -928,11 +944,8 @@
 							 {
 							 
 								 Q("#envSection").show();
-								
 								 Q("#dialogTitle").text("Deploying " + comp + " for " + buildNum);
-								 Q("#clientAcronym").val(comp);
-								 Q("#build_num").val(buildNum);
-								 
+								
 							 }
 							 else
 							 {
@@ -944,11 +957,14 @@
 								 
 								 //Set the html elements
 								 Q("#dialogTitle").text("Deploying " + comp + " to " + env + " for " + buildNum);
-								 Q("#clientAcronym").val(comp);
 								 Q("#environment").val(env);
-								 Q("#build_num").val(buildNum);
+								 
 							 
 							 }
+							 
+							 
+							  Q("#clientAcronym").val(comp);
+							  Q("#build_num").val(buildNum);
 							 
 						
 						}
@@ -1010,7 +1026,16 @@
 							}
 							
 							
-							//alert(buildUrl);
+							//debug the URL
+							var str = buildUrl;
+							splitString = str.split("&amp;");
+							var parsedBuildUrl = "";
+
+							splitString.forEach(function(item) {
+							  parsedBuildUrl += item + '\n';
+							});
+
+							alert(parsedBuildUrl);
 							
 							
 							CloseResetDynamicDialog("close");
@@ -1021,7 +1046,7 @@
 							windowObjectReference = window.open(baseUrl,windowName);
 							windowObjectReference.focus();
 							
-							window.location.reload(true);
+							//window.location.reload(true);
 							
 						
 						}
