@@ -566,10 +566,6 @@
 							});
 							
 							
-							//Q("#reset").click(CloseResetDynamicDialog("reset"));
-							
-							//Q("#cancel").click(CloseResetDynamicDialog("close"));
-							
 							
 							Q("#ClientRevisionDecision").change(CheckClientRevisionDecision);
 							Q("#EnvDecision").change(CheckEnvDecision);
@@ -705,7 +701,7 @@
 								
 								
 								Q("#customErrorPlacement").text("")
-								//var clientBuildJSON = "/" + Q("input[name=clientBuilds]").filter(":checked").val() + "api/json?tree=actions[lastBuiltRevision[SHA1]]";
+								
 								var clientBuildXML = "/" + Q("input[name=clientBuilds]").filter(":checked").val() + "api/xml?xpath=/freeStyleBuild/action/lastBuiltRevision/SHA1";
 								
 								//alert(clientBuildXML);
@@ -777,8 +773,6 @@
 							{
 								Q("#ClientRevisionSection, #njstartstepSection, #prd-env").hide();
 								
-								//There is a bug somewhere here
-								
 								if (typeofDeployment == "backend")
 								{
 									Q("#buildNumber").val("");
@@ -796,8 +790,6 @@
 							Q("#customErrorPlacement").text("");
 							Q("#ClientRevision").val("");
 							
-
-						
 						
 							if(prevBuildForFoundSHA)
 							{
@@ -825,7 +817,7 @@
 							//alert("You May not Pass!" + error); 
 							
 							Q('.' + Q("input[name=clientBuilds]").filter(":checked").prop('id') + "_sha_forReplacement").html(error);
-							//prevBuildForFoundSHA = Q("input[name=clientBuilds]").filter(":checked").prop('id');
+							
 							
 							//stop blinking
 							clearInterval(refreshIntervalId);
@@ -847,7 +839,7 @@
 							Q("#ClientRevision").val(sha);
 							Q("#buildNumber").val(Q("input[name=clientBuilds]").filter(":checked").prop('id'));
 							Q('.' + Q("input[name=clientBuilds]").filter(":checked").prop('id') + "_sha_forReplacement").html(sha);
-							//prevBuildForFoundSHA = Q("input[name=clientBuilds]").filter(":checked").prop('id');
+							
 							
 							//stop blinking
 							clearInterval(refreshIntervalId);
@@ -1027,6 +1019,7 @@
 							
 							
 							//debug the URL
+							/*
 							var str = buildUrl;
 							splitString = str.split("&amp;");
 							var parsedBuildUrl = "";
@@ -1036,6 +1029,7 @@
 							});
 
 							alert(parsedBuildUrl);
+							*/
 							
 							
 							CloseResetDynamicDialog("close");
@@ -1043,12 +1037,21 @@
 							xmlHttp.send(null);
 							
 							//Keep the same tab/window for showing the newly initiated deployments
-							windowObjectReference = window.open(baseUrl,windowName);
-							windowObjectReference.focus();
+							//alert(window.name);
 							
-							//window.location.reload(true);
+							if (window.name == windowName)
+							{
+								window.open(baseUrl);
+							}
+							else
+							{
+								windowObjectReference = window.open(baseUrl,windowName);
+								windowObjectReference.focus();
+							}
 							
-						
+							
+							window.location.reload(true);
+							
 						}
 						
 						
