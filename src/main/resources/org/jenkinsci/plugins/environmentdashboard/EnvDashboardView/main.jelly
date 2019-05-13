@@ -3,6 +3,13 @@
 <link href="${rootURL}/plugin/environment-dashboard/css/bootstrap.min.css" type="text/css" rel="stylesheet"/>
 <link href="${rootURL}/plugin/environment-dashboard/css/bootstrap-theme.min.css" type="text/css" rel="stylesheet"/>
 <link href="${rootURL}/plugin/environment-dashboard/css/blink.css" type="text/css" rel="stylesheet"/>
+<link href="${rootURL}/plugin/environment-dashboard/css/dropdown_button.css" type="text/css" rel="stylesheet"/>
+<link href="${rootURL}/plugin/environment-dashboard/css/dynamic_dialog.css" type="text/css" rel="stylesheet"/>
+<link href="${rootURL}/plugin/environment-dashboard/css/jquery.datetimepicker.css" type="text/css" rel="stylesheet"/>
+<link href="${rootURL}/plugin/environment-dashboard/css/jquery-ui.css" type="text/css" rel="stylesheet"/>
+<script src="${rootURL}/plugin/environment-dashboard/js/jquery.datetimepicker.full.min.js"></script>
+<script src="${rootURL}/plugin/environment-dashboard/js/jquery.validate.js"></script>
+<script src="${rootURL}/plugin/environment-dashboard/js/jquery-ui.js"></script>
 <div class="overlay" style="display:none; background-color: rgba(0, 0, 0, 0.4); position:absolute; top: 0; left:0; bottom:0; right:0;" onclick="hideAll()"></div>
 <div class="popup" id="popup" style="position: absolute; width: 300px; height:150; display:none; background-color: white; text-align: center; top:50%; left:50%; margin-left: -150px; margin-top: -75;"></div>
 <div id="startDashboard" style="margin-left: -360px; margin-right: 360px;">
@@ -58,7 +65,7 @@
 												<td>${deployment.get("compName")}</td>
 												<td>
 													<j:switch on="${deployment.get('buildstatus')}">
-														<a title="View" href="${deployment.get('buildJobUrl')}">${deployment.get("buildNum")}</a>
+														<a title="View" href="${deployment.get('buildJobUrl')}" target="AnalyticsBuildsDeployments">${deployment.get("buildNum")}</a>
 														<j:case value="SUCCESS">
 															<span title="SUCCESS" style="color:green;">&#10004;</span>
 														</j:case>
@@ -79,7 +86,7 @@
 													</td>
 												</j:if>
 												<td>
-													<a title="View Deployment" href="${deployment.get('jobUrl')}">${it.getNiceTimeStamp(time)}</a>
+													<a title="View Deployment" href="${deployment.get('jobUrl')}" target="AnalyticsBuildsDeployments">${it.getNiceTimeStamp(time)}</a>
 												</td>
 											</tr>
 										</j:forEach>
@@ -113,7 +120,7 @@
 											<j:forEach items="${it.getDeploymentsByCompEnv(comp, envsHeader, limitDeploy)}" var="deployment">
 													<tr>
 														<td >
-															<a title="View Deployment" href="${deployment.get('jobUrl')}">${deployment.get('buildNum')}</a>
+															<a title="View Deployment" href="${deployment.get('jobUrl')}" target="AnalyticsBuildsDeployments">${deployment.get('buildNum')}</a>
 														</td>
 														<j:if test="${compLastDeployed.get('packageName') != null &amp;&amp; !compLastDeployed.get('packageName').equals('')}">
 															<td style="word-wrap:break-word">
@@ -130,19 +137,12 @@
 														<td>
 														  <code>
 															
-																															<head>
-																<style>									
-																a.disabled {
-																  color:grey;
-																}
-																</style>
-															   </head>
 																<j:if test="${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1] != null}">
 	 
 																   <j:if test="${comp.indexOf('Backend') == -1}">
 																		<j:switch on="${deployment.get('buildstatus')}">
 																			<j:case value="SUCCESS">
-																				 <a title="Promote" href="javascript:startJob('${comp}','${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1]}','${deployment.get('buildNum')}');">Promote</a>
+																				 <a title="Promote" href="javascript:showClientDepDynamicDialog('${comp}',null,'${deployment.get('buildNum')}');">Promote</a>
 																			</j:case>
 																			<j:case value="FAILURE">
 																				 <a title="Promote" href="javascript:void(0)" class="disabled">Promote</a>
@@ -159,7 +159,7 @@
 																	
 																			<j:switch on="${deployment.get('buildstatus')}">
 																			<j:case value="SUCCESS">
-																				 <a title="Promote" href="javascript:startJobBackendDeploy('${comp}','${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1]}','${deployment.get('buildNum')}');">Promote</a>
+																				 <a title="Promote" href="javascript:showBackendDepDynamicDialog('${comp}','${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1]}','${deployment.get('buildNum')}');">Promote</a>
 																			</j:case>
 																			<j:default>																
 																				  <a title="Promote" href="javascript:void(0)" class="disabled">Promote</a>
@@ -189,7 +189,7 @@
 															</j:switch>
 														</td>
 														<td>
-															<a title="View Deployment" href="${deployment.get('jobUrl')}">${it.getNiceTimeStamp(deployment.get('created_at'))}</a>
+															<a title="View Deployment" href="${deployment.get('jobUrl')}" target="AnalyticsBuildsDeployments">${it.getNiceTimeStamp(deployment.get('created_at'))}</a>
 														</td>
 													</tr>
 											</j:forEach>	  
@@ -223,7 +223,7 @@
 														${deployment.get('envName')}
 													</td>
 													<td>
-														<a title="View Deployment" href="${deployment.get('jobUrl')}">${deployment.get('buildNum')}</a>
+														<a title="View Deployment" href="${deployment.get('jobUrl')}" target="AnalyticsBuildsDeployments">${deployment.get('buildNum')}</a>
 													</td>
 													<td>
 														<j:switch on="${deployment.get('buildstatus')}">
@@ -247,7 +247,7 @@
 														</td>
 													</j:if>
 													<td>
-														<a title="View Deployment" href="${deployment.get('jobUrl')}">${it.getNiceTimeStamp(deployment.get('created_at'))}</a>
+														<a title="View Deployment" href="${deployment.get('jobUrl')}" target="AnalyticsBuildsDeployments">${it.getNiceTimeStamp(deployment.get('created_at'))}</a>
 													</td>
 												</tr>
 											</j:forEach>	  
@@ -314,25 +314,18 @@
 										</a>
 										<div align="right">
 											<code>
-												<a style="font-size:small; text-decoration:none;" title="View Deployment" href="${deployment.get('jobUrl')}${extn}">[${it.getNiceTimeStamp(deployment.get('created_at'))}]</a>
+												<a style="font-size:small; text-decoration:none;" title="View Deployment" href="${deployment.get('jobUrl')}${extn}" target="AnalyticsBuildsDeployments">[${it.getNiceTimeStamp(deployment.get('created_at'))}]</a>
 											</code>
 										</div>
 										<div align="right">
 											<code>
 												<j:if test="${orderOfEnvs[orderOfEnvs.indexOf(env)+1] != null}">
 													<j:if test="${orderOfEnvs.indexOf(env) != 0}">
-														
-														 <head>
-															<style>									
-															a.disabled {
-															  color:grey;
-															}
-															</style>
-															   </head>
+											
 															<j:if test="${comps.indexOf('Backend') == -1}">
 															<j:switch on="${deployment.get('buildstatus')}">
 																<j:case value="SUCCESS">
-																	 <a title="Promote" href="javascript:startJob('${comps}','${orderOfEnvs[orderOfEnvs.indexOf(env)+1]}','${deployment.get('buildNum')}');">Promote${it.envVars}</a>
+																	 <a title="Promote" href="javascript:showClientDepDynamicDialog('${comps}','${orderOfEnvs[orderOfEnvs.indexOf(env)+1]}','${deployment.get('buildNum')}');">Promote${it.envVars}</a>
 																</j:case>
 																<j:default>																	
 																	  <a title="Promote" href="javascript:void(0)" class="disabled">Promote</a>
@@ -345,7 +338,7 @@
 												
 																<j:switch on="${deployment.get('buildstatus')}">
 																	<j:case value="SUCCESS">
-																		<a title="Promote" href="javascript:startJobBackendDeploy('${comps}','${orderOfEnvs[orderOfEnvs.indexOf(env)+1]}','${deployment.get('buildNum')}');">Promote</a>
+																		<a title="Promote" href="javascript:showBackendDepDynamicDialog('${comps}','${orderOfEnvs[orderOfEnvs.indexOf(env)+1]}','${deployment.get('buildNum')}');">Promote</a>
 																	</j:case>
 																	<j:default>																	
 																		<a title="Promote" href="javascript:void(0)" class="disabled">Promote</a>
@@ -361,57 +354,7 @@
 										</div>
 									</j:if>
 									<j:if test="${orderOfEnvs.indexOf(env) == 0}">
-										<head>
-											<style>
-												
-											.dropbtn {
-												background-color: #81BEF7;
-												color: black;
-												padding: 16px;
-												font-size: 13px;
-												border: dotted;
-												cursor: pointer;
-											}
-
-											.dropdown {
-												position: relative;
-												display: inline-block;
-											}
-
-											.dropdown-content {
-												display: none;
-												position: relative;
-												right: 0;
-												background-color: #f9f9f9;
-												overflow: auto;
-												box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-											}
-
-											.dropdown-content a {
-												color: black;
-												padding: 12px 16px;
-												text-decoration: none;
-												display: block;
-											}
-
-											.dropdown-content a:hover {background-color: #f1f1f1}
-
-											.dropdown:hover .dropdown-content {
-												display: block;
-											}
-
-											.dropdown:hover .dropbtn {
-												background-color: #819FF7;
-											}
-																						
-	
-											a.disabled {
-												color:grey;
-											}
-											
-											</style>
-										</head>
-
+										
 										<j:forEach items="${orderOfEnvs}" var="env_promote">
 
 
@@ -440,7 +383,7 @@
 																		</j:if>
 																	</j:if>
 																	<j:if test="${env_promote != 'DEV' || lastcommit.get('buildstatus') == 'SUCCESS'}">
-																		<a href="javascript:startJobBackendDeploy(  '${comps}','${env_promote}', '${tag}');">${tag}</a>
+																		<a href="javascript:showBackendDepDynamicDialog('${comps}','${env_promote}', '${tag}');">${tag}</a>
 																	</j:if>
 																</j:forEach>
 															</code>
@@ -453,7 +396,7 @@
 														<div style="margin-right:30px; float:right;">
 															<j:switch on="${deployment.get('buildstatus')}">
 																<j:case value="SUCCESS">
-																	  <a href="javascript:javascript:startJob('${comps}','${env_promote}','${deployment.get('buildNum')}');">Promote to ${env_promote}</a>
+																	  <a href="javascript:javascript:showClientDepDynamicDialog('${comps}','${env_promote}','${deployment.get('buildNum')}');">Promote to ${env_promote}</a>
 																</j:case>
 																<j:default>																	
 																	  <a href="javascript:void(0)" class="disabled">Promote to ${env_promote}</a>												
@@ -473,128 +416,646 @@
 					</j:forEach>
 
 					<script language="javascript">
-					
-						function startJobBackendDeploy(comp, env, coreVersion)
-						{
-							 
-							var compSubstr = comp.substring(0, comp.indexOf(' '))
-							var r = confirm("Backend deploy " + compSubstr + " to " + env + " for " + coreVersion);
-
-							if (r == true) 
-							{
-								if (coreVersion != null) 
-								{
-									var SpaceIndex = comp.indexOf(" ", 1);														 
-									var client = comp.substring(0, SpaceIndex);
-									var xmlHttp = new XMLHttpRequest();
-									var baseUrl = "/job/Backend_Deploy";
-									var buildUrl = "";
-									var r_on_rev = false;
-									var rollback = false;
-									var SHA_length = 40; //SHA value should always be 40 characters long
-									
-
-									if (env != "DEV")
-									{
-										//Ask user if he/she would like to provide custom client revision
-										r_on_rev = confirm("Do you want to provide specific client revision with this backend deployment?");
-										if (r_on_rev == true)
-										{
-											//Get SHA value
-											var ClientRevision = prompt("Please enter SHA value of client revision (please make sure the build is stable) to use with this backend deployment");
-											if (ClientRevision != null) 
-											{
-												while (ClientRevision.length != SHA_length)
-												{
-													ClientRevision = prompt("It looks like some characters are missing since SHA value should be 40 characters long. Please enter the correct value.");
-													
-												}
-												
-												//specify custom SHA value
-												buildUrl = baseUrl + "/buildWithParameters?CoreVersion=" + coreVersion + "&amp;Client=" + compSubstr + "&amp;Env=" + env + "&amp;ClientRevision=" + ClientRevision + "&amp;delay=0sec";
-
-											}
 											
+						var validationObj;
+						var refreshIntervalId;
+						var prevBuildForFoundSHA;
+						var typeofDeployment;
+						
+						//Hide the dynamic dialog initially after the page loads					
+						Q(document).ready(function(){
+						
+							Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection, #envSection").hide();
+							Q("#dialog").draggable();
+							
+							
+							Q.validator.addMethod("dateTime", function(value, element) {
+								var futureDateTime = new Date(value);
+								var now = new Date();
+								return this.optional(element) || (futureDateTime &gt; now);
+							});
+							
+							
+							validationObj = Q("#dialog").validate({ // initialize the plugin
+								rules: {
+									ClientRevision: {
+										required: true,
+										minlength: 40,
+										maxlength: 40,
+										// Using the normalizer to trim the value of the element
+										// before validating it.
+										//
+										// The value of `this` inside the `normalizer` is the corresponding
+										// DOMElement. In this example, `this` references the `username` element.
+										normalizer: function(value) {
+											return Q.trim(value);
 										}
-									
-									}
-									
-									
-									//Custom SHA is not needed
-									if (r_on_rev == false)
-									{
-										buildUrl = baseUrl + "/buildWithParameters?CoreVersion=" + coreVersion + "&amp;Client=" + compSubstr + "&amp;Env=" + env + "&amp;delay=0sec";
-									}
-									
-									
-									//Ask if auto-rollback is needed
-									var rollback = confirm("Do you want auto-rollback performed upon failed deployment?");
-									if (rollback == true) 
-									{
-										var rollbackFlag = "-rollback";
-									}
-									
-									
-									
-									//Post request if custom SHA is not needed or when user decided to provide a specific client revision (SHA value)
-									if (r_on_rev == false || (r_on_rev == true &amp;&amp; ClientRevision != null))
-									{
-									
-										if (r_on_rev == false &amp;&amp; rollback == true)
-										{
-											buildUrl = baseUrl + "/buildWithParameters?CoreVersion=" + coreVersion + "&amp;Client=" + compSubstr + "&amp;Env=" + env + "&amp;Rollback=" + rollbackFlag + "&amp;delay=0sec";
-											
+									},
+									clientBuilds: {
+										required: true
+									},
+									ClientRevisionDecision: {
+										required: true
+									},
+									njstartstep: {
+										required: true,
+										// Using the normalizer to trim the value of the element
+										// before validating it.
+										//
+										// The value of `this` inside the `normalizer` is the corresponding
+										// DOMElement. In this example, `this` references the `username` element.
+										normalizer: function(value) {
+											return Q.trim(value);
 										}
-										
-										if (r_on_rev == true &amp;&amp; ClientRevision != null &amp;&amp; rollback == true)
-									    {
-											buildUrl = baseUrl + "/buildWithParameters?CoreVersion=" + coreVersion + "&amp;Client=" + compSubstr + "&amp;Env=" + env + "&amp;ClientRevision=" + ClientRevision + "&amp;Rollback=" + rollbackFlag + "&amp;delay=0sec";
-											
-										}
-									
-										xmlHttp.open("POST", buildUrl, true); // true for asynchronous 
-										xmlHttp.send(null);
-										window.location.replace(baseUrl);
+									},
+									njStartStepDecision: {
+										required: true
+									},
+									datetimepicker: {
+										required: true,
+										dateTime: true
+									},
+								    EnvDecision: {
+										required: true
 									}
-									
+								},
+								messages: {
+									ClientRevision: {
+										required: "client revision is required",
+										minlength: "value needs to be 40 characters long",
+										maxlength: "value needs to be 40 characters long"
+									},
+									clientBuilds: "please choose the stable build",
+									ClientRevisionDecision: "please make a choice",
+									njStartStepDecision: "please make a choice",
+									datetimepicker: {
+										required: "please schedule this PRD deployment",
+										dateTime: "please enter the date into the future"
+									},
+									njstartstep: "please enter name of the step",
+									EnvDecision: "please make a choice"
+								},
+								errorPlacement: function(error, element) {
+									if (element.attr("name") == "clientBuilds" )
+										Q("#customErrorPlacement").text(Q(error).text());
+									else
+									{
+										error.insertAfter(element);	
+									}
 								}
-							}
+							});
 							
 							
-							
-						}
-
-						function startJob(comp, env, buildNum)
-						{
-							
-                            
-							var r = confirm("Deploying " + comp + " to " + env + " for " + buildNum);
-							if (r == true) {
-							
-								var xmlHttp = new XMLHttpRequest();
-								var baseUrl = "/job/Client_Deploy";
-								var buildUrl = "";
-								var rollback = false;
-								
-						        //Ask if auto-rollback is needed
-								var rollback = confirm("Do you want auto-rollback performed upon failed deployment?");
-								if (rollback == true) 
-								{
-									var rollbackFlag = "-rollback";
-									buildUrl = baseUrl + "/buildWithParameters?SourceBuildID=" + buildNum + "&amp;Client=" + comp + "&amp;Env=" + env + "&amp;Rollback=" + rollbackFlag + "&amp;delay=0sec";
+							Q("#dialog").submit(function(e){ 
+								if(!validationObj.form())
+								{  
+								  e.preventDefault(); 
 								}
 								else
 								{
-									buildUrl = baseUrl + "/buildWithParameters?SourceBuildID=" + buildNum + "&amp;Client=" + comp + "&amp;Env=" + env + "&amp;delay=0sec";
+									// Stop form from submitting normally
+									e.preventDefault();
+									
+									//calculate seconds so we know when the jenkins build needs to be triggered									
+									if(Q("#datetimepicker").val())
+									{
+										var futureDateTime = new Date(Q("#datetimepicker").val());
+										var now = new Date();
+										var diff = Math.round((futureDateTime - now)/1000);
+										Q("#secondsToWait").val(diff);
+									}
+									else
+									{
+										Q("#secondsToWait").val(0);
+									}
+																		
+									
+									//alert("client version " + Q("#build_num").val());
+									//alert("core version " + Q("#core_version").val());
+									//alert("type of deployment is " + typeofDeployment);
+									
+									//Determine what type of deployment needs to be performed		
+									if (Q("#build_num").val().length != 0 &amp;&amp; Q("#core_version").val().length == 0 &amp;&amp; typeofDeployment == "client")
+									{
+										//Perform client deployment
+										startDeployment("client",Q("#clientAcronym").val(),Q("#environment").val(),Q("#build_num").val())
+									}
+									else if (Q("#core_version").val().length != 0 &amp;&amp; Q("#build_num").val().length == 0 &amp;&amp; typeofDeployment == "backend")
+									{
+										//Perform backend deployment		
+										startDeployment("backend",Q("#clientAcronym").val(),Q("#environment").val(),Q("#core_version").val());
+									}
+									else
+									{
+										alert("something went wrong");
+									}
+								
 								}
 								
+							});
+							
+							
+							
+							
+							Q("#reset").click(function(){
+								CloseResetDynamicDialog("reset");
+							});
+							
+							Q("#cancel").click(function(){
+								CloseResetDynamicDialog("close");
+							});
+							
+							
+							
+							Q("#ClientRevisionDecision").change(CheckClientRevisionDecision);
+							Q("#EnvDecision").change(CheckEnvDecision);
+							
+							
+							Q("#startnj").change(function(){
+								if(this.checked) 
+								{
+									Q("#prd-env").show();
+								}
+								else
+								{
+									Q("#prd-env, #njstartstepSection").hide();
+								}
 								
-								xmlHttp.open("POST", buildUrl, true); // true for asynchronous 
-								xmlHttp.send(null);
-								window.location.replace(baseUrl);
+							});
+							
+							Q("#njStartStepDecision").change(ChecknjStartStepDecision);
+							
+							Q("#datetimepicker").datetimepicker();
+							
+							//Pre-populate the NJ steps
+							var availableNJsteps = [
+								"Check if Previous Job Failed on Cut off Check",
+								"Set Currently Processing To One",
+								"Auto Reprocess",
+								"Staging Load With SSIS",
+								"Send Mail on SSIS Staging Load Failure",
+								"Informatica Load",
+								"Send Mail on Informatica Failure",
+								"Update Staging DB Stats",
+								"Patient Scrub",
+								"Patient Load",
+								"Scrub",
+								"DW Plan Load",
+								"Load SSIS Plan Cache",
+								"Load Plan_Claim_Header",
+								"Load Plan_Claim_Line",
+								"Load Plan_Claim_Diagnosis",
+								"DW Plan 2 Load",
+								"Delete Inactive Patients",
+								"MPI",
+								"Update Patient Freeze/Destroy Indicator",
+								"Destroy Patient/Clinical Information",
+								"Load SSIS Clinical Cache",
+								"Load Encounter",
+								"Drop indexed view indexes",
+								"DW Clinical Load",
+								"DW Provider Organization Hierarchy Load",
+								"Load MedicationList",
+								"Load Prescription",
+								"Load Order",
+								"Load Result",
+								"Load Maintenance",
+								"Load Charge",
+								"Load ProgressNote",
+								"Load UnstructuredText",
+								"Post Load Updates",
+								"Load RAPS File",
+								"Check Cutoff Time",
+								"Populate Top Plan Claim Line",
+								"Load plan_member_month",
+								"Load Person Demographic",
+								"Populate Provider Person",
+								"Populate MedRx, MedDispense, RXCUI tables",
+								"Recreate indexes for indexed views",
+								"Populate POS Location Table",
+								"Delete Events",
+								"Update PersonID In Events",
+								"Update PersonID In RAPSDetail",
+								"Update Location In Events",
+								"Update Provider In Events",
+								"Load Event",
+								"Load EdEvent table",
+								"Populate Attribution",
+								"Populate Fills Report",
+								"Populate Medical Expense",
+								"Populate Dx Hierarchy",
+								"Update Common Report Fields",
+								"Populate Complete Member Product",
+								"Risk Score Calculation And Common Report Fields Post Update",
+								"Populate Interaction and Appointment Sorted",
+								"Populate Comorbidity",
+								"Immunizations Details",
+								"Populate Care Gaps",
+								"Populate PersonLastPCPVisit",
+								"Populate PersonNextPCPAppointment",
+								"Cost Management Fact",
+								"Admission Events",
+								"Update Provider/Location in ImmDetails",
+								"Calculate Measure Enrollment",
+								"Update Warehouse DB Stats and create periods",
+								"Measure Processing",
+								"Populate MeasureSubjectCombined",
+								"Geocode",
+								"Remove Deleted Patients From Measures",
+								"Populate Pre Visit Data",
+								"Populate Member Roster",
+								"Trigger to Populate System Lists",
+								"Run System List Procedure",
+								"Set Currently Processing To Zero and Update Measure Stats",
+								"Update Stats Web DB",
+								"Maintenance Timing Errors",
+								"StartClientBackupJob",
+								"Report job errors"
+							];
+							
+							Q("#njstartstep").autocomplete({
+							  source: availableNJsteps,
+							  minLength: 0
+							});
+							
+							
+							Q("#njstartstep").focus(function (){
+								Q("#njstartstep").autocomplete( "search", "" );
+							});
+
+							
+							Q("input[name=clientBuilds]").change(function(){
+								
+								if(prevBuildForFoundSHA)
+								{
+									Q('.' + prevBuildForFoundSHA + "_sha_forReplacement").html('TBD');
+								}
+								
+								if(refreshIntervalId)
+								{
+									clearInterval(refreshIntervalId);
+									Q('.' + prevBuildForFoundSHA + "_sha_forReplacement").css('visibility', 'visible');
+								}
+								
+								prevBuildForFoundSHA = Q("input[name=clientBuilds]").filter(":checked").prop('id');
+								
+								
+								Q("#customErrorPlacement").text("")
+								
+								var clientBuildXML = "/" + Q("input[name=clientBuilds]").filter(":checked").val() + "api/xml?xpath=/freeStyleBuild/action/lastBuiltRevision/SHA1";
+								
+								//alert(clientBuildXML);
+								
+								
+								Q('.' + Q("input[name=clientBuilds]").filter(":checked").prop('id') + "_sha_forReplacement").html('searching for SHA value...');
+								
+								//start blinking indicating the search is happening								
+								var flashSearch = Q('.' + Q("input[name=clientBuilds]").filter(":checked").prop('id') + "_sha_forReplacement");
+								refreshIntervalId = setInterval(function(){
+									if (flashSearch.css('visibility') == 'hidden') 
+									{
+										flashSearch.css('visibility', 'visible');
+									}
+									else 
+									{
+										flashSearch.css('visibility', 'hidden');
+									}    
+								}, 500);
+								
+								
+								//Get the corresponding SHA value for client build
+								Q.get(clientBuildXML, updateTable)
+									//.done(success)
+									.fail(failure);
+									//.always(always);
+								
+								
+							});
+							
+							
+							
+							Q("#showHideCBS").click(function(){
+								
+								
+								if (Q('#' + Q("#clientAcronym").val() + "_clientVersions").is(":hidden"))
+								{
+									Q('#' + Q("#clientAcronym").val() + "_clientVersions").show(500);
+								}
+								else
+								{
+									Q('#' + Q("#clientAcronym").val() + "_clientVersions").hide(500);
+								}
+									
+							});
+							
+							
+							
+							
+						});
+					
+						
+						function CloseResetDynamicDialog(typeOfAction)
+						{
+						
+							//Reset values and selections of html elements
+							Q('.' + Q("input[name=clientBuilds]").filter(":checked").prop('id') + "_sha_forReplacement").html('TBD');
+							Q("#dialog").trigger("reset");
+							validationObj.resetForm();
+							
+							if (typeOfAction == "close")
+							{
+								Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection, #envSection").hide();
+								Q("#buildNumber").val("");
+								Q("#core_version").val("");
+								Q("#build_num").val("");
+							}
+							else
+							{
+								Q("#ClientRevisionSection, #njstartstepSection, #prd-env").hide();
+								
+								if (typeofDeployment == "backend")
+								{
+									Q("#buildNumber").val("");
+									Q("#build_num").val("");
+								
+								}
+								else
+								{
+									Q("#core_version").val("");
+								}
+								
+							}
+							
+							Q('#' + Q("#clientAcronym").val() + "_clientVersions").hide();
+							Q("#customErrorPlacement").text("");
+							Q("#ClientRevision").val("");
+							
+						
+							if(prevBuildForFoundSHA)
+							{
+								Q('.' + prevBuildForFoundSHA + "_sha_forReplacement").html('TBD');
+							}
+							
+							if(refreshIntervalId)
+							{
+								clearInterval(refreshIntervalId);
+								Q('.' + prevBuildForFoundSHA + "_sha_forReplacement").css('visibility', 'visible');
+							}
+						
+						}
+					
+						/*
+						function success(msg)
+						{
+							alert("You May Pass!" + msg); 
+						}
+						*/
+						
+						function failure(jqXHR, textStatus, error)
+						{ 
+							//alert("You May not Pass!" + textStatus); 
+							//alert("You May not Pass!" + error); 
+							
+							Q('.' + Q("input[name=clientBuilds]").filter(":checked").prop('id') + "_sha_forReplacement").html(error);
+							
+							
+							//stop blinking
+							clearInterval(refreshIntervalId);
+							Q('.' + Q("input[name=clientBuilds]").filter(":checked").prop('id') + "_sha_forReplacement").css('visibility', 'visible');
+						}
+						
+						/*
+						function always()
+						{ 
+							alert("Questions Answered."); 
+						}
+						*/
+					
+						function updateTable(data)
+						{
+							//alert("Inside updateTable function");
+							//Retrieve SHA value for client build
+							var sha = Q(data).find("SHA1").text();
+							Q("#ClientRevision").val(sha);
+							Q("#buildNumber").val(Q("input[name=clientBuilds]").filter(":checked").prop('id'));
+							Q('.' + Q("input[name=clientBuilds]").filter(":checked").prop('id') + "_sha_forReplacement").html(sha);
+							
+							
+							//stop blinking
+							clearInterval(refreshIntervalId);
+							Q('.' + Q("input[name=clientBuilds]").filter(":checked").prop('id') + "_sha_forReplacement").css('visibility', 'visible');
+							Q('#' + Q("#clientAcronym").val() + "_clientVersions").hide(500);
+						
+						}
+					
+					
+						
+						function showBackendDepDynamicDialog(comp, env, coreVersion) 
+						{ 
+							//alert( "You are running jQuery version: " + Q.fn.jquery );
+							//alert(Q().jquery); //it is 1.7.2
+							
+							typeofDeployment = "backend";
+							
+							 Q("#overlay, #dialog").show();
+							 
+							 if (env != "DEV")
+							 {
+								Q("#non-dev-env").show();
+								
+								if (env == "PRD")
+								{
+									Q("#PRDsection").show();
+								}
+							 }
+							
+							 //Set the html elements
+							 var compSubstr = comp.substring(0, comp.indexOf(' '))
+							 Q("#dialogTitle").text("Backend deploy " + compSubstr + " to " + env + " for " + coreVersion);
+							 Q("#clientAcronym").val(compSubstr);
+							 Q("#environment").val(env);
+							 Q("#core_version").val(coreVersion);
+							 
+							 
+						}
+						
+						function CheckClientRevisionDecision()
+						{
+							if (Q("#ClientRevisionDecision").val() == "yes")
+							{
+								Q("#ClientRevisionSection").show(500);
+								Q('#' + Q("#clientAcronym").val() + "_clientVersions").show(500);
+							}
+							else
+							{
+								Q("#build_num").val("");
+								Q("#ClientRevisionSection").hide(500);
+								Q('#' + Q("#clientAcronym").val() + "_clientVersions").hide(500);
+								Q('.' + Q("input[name=clientBuilds]").filter(":checked").prop('id') + "_sha_forReplacement").html('TBD');
+								Q("input[name=clientBuilds]").filter(":checked").prop('checked', false);
+							}
+							
+						}
+						
+						function CheckEnvDecision()
+						{
+							if (Q("#EnvDecision").val() == "PRD")
+							{
+								Q("#PRDsection").show(500);
+								
+							}
+							else
+							{
+								Q("#PRDsection").hide(500);
+							}
+							
+							Q("#environment").val(Q("#EnvDecision").val());
+						}
+						
+						function ChecknjStartStepDecision()
+						{
+							if (Q("#njStartStepDecision").val() == "yes")
+							{
+								Q("#njstartstepSection").show(500);
+							}
+							else
+							{
+								Q("#njstartstepSection").hide(500);
 							}
 						}
+						
+						
+						function showClientDepDynamicDialog(comp, env, buildNum) 
+						{
+						
+							typeofDeployment = "client";
 
+							 Q("#overlay, #dialog").show();
+
+							 if (env == null)
+							 {
+							 
+								 Q("#envSection").show();
+								 Q("#dialogTitle").text("Deploying " + comp + " for " + buildNum);
+								
+							 }
+							 else
+							 {
+							 
+							 	if (env == "PRD")
+								{
+									Q("#PRDsection").show();
+								}
+								 
+								 //Set the html elements
+								 Q("#dialogTitle").text("Deploying " + comp + " to " + env + " for " + buildNum);
+								 Q("#environment").val(env);
+								 
+							 
+							 }
+							 
+							 
+							  Q("#clientAcronym").val(comp);
+							  Q("#build_num").val(buildNum);
+							 
+						
+						}
+						
+						
+						
+						function startDeployment(type, comp, env, version)
+						{
+							var xmlHttp = new XMLHttpRequest();
+							var baseUrl;
+							var windowName = "AnalyticsBuildsDeployments";
+							var windowObjectReference = null;
+							
+							if (type == "client")
+							{
+								baseUrl = "/job/Client_Deploy";
+								
+							}
+							else
+							{
+								baseUrl = "/job/Backend_Deploy";
+								
+							}
+							
+							var buildUrl = "";							
+							var DoNotPerformRollback;
+							var StartCRjob;
+							var StartNJ;
+							var nightly_job_start_step;
+							
+							//Prepare switches and parameters for passing to Jenkins
+							if(Q("#norollback").is(":checked")){DoNotPerformRollback="-no_rollback";}else{DoNotPerformRollback="";}
+							if(Q("#startcrjob").is(":checked")){StartCRjob="-start_cr_job";}else{StartCRjob="";}
+							if(Q("#startnj").is(":checked")){StartNJ="-start_nightly_job";}else{StartNJ="";}
+							if(!Q("#njstartstep").val().trim()){nightly_job_start_step="NA";}else{nightly_job_start_step=Q("#njstartstep").val().trim().replace(/['"]+/g, '');}
+							
+							
+							buildUrl = baseUrl + "/buildWithParameters?" +
+										"Client=" + comp + 
+										"&amp;Env=" + env + 
+										"&amp;NoRollback=" + DoNotPerformRollback +
+										"&amp;StartCRjob=" + StartCRjob +
+										"&amp;StartNJ=" + StartNJ +
+										"&amp;NJstartStep=" + nightly_job_start_step +
+										"&amp;JiraTicket=" + Q("#jiraticket").val().trim().replace(/['"]+/g, '') +
+										"&amp;delay=" + Number(Q("#secondsToWait").val()) + "sec";
+							
+							if (type == "client")
+							{
+								buildUrl = buildUrl + 
+										"&amp;SourceBuildID=" + version;
+								
+							}
+							else
+							{
+								buildUrl = buildUrl +
+										"&amp;CoreVersion=" + version +
+										"&amp;ClientRevision=" + Q("#ClientRevision").val().trim();
+							}
+							
+							
+							//debug the URL
+							/*
+							var str = buildUrl;
+							splitString = str.split("&amp;");
+							var parsedBuildUrl = "";
+
+							splitString.forEach(function(item) {
+							  parsedBuildUrl += item + '\n';
+							});
+
+							alert(parsedBuildUrl);
+							*/
+							
+							
+							CloseResetDynamicDialog("close");
+							xmlHttp.open("POST", buildUrl, true); // true for asynchronous 
+							xmlHttp.send(null);
+							
+							//Keep the same tab/window for showing the newly initiated deployments
+							//alert(window.name);
+							
+							if (window.name == windowName)
+							{
+								window.open(baseUrl);
+							}
+							else
+							{
+								windowObjectReference = window.open(baseUrl,windowName);
+								windowObjectReference.focus();
+							}
+							
+							
+							window.location.reload(true);
+							
+						}
+						
+						
+						
 						function reloadPage()
 						{
 							location.reload(true);
@@ -620,6 +1081,8 @@
 						    }       
 						  }
 						}
+						
+						
 						
 						function toggle(showHideDiv) {
 							hideAll()
@@ -660,4 +1123,146 @@
 		</tbody>
 	</table>
 </div>
+<div id="overlay" style="display:none;"></div>
+<form id="dialog" style="display:none;" autocomplete="off">
+	<p id="dialogTitle">Placeholder for Deployment Information</p>
+
+	<label id="datetimepickerLabel">Jira Ticket (e.g., ACM-123)</label>	<div class="divider"/><input id="jiraticket" type="text"/><br></br>
+	<label id="datetimepickerDescriptionLabel">Used for automatic ticket update</label>
+	
+	<br></br><br></br>
+	
+	<div id="envSection" style="text-align: left"> 
+		<label id="EnvLabelQuestion">Please choose client's environment to deploy to</label><div class="divider"/>
+		<select id="EnvDecision" name="EnvDecision">
+			<option value="">Choose...</option>
+			<option value="DEV">DEV</option>
+			<option value="QA">QA</option>
+			<option value="UAT">UAT</option>
+			<option value="PRD">PRD</option>
+		</select>
+	</div>
+	
+	
+	<div id="non-dev-env" style="text-align: left"> 
+		<label id="ClientRevisionLabelQuestion">Do you want to provide specific client revision with this backend deployment?</label><div class="divider"/>
+		<select id="ClientRevisionDecision" name="ClientRevisionDecision">
+			<option value="">Choose...</option>
+			<option value="no">No</option>
+			<option value="yes">Yes</option>
+		</select>
+	</div>
+	
+	<div id="ClientRevisionSection">
+		<label id="ClientRevisionLabel">Selected client build</label>
+		<div class="divider"/><input type="text" id="buildNumber" name="buildNumber" readonly="readonly"/><br></br>
+		<label id="ClientRevisionLabel">Selected client revision</label>
+		<div class="divider"/><input type="text" id="ClientRevision" name="ClientRevision" readonly="readonly"/><br></br>
+		<button type="button" id="showHideCBS">Show/Hide client builds</button><br></br>
+		<!-- Show history of last client builds  -->
+		<j:forEach items="${orderOfComps}" var="comp">
+			<div id="${comp}_clientVersions" style="display: none; height:200px; overflow: auto;">
+				<label id="requestforSHA">Please select the stable build (client version) to deploy after core upgrade during backend deployment     </label>
+				<span id="customErrorPlacement" style="color:red; font-weight:bold"></span><br></br>
+				<table style="width=100%;" class="table table-bordered table-striped table-condensed hoverable-table-in-dialog">
+					<tbody>
+						<th style="width: 8%;text-align:center">Build</th>
+						<th style="width: 8%;text-align:center">SHA</th>
+						<th style="text-align:center">Time</th>
+						<th style="width:8%;text-align:center">Status</th>
+					</tbody>
+					<j:forEach items="${it.getDeploymentsByCompEnv(comp, 'Last Commit', limitDeploy)}" var="deployment">
+					<tr>
+						<td>
+							<a title="View Deployment" href="${deployment.get('jobUrl')}" target="AnalyticsBuildsDeployments">${deployment.get('buildNum')}</a>
+						</td>
+						<td>
+							<span class="${deployment.get('buildNum')}_sha_forReplacement">TBD</span>
+						</td>
+						<td>
+							<a title="View Deployment" href="${deployment.get('jobUrl')}" target="AnalyticsBuildsDeployments">${it.getNiceTimeStamp(deployment.get('created_at'))}</a>
+						</td>
+						<td>
+							<j:switch on="${deployment.get('buildstatus')}">
+								<j:case value="SUCCESS">
+									<!--<span title="SUCCESS" style="color:green;">&#10004;</span>-->
+									<input type="radio" name="clientBuilds" id="${deployment.get('buildNum')}" value="${deployment.get('jobUrl')}"></input>
+									<label title="SUCCESS" style="color:green;" for="${deployment.get('buildNum')}">       &#10004;</label>
+								</j:case>
+								<j:case value="FAILURE">
+									<span title="FAILURE" style="color:darkred;">&#x2716;</span>
+								</j:case>
+								<j:case value="RUNNING">
+									<span title="RUNNING" style="color:blue;">&#9658;</span>
+								</j:case>
+								<j:default>
+									<span title="UNKNOWN" style="color:orange;">&#63;</span>
+								</j:default>
+							</j:switch>
+						</td>
+					</tr>
+					</j:forEach>
+				</table>
+			</div>
+		</j:forEach>
+	</div>
+
+	
+	
+	
+	
+	
+	<br></br>
+
+	<div id="PRDsection">
+		<input type="checkbox" id="startcrjob"></input>
+		<label for="startcrjob"> Start change request job upon successful deployment</label><br></br>
+		
+		<input type="checkbox" id="startnj"></input>
+		<label for="startnj"> Start nightly job upon successful execution of deployment and/or change request job</label><br></br>
+		
+
+		<div id="prd-env" style="text-align: left">
+			<label id="njStartStepLabelQuestion">Do you want to start nightly job from a specific step (If No, the NJ will start from configured step which is usually step 1)?</label><div class="divider"/>
+			<select id="njStartStepDecision" name="njStartStepDecision">
+				<option value="">Choose...</option>
+				<option value="no">No</option>
+				<option value="yes">Yes</option>
+			</select>
+		</div>
+		
+		<div id="njstartstepSection">
+			<label id="njstartstepLabel">Nightly job start step</label><div class="divider"/><input type="text" id="njstartstep" name="njstartstep"/><br></br>
+		</div>
+		
+		<br></br>
+		
+		<label id="datetimepickerLabel">Deployment kick off date and time</label><div class="divider"/><input id="datetimepicker" name="datetimepicker" type="text"/>
+	</div>
+	
+	<input type="hidden" id="clientAcronym" value=""/>
+	<input type="hidden" id="environment" value=""/>
+	<input type="hidden" id="core_version" value=""/>
+	<input type="hidden" id="build_num" value=""/>
+	<input type="hidden" id="secondsToWait" value=""/>
+	<input type="hidden" id="ClientRevision" value=""/>
+	
+	<br></br>
+	<br></br>
+	<br></br>
+	
+	
+	<input type="checkbox" id="norollback"></input>
+	<label for="norollback"> Do not perform auto-rollback upon failed deployment</label>
+	
+	
+	<br></br>
+	
+	<div id="buttons" style="text-align: right">
+		<input type="submit" id="submit" value="Submit"/><div class="divider"/><span id="reset">Reset</span><div class="divider"/><span id="cancel">Cancel</span>
+	</div>
+	
+	
+	
+</form>
 </j:jelly>
