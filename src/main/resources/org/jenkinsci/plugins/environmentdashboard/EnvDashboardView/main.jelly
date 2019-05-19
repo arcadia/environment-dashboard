@@ -141,13 +141,15 @@
 	 
 																   <j:if test="${comp.indexOf('Backend') == -1}">
 																		<j:switch on="${deployment.get('buildstatus')}">
-																			<j:case value="SUCCESS">		
-																				 <j:if test="${envsHeader == 'Last Commit'}">
-																					<a title="Promote" href="javascript:showClientDepDynamicDialog('${comp}',null,'${deployment.get('buildNum')}');">Promote</a>
-																				 </j:if>
-																				 <j:if test="${envsHeader != 'Last Commit'}">
-																					<a title="Promote" href="javascript:showClientDepDynamicDialog('${comp}','${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1]}','${deployment.get('buildNum')}');">Promote</a>
-																				 </j:if>
+																			<j:case value="SUCCESS">
+																				<j:choose>
+																					<j:when test="${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)] == 'Last Commit'}">
+																						<a title="Promote" href="javascript:showClientDepDynamicDialog('${comp}',null,'${deployment.get('buildNum')}');">Promote</a>
+																					</j:when>
+																					<j:otherwise>
+																						<a title="Promote" href="javascript:showClientDepDynamicDialog('${comp}','${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1]}','${deployment.get('buildNum')}');">Promote</a>
+																					</j:otherwise>
+																				</j:choose>
 																			</j:case>
 																			<j:case value="FAILURE">
 																				 <a title="Promote" href="javascript:void(0)" class="disabled">Promote</a>
