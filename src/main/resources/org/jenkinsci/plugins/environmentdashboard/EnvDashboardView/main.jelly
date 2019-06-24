@@ -592,7 +592,12 @@
 							
 							Q("#njStartStepDecision").change(ChecknjStartStepDecision);
 							
-							Q("#datetimepicker").datetimepicker();
+							
+							Q("#datetimepicker").datetimepicker({
+							    lang: 'en-US',
+								format: 'm/d/Y H:i T',
+								step: 30
+							});
 							
 							//Pre-populate the NJ steps
 							var availableNJsteps = [
@@ -1134,8 +1139,8 @@
 <form id="dialog" style="display:none;" autocomplete="off">
 	<p id="dialogTitle">Placeholder for Deployment Information</p>
 
-	<label id="datetimepickerLabel">Jira Ticket (e.g., ACM-123)</label>	<div class="divider"/><input id="jiraticket" type="text"/><br></br>
-	<label id="datetimepickerDescriptionLabel">Used for automatic ticket update</label>
+	<label id="jiraticketLabel">Jira Ticket (e.g., ACM-123)</label>	<div class="divider"/><input id="jiraticket" type="text"/><br></br>
+	<label id="jiraticketDescriptionLabel">Used for automatic ticket update</label>
 	
 	<br></br><br></br>
 	

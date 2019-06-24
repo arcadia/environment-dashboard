@@ -6,6 +6,18 @@
 	font-size:15px; cursor:pointer;
 	width:70px; border-radius: 4px; 
 	padding:5px; }
+#submit:active {
+    box-shadow: inset -2px -2px 3px rgba(255, 255, 255, .6),
+                inset 2px 2px 3px rgba(0, 0, 0, .6);
+}
+#cancel:active {
+    box-shadow: inset -2px -2px 3px rgba(255, 255, 255, .6),
+                inset 2px 2px 3px rgba(0, 0, 0, .6);
+}
+#reset:active {
+    box-shadow: inset -2px -2px 3px rgba(255, 255, 255, .6),
+                inset 2px 2px 3px rgba(0, 0, 0, .6);
+}
 #title {
 	background-color:steelblue; color:white;
 	height:80px; width:750px; font-size:60px; }
