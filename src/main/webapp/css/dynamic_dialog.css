@@ -58,7 +58,7 @@
     display:inline-block;
 }
 #datetimepicker, #jiraticket, #buildNumber {
-	border-radius: 3px; width:170px; padding:1px;
+	border-radius: 3px; width:180px; padding:1px;
 	border:2px groove blue; }
 #requestforSHA {
 	font-size: 14px;
