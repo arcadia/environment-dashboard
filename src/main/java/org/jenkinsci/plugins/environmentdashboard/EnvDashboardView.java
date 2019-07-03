@@ -16,6 +16,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -46,14 +47,17 @@ public class EnvDashboardView extends View {
 
     private String tags = null;
 
+    private String betaCustomers = null;
+
     private String deployHistory = null;
 
     @DataBoundConstructor
-    public EnvDashboardView(final String name, final String envOrder, final String compOrder, final String tags, final String deployHistory) {
+    public EnvDashboardView(final String name, final String envOrder, final String compOrder, final String tags, final String betaCustomers, final String deployHistory) {
         super(name, Hudson.getInstance());
         this.envOrder = envOrder;
         this.compOrder = compOrder;
         this.tags = tags;
+        this.betaCustomers = betaCustomers;
         this.deployHistory = deployHistory;
     }
 
@@ -137,6 +141,7 @@ public class EnvDashboardView extends View {
         private String envOrder;
         private String compOrder;
         private String tags;
+        private String betaCustomers;
         private String deployHistory;
 
         /**
@@ -249,6 +254,7 @@ public class EnvDashboardView extends View {
             envOrder = formData.getString("envOrder");
             compOrder = formData.getString("compOrder");
             tags = formData.getString("tags");
+            betaCustomers = formData.getString("betaCustomers");
             deployHistory = formData.getString("deployHistory");
             save();
             return super.configure(req,formData);
@@ -278,6 +284,14 @@ public class EnvDashboardView extends View {
             orderOfTags = new ArrayList<String>(Arrays.asList(tags.split("\\s*,\\s*")));
         }
         return orderOfTags;
+    }
+
+    public ArrayList<String> splitBetaCustomers(String betaCustomers) {
+        ArrayList<String> orderOfBetaCustomers = new ArrayList<String>();
+        if (betaCustomers != null && ! "".equals(betaCustomers)) {
+            orderOfBetaCustomers = new ArrayList<String>(Arrays.asList(betaCustomers.split("\\s*,\\s*")));
+        }
+        return orderOfBetaCustomers;
     }
 
     public ResultSet runQuery(Connection conn, String queryString) {
@@ -349,9 +363,17 @@ public class EnvDashboardView extends View {
         return orderOfComps;
     }
 
-    public ArrayList<String> getOrderOfTags() {
-        ArrayList<String> orderOfTags;
-        orderOfTags = splitTags(tags);
+    public ArrayList<String> getOrderOfTags(String client, String env) {
+        ArrayList<String> orderOfTags = splitTags(tags);
+        ArrayList<String> betaCustomersList = splitBetaCustomers(betaCustomers);
+
+        if (env.equals("PRD")) {
+            for (Iterator<String> it=orderOfTags.iterator(); it.hasNext();) {
+                if (it.next().contains("beta"))
+                    it.remove();
+            }
+        }
+
         return orderOfTags;
     }
 
@@ -536,12 +558,20 @@ public class EnvDashboardView extends View {
         return compOrder;
     }
 
+    public String getBetaCustomers() {
+        return betaCustomers;
+    }
+
     public String getTags() {
         return tags;
     }
 
     public void setCompOrder(final String compOrder) {
         this.compOrder = compOrder;
+    }
+
+    public void setBetaCustomers(final String betaCustomers) {
+        this.betaCustomers = betaCustomers;
     }
 
     public void setTags(final String tags) {
