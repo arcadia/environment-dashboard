@@ -369,7 +369,8 @@ public class EnvDashboardView extends View {
 
         if (env.equals("PRD")) {
             for (Iterator<String> it=orderOfTags.iterator(); it.hasNext();) {
-                if (it.next().contains("beta"))
+                String tag = it.next();
+                if (tag.contains("beta") && !betaCustomersList.contains(client.replace(" Backend", ":") + tag))
                     it.remove();
             }
         }

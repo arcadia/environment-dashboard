@@ -372,7 +372,7 @@
 												   <!-- DROPDOWN MENUS FOR PERFORMING BACKEND DEPLOYMENTS under 'Last Commit' column-->
 												   
 													<j:if test="${comps.indexOf('Backend') != -1}">  
-                                                         <j:set var="tags" value="${it.getOrderOfTags(comp,env_promote)}"/>
+                                                         <j:set var="tags" value="${it.getOrderOfTags(comps,env_promote)}"/>
 													
 														 <j:set var="SpaceIndex" value="${comps.indexOf(' ',1)}"/>
 														 <j:set var="client" value="${comps.substring(0,SpaceIndex)}"/>
