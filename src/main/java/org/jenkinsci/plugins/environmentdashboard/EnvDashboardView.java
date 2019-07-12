@@ -367,11 +367,24 @@ public class EnvDashboardView extends View {
         ArrayList<String> orderOfTags = splitTags(tags);
         ArrayList<String> betaCustomersList = splitBetaCustomers(betaCustomers);
 
-        if (env.equals("PRD")) {
-            for (Iterator<String> it=orderOfTags.iterator(); it.hasNext();) {
-                String tag = it.next();
-                if (tag.contains("beta") && !betaCustomersList.contains(client.replace(" Backend", ":") + tag))
+        // alpha and beta tags must be approved
+        for (Iterator<String> it=orderOfTags.iterator(); it.hasNext();) {
+            String tag = it.next();
+            if (tag.contains("beta") || tag.contains("alpha") || (tag.contains("temp") && env.equals("PRD"))) {
+                boolean delete = true;
+                for(String customer : betaCustomersList) {
+                    if ( (client.replace(" Backend", ":") + tag).startsWith(customer)) {
+                        delete = false;
+                        break;
+                    }
+                }
+                if (delete) {
                     it.remove();
+                }
+                // temp tags will only be deleted prd
+                // if (delete && (env.equals("PRD") || tag.contains("beta") || tag.contains("alpha"))) {
+                //     it.remove();
+                // }
             }
         }
 
