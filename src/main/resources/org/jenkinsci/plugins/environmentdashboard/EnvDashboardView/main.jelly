@@ -31,7 +31,6 @@
 						<j:set var="orderOfEnvs" value="${it.getOrderOfEnvs()}"/>
 						<j:set var="orderOfComps" value="${it.getOrderOfComps()}"/>
 						<j:set var="customColumnsList" value="${it.getCustomDBColumns()}"/>
-						<j:set var="tags" value="${it.getOrderOfTags()}"/>
 
 
 						<j:forEach items="${orderOfEnvs}" var="envsHeader">
@@ -373,6 +372,7 @@
 												   <!-- DROPDOWN MENUS FOR PERFORMING BACKEND DEPLOYMENTS under 'Last Commit' column-->
 												   
 													<j:if test="${comps.indexOf('Backend') != -1}">  
+                                                         <j:set var="tags" value="${it.getOrderOfTags(comps,env_promote)}"/>
 													
 														 <j:set var="SpaceIndex" value="${comps.indexOf(' ',1)}"/>
 														 <j:set var="client" value="${comps.substring(0,SpaceIndex)}"/>
