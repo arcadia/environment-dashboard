@@ -9,6 +9,7 @@ import hudson.model.View;
 import hudson.model.ViewDescriptor;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
+import hudson.util.Secret;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -50,7 +51,7 @@ public class EnvDashboardView extends View {
 	
 	private String jiraUser = null;
 	
-	private String jiraPassword = null;
+	private Secret jiraPassword = null;
 
     @DataBoundConstructor
     public EnvDashboardView(final String name, final String envOrder, final String compOrder, final String tags, final String deployHistory, final String jiraUser, final String jiraPassword) {
@@ -60,7 +61,7 @@ public class EnvDashboardView extends View {
         this.tags = tags;
         this.deployHistory = deployHistory;
 		this.jiraUser = jiraUser;
-		this.jiraPassword = jiraPassword;
+		this.jiraPassword = Secret.fromString(jiraPassword);
     }
 
     static {
@@ -576,13 +577,16 @@ public class EnvDashboardView extends View {
 	
 	
 	public void setJiraPassword(final String jiraPassword) {
-        this.jiraPassword = jiraPassword;
+        this.jiraPassword = Secret.fromString(jiraPassword);
     }
 	
 	public String getJiraPassword() {
-        return jiraPassword;
+        return Secret.toString(jiraPassword);
     }
 
+	public Secret getJiraPasswordSecret() {
+        return jiraPassword;
+    }
 
     @Override
     public boolean contains(TopLevelItem topLevelItem) {

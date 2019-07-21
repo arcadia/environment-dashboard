@@ -17,16 +17,24 @@
 
 	<j:set var="jiraUser" value="${it.getJiraUser()}"/>
 	<j:set var="jiraPassword" value="${it.getJiraPassword()}"/>
-	<h2>${jiraUser}</h2>
-	<h2>${jiraPassword}</h2>
+	<j:set var="jiraPasswordSecret" value="${it.getJiraPasswordSecret()}"/>
 	
+	<p>${jiraUser}</p>
+	<p>${jiraPassword}</p>
+	<p>${jiraPasswordSecret}</p>
+
 	<input type="hidden" id="jiraUser" value="${jiraUser}"/>
 	<input type="hidden" id="jiraPassword" value="${jiraPassword}"/>
-	
+	<input type="hidden" id="jiraPasswordSecret" value="${jiraPasswordSecret}"/>
+
 	<script>
+	/*
 	  alert(Q("#jiraUser").val());
 	  alert(Q("#jiraPassword").val());
+	  alert(Q("#jiraPasswordSecret").val());
+	*/
    </script>
+	
 	
 	<input type="text" id="searchInput" style="width: 100%; font-size: 16px; padding: 12px 20px 12px 40px; border: 1px solid #ddd; margin-bottom: 12px;" onkeyup="filterTable()" placeholder="Search for clients.." title="Type in a client"/>
 	<table id="envDashboard" class="table table-bordered table-striped table-condensed">
