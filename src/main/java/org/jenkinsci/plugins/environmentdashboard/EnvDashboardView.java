@@ -45,16 +45,22 @@ public class EnvDashboardView extends View {
     private String compOrder = null;
 
     private String tags = null;
-
+	
     private String deployHistory = null;
+	
+	private String jiraUser = null;
+	
+	private String jiraPassword = null;
 
     @DataBoundConstructor
-    public EnvDashboardView(final String name, final String envOrder, final String compOrder, final String tags, final String deployHistory) {
+    public EnvDashboardView(final String name, final String envOrder, final String compOrder, final String tags, final String deployHistory, final String jiraUser, final String jiraPassword) {
         super(name, Hudson.getInstance());
         this.envOrder = envOrder;
         this.compOrder = compOrder;
         this.tags = tags;
         this.deployHistory = deployHistory;
+		this.jiraUser = jiraUser;
+		this.jiraPassword = jiraPassword;
     }
 
     static {
@@ -138,6 +144,8 @@ public class EnvDashboardView extends View {
         private String compOrder;
         private String tags;
         private String deployHistory;
+		private String jiraUser;
+		private String jiraPassword;
 
         /**
          * descriptor impl constructor This empty constructor is required for stapler. If you remove this constructor, text name of
@@ -250,6 +258,8 @@ public class EnvDashboardView extends View {
             compOrder = formData.getString("compOrder");
             tags = formData.getString("tags");
             deployHistory = formData.getString("deployHistory");
+			jiraUser = formData.getString("jiraUser");
+			jiraPassword = formData.getString("jiraPassword");
             save();
             return super.configure(req,formData);
         }
@@ -552,9 +562,27 @@ public class EnvDashboardView extends View {
         return deployHistory;
     }
 
-    public void setDeployHistory(final String deployHistory) {
+	public void setDeployHistory(final String deployHistory) {
         this.deployHistory = deployHistory;
     }
+	
+    public void setJiraUser(final String jiraUser) {
+        this.jiraUser = jiraUser;
+    }
+	
+	public String getJiraUser() {
+        return jiraUser;
+    }
+	
+	
+	public void setJiraPassword(final String jiraPassword) {
+        this.jiraPassword = jiraPassword;
+    }
+	
+	public String getJiraPassword() {
+        return jiraPassword;
+    }
+
 
     @Override
     public boolean contains(TopLevelItem topLevelItem) {

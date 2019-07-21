@@ -17,6 +17,15 @@
         <f:textbox default="10"/>
     </f:entry>
 
+	
+	<f:entry title="Jira user" field="jiraUser">
+	  <f:textbox />
+	</f:entry>
+	
+	<f:entry title="Jira password" field="jiraPassword">
+	  <f:password />
+	</f:entry>
+	
     <f:advanced>
 
         <f:entry title="Custom Columns" field="column" >
