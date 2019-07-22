@@ -1,4 +1,4 @@
-#submit, #cancel, #reset{
+#submit, #cancel, #reset, #parse{
 	background-image: -moz-linear-gradient(top , #f1f1f1, #8F8F8F); 
 	background-image: -webkit-linear-gradient(top , #f1f1f1, #8F8F8F);
 	background-image: -ms-linear-gradient(top , #f1f1f1, #8F8F8F);
@@ -15,6 +15,10 @@
                 inset 2px 2px 3px rgba(0, 0, 0, .6);
 }
 #reset:active {
+    box-shadow: inset -2px -2px 3px rgba(255, 255, 255, .6),
+                inset 2px 2px 3px rgba(0, 0, 0, .6);
+}
+#parse:active {
     box-shadow: inset -2px -2px 3px rgba(255, 255, 255, .6),
                 inset 2px 2px 3px rgba(0, 0, 0, .6);
 }
@@ -63,7 +67,7 @@
 #requestforSHA {
 	font-size: 14px;
 	color:green;}
-#ClientRevisionSection, #prd-env, #njstartstepSection, #datetimepickerDescriptionLabel {
+#ClientRevisionSection, #prd-env, #njstartstepSection, #datetimepickerDescriptionLabel, #prd-env-cr-job {
 	padding-left: 10px; }
 .ui-autocomplete {
 	max-height: 300px;

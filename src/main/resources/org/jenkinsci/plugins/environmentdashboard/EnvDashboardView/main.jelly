@@ -13,29 +13,8 @@
 <div class="overlay" style="display:none; background-color: rgba(0, 0, 0, 0.4); position:absolute; top: 0; left:0; bottom:0; right:0;" onclick="hideAll()"></div>
 <div class="popup" id="popup" style="position: absolute; width: 300px; height:150; display:none; background-color: white; text-align: center; top:50%; left:50%; margin-left: -150px; margin-top: -75;"></div>
 <div id="startDashboard" style="margin-left: -360px; margin-right: 360px;">
-
-
-	<j:set var="jiraUser" value="${it.getJiraUser()}"/>
-	<j:set var="jiraPassword" value="${it.getJiraPassword()}"/>
-	<j:set var="jiraPasswordSecret" value="${it.getJiraPasswordSecret()}"/>
-	
-	<p>${jiraUser}</p>
-	<p>${jiraPassword}</p>
-	<p>${jiraPasswordSecret}</p>
-
-	<input type="hidden" id="jiraUser" value="${jiraUser}"/>
-	<input type="hidden" id="jiraPassword" value="${jiraPassword}"/>
-	<input type="hidden" id="jiraPasswordSecret" value="${jiraPasswordSecret}"/>
-
-	<script>
-	/*
-	  alert(Q("#jiraUser").val());
-	  alert(Q("#jiraPassword").val());
-	  alert(Q("#jiraPasswordSecret").val());
-	*/
-   </script>
-	
-	
+<j:set var="jiraUser" value="${it.getJiraUser()}"/>
+<j:set var="jiraPassword" value="${it.getJiraPassword()}"/>
 	<input type="text" id="searchInput" style="width: 100%; font-size: 16px; padding: 12px 20px 12px 40px; border: 1px solid #ddd; margin-bottom: 12px;" onkeyup="filterTable()" placeholder="Search for clients.." title="Type in a client"/>
 	<table id="envDashboard" class="table table-bordered table-striped table-condensed">
 		<tbody>
@@ -455,7 +434,7 @@
 						//Hide the dynamic dialog initially after the page loads					
 						Q(document).ready(function(){
 						
-							Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection, #envSection").hide();
+							Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection, #envSection, #prd-env-cr-job").hide();
 							Q("#dialog").draggable();
 							
 							
@@ -596,9 +575,26 @@
 							});
 							
 							
+							Q("#parse").click(function(){
+								LoginParseValidate();
+							});
+							
 							
 							Q("#ClientRevisionDecision").change(CheckClientRevisionDecision);
 							Q("#EnvDecision").change(CheckEnvDecision);
+							
+							
+							Q("#startcrjob").change(function(){
+								if(this.checked) 
+								{
+									Q("#prd-env-cr-job").show();
+								}
+								else
+								{
+									Q("#prd-env-cr-job").hide();
+								}
+								
+							});
 							
 							
 							Q("#startnj").change(function(){
@@ -789,6 +785,36 @@
 						});
 					
 						
+						function LoginParseValidate()
+						{
+						
+							alert(Q("#SQLscript").val());
+							
+							//Login
+							
+
+							var request = Q.ajax({
+							  //url: "https://analyticsmonitoring.arcadiaanalytics.com/login",
+							  url: "https://localhost/login",
+							  //url: "http://localhost:8080/job/check4/5/api/xml/?xpath=/freeStyleBuild/action/cause",
+							  method: "GET"
+							  //crossDomain: true,
+							 // dataType: 'jsonp'
+							  //beforeSend: function(xhr){xhr.setRequestHeader('Access-Control-Allow-Origin', '*');}
+							  //dataType: "HTML"
+							});
+							 
+							request.done(function( msg ) {
+							  alert(msg);
+							});
+							 
+							request.fail(function( jqXHR, textStatus ) {
+							  alert( "Request failed: " + textStatus );
+							});
+							
+							
+						}
+						
 						function CloseResetDynamicDialog(typeOfAction)
 						{
 						
@@ -799,14 +825,14 @@
 							
 							if (typeOfAction == "close")
 							{
-								Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection, #envSection").hide();
+								Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection, #envSection, #prd-env-cr-job").hide();
 								Q("#buildNumber").val("");
 								Q("#core_version").val("");
 								Q("#build_num").val("");
 							}
 							else
 							{
-								Q("#ClientRevisionSection, #njstartstepSection, #prd-env").hide();
+								Q("#ClientRevisionSection, #njstartstepSection, #prd-env, #prd-env-cr-job").hide();
 								
 								if (typeofDeployment == "backend")
 								{
@@ -846,6 +872,13 @@
 						}
 						*/
 						
+						
+						function success2(msg)
+						{
+							alert("You May Pass!" + msg); 
+						}
+						
+						
 						function failure(jqXHR, textStatus, error)
 						{ 
 							//alert("You May not Pass!" + textStatus); 
@@ -859,12 +892,26 @@
 							Q('.' + Q("input[name=clientBuilds]").filter(":checked").prop('id') + "_sha_forReplacement").css('visibility', 'visible');
 						}
 						
+						function failure2(jqXHR, textStatus, error)
+						{ 
+							alert("You May not Pass!" + textStatus); 
+							alert("You May not Pass!" + error); 
+							
+						}
+						
 						/*
 						function always()
 						{ 
 							alert("Questions Answered."); 
 						}
 						*/
+						
+						
+						function always2()
+						{ 
+							alert("Questions Answered."); 
+						}
+						
 					
 						function updateTable(data)
 						{
@@ -883,7 +930,12 @@
 						
 						}
 					
-					
+						function processSuccess(data)
+						{
+							alert("Inside processSuccess function");
+							alert(data);
+						
+						}
 						
 						function showBackendDepDynamicDialog(comp, env, coreVersion) 
 						{ 
@@ -1242,16 +1294,20 @@
 		</j:forEach>
 	</div>
 
-	
-	
-	
-	
-	
 	<br></br>
 
 	<div id="PRDsection">
 		<input type="checkbox" id="startcrjob"></input>
 		<label for="startcrjob"> Start change request job upon successful deployment</label><br></br>
+		
+		<div id="prd-env-cr-job" style="text-align: left">
+			<!--<label id="CRjobPrompt">Please enter SQL script</label><div class="divider"/>-->
+			<textarea id="SQLscript" rows="4" cols="50" placeholder="Please enter SQL script..."></textarea>
+			<div id="buttons" style="text-align: right">
+				<span id="parse">Parse</span>
+			</div>
+		</div>
+		
 		
 		<input type="checkbox" id="startnj"></input>
 		<label for="startnj"> Start nightly job upon successful execution of deployment and/or change request job</label><br></br>
