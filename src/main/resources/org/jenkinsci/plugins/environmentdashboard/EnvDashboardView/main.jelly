@@ -791,21 +791,36 @@
 							alert(Q("#SQLscript").val());
 							
 							//Login
-							
-
 							var request = Q.ajax({
-							  //url: "https://analyticsmonitoring.arcadiaanalytics.com/login",
-							  url: "https://localhost/login",
-							  //url: "http://localhost:8080/job/check4/5/api/xml/?xpath=/freeStyleBuild/action/cause",
-							  method: "GET"
-							  //crossDomain: true,
-							 // dataType: 'jsonp'
-							  //beforeSend: function(xhr){xhr.setRequestHeader('Access-Control-Allow-Origin', '*');}
-							  //dataType: "HTML"
+							 type: "POST",
+							 url: "https://localhost/login",
+							 data: {username: "${jiraUser}", password: "${jiraPassword}"},
+							 xhrFields: { withCredentials: true },
+							 crossDomain: true
 							});
 							 
 							request.done(function( msg ) {
-							  alert(msg);
+							    alert(msg);
+							    console.log(msg);
+								
+								request = Q.ajax({
+								type: "GET",
+								url: "https://localhost/api/testing",
+								xhrFields: { withCredentials: true },
+								crossDomain: true
+								});
+								 
+								request.done(function( msg ) {
+									alert(msg);
+									console.log(msg);
+									
+								});
+								 
+								request.fail(function( jqXHR, textStatus ) {
+								  alert( "Request failed: " + textStatus );
+								});
+								
+							  
 							});
 							 
 							request.fail(function( jqXHR, textStatus ) {
@@ -813,6 +828,15 @@
 							});
 							
 							
+							
+							
+							
+							/*
+							Q.post("https://localhost/login", {username: "${jiraUser}", password: "${jiraPassword}"}, processSuccess)
+							//.done(success2)
+							.fail(failure2);
+							//.always(always2);
+							*/
 						}
 						
 						function CloseResetDynamicDialog(typeOfAction)
