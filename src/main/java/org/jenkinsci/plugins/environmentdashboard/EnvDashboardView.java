@@ -33,6 +33,7 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.interceptor.RequirePOST;
+import org.kohsuke.stapler.bind.JavaScriptMethod;
 
 /**
  * Class to provide build wrapper for Dashboard.
@@ -581,6 +582,12 @@ public class EnvDashboardView extends View {
     }
 	
 	public String getJiraPassword() {
+        return Secret.toString(jiraPassword);
+    }
+	
+
+    @JavaScriptMethod
+	public String getJiraPasswordJavaScript() {
         return Secret.toString(jiraPassword);
     }
 

@@ -14,7 +14,7 @@
 <div class="popup" id="popup" style="position: absolute; width: 300px; height:150; display:none; background-color: white; text-align: center; top:50%; left:50%; margin-left: -150px; margin-top: -75;"></div>
 <div id="startDashboard" style="margin-left: -360px; margin-right: 360px;">
 <j:set var="jiraUser" value="${it.getJiraUser()}"/>
-<j:set var="jiraPassword" value="${it.getJiraPassword()}"/>
+<!--<j:set var="jiraPassword" value="${it.getJiraPassword()}"/>-->
 	<input type="text" id="searchInput" style="width: 100%; font-size: 16px; padding: 12px 20px 12px 40px; border: 1px solid #ddd; margin-bottom: 12px;" onkeyup="filterTable()" placeholder="Search for clients.." title="Type in a client"/>
 	<table id="envDashboard" class="table table-bordered table-striped table-condensed">
 		<tbody>
@@ -790,44 +790,59 @@
 						
 							alert(Q("#SQLscript").val());
 							
-							//Login
-							var request = Q.ajax({
-							 type: "POST",
-							 url: "https://localhost/login",
-							 data: {username: "${jiraUser}", password: "${jiraPassword}"},
-							 xhrFields: { withCredentials: true },
-							 crossDomain: true
-							});
-							 
-							request.done(function( msg ) {
-							    alert(msg);
-							    console.log(msg);
-								
-								request = Q.ajax({
-								type: "GET",
-								url: "https://localhost/api/testing",
-								xhrFields: { withCredentials: true },
-								crossDomain: true
+							var EnvDashView = <st:bind value="${it}"/>
+							
+							
+							var pass = "";
+							EnvDashView.getJiraPasswordJavaScript(function(t) {
+								 pass = t.responseObject();
+								 alert(pass);
+							  
+								 //Login
+								var request = Q.ajax({
+								 type: "POST",
+								 url: "https://localhost/login",
+								 //url: "https://analyticsmonitoring.arcadiaanalytics.com/login",
+								 //data: {username: "${jiraUser}", password: "${jiraPassword}"},
+								 data: {username: "${jiraUser}", password: pass},
+								 xhrFields: { withCredentials: true },
+								 crossDomain: true,
+								 dataType: "html"
 								});
 								 
 								request.done(function( msg ) {
 									alert(msg);
 									console.log(msg);
 									
+									request = Q.ajax({
+									type: "GET",
+									url: "https://localhost/api/testing",
+									//url: "https://analyticsmonitoring.arcadiaanalytics.com/api/opsdbserverinventory",
+									xhrFields: { withCredentials: true },
+									crossDomain: true,
+									dataType: "json"
+									});
+									 
+									request.done(function( msg ) {
+										alert(msg);
+										console.log(msg);
+										
+									});
+									 
+									request.fail(function( jqXHR, textStatus ) {
+									  alert( "Request failed: " + textStatus );
+									});
+									
+								  
 								});
 								 
 								request.fail(function( jqXHR, textStatus ) {
 								  alert( "Request failed: " + textStatus );
 								});
-								
 							  
 							});
-							 
-							request.fail(function( jqXHR, textStatus ) {
-							  alert( "Request failed: " + textStatus );
-							});
 							
-							
+						
 							
 							
 							
