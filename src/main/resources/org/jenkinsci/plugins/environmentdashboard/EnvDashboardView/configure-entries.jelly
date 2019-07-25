@@ -22,12 +22,12 @@
     </f:entry>
 
 	
-	<f:entry title="Jira user" field="jiraUser">
+	<f:entry title="DB user" field="dbUser">
 	  <f:textbox />
 	</f:entry>
 	
-	<f:entry title="Jira password" field="jiraPassword">
-	  <f:password value="${instance.jiraPasswordSecret}"/>
+	<f:entry title="DB password" field="dbPassword">
+	  <f:password value="${instance.dbPasswordSecret}"/>
 	</f:entry>
 	
 	

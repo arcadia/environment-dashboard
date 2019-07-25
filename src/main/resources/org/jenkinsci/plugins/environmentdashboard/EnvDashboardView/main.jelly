@@ -13,8 +13,6 @@
 <div class="overlay" style="display:none; background-color: rgba(0, 0, 0, 0.4); position:absolute; top: 0; left:0; bottom:0; right:0;" onclick="hideAll()"></div>
 <div class="popup" id="popup" style="position: absolute; width: 300px; height:150; display:none; background-color: white; text-align: center; top:50%; left:50%; margin-left: -150px; margin-top: -75;"></div>
 <div id="startDashboard" style="margin-left: -360px; margin-right: 360px;">
-<j:set var="jiraUser" value="${it.getJiraUser()}"/>
-<!--<j:set var="jiraPassword" value="${it.getJiraPassword()}"/>-->
 	<input type="text" id="searchInput" style="width: 100%; font-size: 16px; padding: 12px 20px 12px 40px; border: 1px solid #ddd; margin-bottom: 12px;" onkeyup="filterTable()" placeholder="Search for clients.." title="Type in a client"/>
 	<table id="envDashboard" class="table table-bordered table-striped table-condensed">
 		<tbody>
@@ -33,6 +31,7 @@
 						<j:set var="orderOfEnvs" value="${it.getOrderOfEnvs()}"/>
 						<j:set var="orderOfComps" value="${it.getOrderOfComps()}"/>
 						<j:set var="customColumnsList" value="${it.getCustomDBColumns()}"/>
+						
 
 
 						<j:forEach items="${orderOfEnvs}" var="envsHeader">
@@ -374,7 +373,7 @@
 												   <!-- DROPDOWN MENUS FOR PERFORMING BACKEND DEPLOYMENTS under 'Last Commit' column-->
 												   
 													<j:if test="${comps.indexOf('Backend') != -1}">  
-                                                         <j:set var="tags" value="${it.getOrderOfTags(comps,env_promote)}"/>
+													<j:set var="tags" value="${it.getOrderOfTags(comps,env_promote)}"/>
 													
 														 <j:set var="SpaceIndex" value="${comps.indexOf(' ',1)}"/>
 														 <j:set var="client" value="${comps.substring(0,SpaceIndex)}"/>
@@ -430,6 +429,10 @@
 						var refreshIntervalId;
 						var prevBuildForFoundSHA;
 						var typeofDeployment;
+						
+						//Create a proxy for EnvDashView Java object on a server side so it can later be used during AJAX calls
+						var EnvDashViewProxy = <st:bind value="${it}"/>
+
 						
 						//Hide the dynamic dialog initially after the page loads					
 						Q(document).ready(function(){
@@ -790,68 +793,16 @@
 						
 							alert(Q("#SQLscript").val());
 							
-							var EnvDashView = <st:bind value="${it}"/>
 							
-							
-							var pass = "";
-							EnvDashView.getJiraPasswordJavaScript(function(t) {
-								 pass = t.responseObject();
-								 alert(pass);
-							  
-								 //Login
-								var request = Q.ajax({
-								 type: "POST",
-								 url: "https://localhost/login",
-								 //url: "https://analyticsmonitoring.arcadiaanalytics.com/login",
-								 //data: {username: "${jiraUser}", password: "${jiraPassword}"},
-								 data: {username: "${jiraUser}", password: pass},
-								 xhrFields: { withCredentials: true },
-								 crossDomain: true,
-								 dataType: "html"
-								});
-								 
-								request.done(function( msg ) {
-									alert(msg);
-									console.log(msg);
-									
-									request = Q.ajax({
-									type: "GET",
-									url: "https://localhost/api/testing",
-									//url: "https://analyticsmonitoring.arcadiaanalytics.com/api/opsdbserverinventory",
-									xhrFields: { withCredentials: true },
-									crossDomain: true,
-									dataType: "json"
-									});
-									 
-									request.done(function( msg ) {
-										alert(msg);
-										console.log(msg);
-										
-									});
-									 
-									request.fail(function( jqXHR, textStatus ) {
-									  alert( "Request failed: " + textStatus );
-									});
-									
-								  
-								});
-								 
-								request.fail(function( jqXHR, textStatus ) {
-								  alert( "Request failed: " + textStatus );
-								});
-							  
+							//Connecting directly to SQL server
+							var response = "";
+							EnvDashViewProxy.getTestDataFromLocalSQLserver(function(t) {
+								 response = t.responseObject();
+								 alert(response);
 							});
 							
-						
 							
 							
-							
-							/*
-							Q.post("https://localhost/login", {username: "${jiraUser}", password: "${jiraPassword}"}, processSuccess)
-							//.done(success2)
-							.fail(failure2);
-							//.always(always2);
-							*/
 						}
 						
 						function CloseResetDynamicDialog(typeOfAction)

@@ -29,12 +29,16 @@ import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.environmentdashboard.utils.DBConnection;
+import org.jenkinsci.plugins.environmentdashboard.utils.CustomDBConnection;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.interceptor.RequirePOST;
 import org.kohsuke.stapler.bind.JavaScriptMethod;
+
+import java.text.SimpleDateFormat;
+
 
 /**
  * Class to provide build wrapper for Dashboard.
@@ -53,20 +57,20 @@ public class EnvDashboardView extends View {
 
     private String deployHistory = null;
 	
-	private String jiraUser = null;
+	private String dbUser = null;
 	
-	private Secret jiraPassword = null;
+	private Secret dbPassword = null;
 
     @DataBoundConstructor
-    public EnvDashboardView(final String name, final String envOrder, final String compOrder, final String tags, final String betaCustomers, final String deployHistory, final String jiraUser, final String jiraPassword) {
+    public EnvDashboardView(final String name, final String envOrder, final String compOrder, final String tags, final String betaCustomers, final String deployHistory, final String dbUser, final String dbPassword) {
         super(name, Hudson.getInstance());
         this.envOrder = envOrder;
         this.compOrder = compOrder;
         this.tags = tags;
         this.betaCustomers = betaCustomers;
         this.deployHistory = deployHistory;
-		this.jiraUser = jiraUser;
-		this.jiraPassword = Secret.fromString(jiraPassword);
+		this.dbUser = dbUser;
+		this.dbPassword = Secret.fromString(dbPassword);
     }
 
     static {
@@ -151,8 +155,8 @@ public class EnvDashboardView extends View {
         private String tags;
         private String betaCustomers;
         private String deployHistory;
-		private String jiraUser;
-		private String jiraPassword;
+		private String dbUser;
+		private String dbPassword;
 
         /**
          * descriptor impl constructor This empty constructor is required for stapler. If you remove this constructor, text name of
@@ -266,8 +270,8 @@ public class EnvDashboardView extends View {
             tags = formData.getString("tags");
             betaCustomers = formData.getString("betaCustomers");
             deployHistory = formData.getString("deployHistory");
-			jiraUser = formData.getString("jiraUser");
-			jiraPassword = formData.getString("jiraPassword");
+			dbUser = formData.getString("dbUser");
+			dbPassword = formData.getString("dbPassword");
             save();
             return super.configure(req,formData);
         }
@@ -612,31 +616,69 @@ public class EnvDashboardView extends View {
         this.deployHistory = deployHistory;
     }
 	
-    public void setJiraUser(final String jiraUser) {
-        this.jiraUser = jiraUser;
+    public void setdbUser(final String dbUser) {
+        this.dbUser = dbUser;
     }
 	
-	public String getJiraUser() {
-        return jiraUser;
+	public String getdbUser() {
+        return dbUser;
     }
 	
 	
-	public void setJiraPassword(final String jiraPassword) {
-        this.jiraPassword = Secret.fromString(jiraPassword);
+	public void setdbPassword(final String dbPassword) {
+        this.dbPassword = Secret.fromString(dbPassword);
     }
 	
-	public String getJiraPassword() {
-        return Secret.toString(jiraPassword);
+	public String getdbPassword() {
+        return Secret.toString(dbPassword);
     }
 	
 
-    @JavaScriptMethod
-	public String getJiraPasswordJavaScript() {
-        return Secret.toString(jiraPassword);
-    }
+    //@JavaScriptMethod
+	//public String getdbPasswordJavaScript() {
+    //    return Secret.toString(dbPassword);
+    //}
 
-	public Secret getJiraPasswordSecret() {
-        return jiraPassword;
+	@JavaScriptMethod
+	public String getTestDataFromLocalSQLserver() {
+	
+	   String timeStamp = new SimpleDateFormat("yyyyMMdd-hh:mm:ss-aaa-z").format(new java.util.Date());
+	   System.out.println(timeStamp + ": At getTestDataFromLocalSQLserver function");
+	
+       Connection conn = null;
+       Statement stat = null;
+	   
+       conn = CustomDBConnection.getConnection("adoskara-pc2", "1433", "test", getdbUser(), getdbPassword());
+	   
+	   String SQL = "select * from dbo.persons where name = 'john';";
+	   
+       try {
+           assert conn != null;
+           stat = conn.createStatement();
+       } catch (SQLException e) {
+           System.out.println("E13" + e.getMessage());
+       }
+       try {
+	       System.out.println(timeStamp + ": About to execute SQL query...");
+           ResultSet rs = stat.executeQuery(SQL);
+		   //Iterate through the data in the result set and display it.
+           while (rs.next()) {
+                System.out.println(rs.getString("PersonID") + " " + rs.getString("name"));
+           }
+		   
+       } catch (SQLException e) {
+           System.out.println(timeStamp + ": Something went wrong in getTestDataFromLocalSQLserver function.\n" + e.getMessage());
+       } finally { 
+           CustomDBConnection.closeConnection(conn);
+       }
+	   
+	   
+       return "success";
+	   
+    }
+	
+	public Secret getdbPasswordSecret() {
+        return dbPassword;
     }
 
     @Override
