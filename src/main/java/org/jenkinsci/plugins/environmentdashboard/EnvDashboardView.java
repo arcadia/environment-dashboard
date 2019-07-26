@@ -648,9 +648,21 @@ public class EnvDashboardView extends View {
        Connection conn = null;
        Statement stat = null;
 	   
-       conn = CustomDBConnection.getConnection("adoskara-pc2", "1433", "test", getdbUser(), getdbPassword());
+	   String someString = null;
 	   
-	   String SQL = "select * from dbo.persons where name = 'john';";
+       //conn = CustomDBConnection.getConnection("adoskara-pc2", "1433", "test", getdbUser(), getdbPassword());
+	   //String SQL = "select * from dbo.persons where name = 'john';";
+	   
+	   System.out.println(timeStamp + ": Getting the user executing Jenkins...");
+	   String user = System.getProperty("user.name");
+	   System.out.println(user);
+	   
+	   //conn = CustomDBConnection.getConnection("TESTSQLTST04", "1433", "test_warehouse_dev04", getdbUser(), getdbPassword());
+	   //String SQL = "select age_range_id, age_range from dbo.age_range where age_range_id = 1;";
+	   
+	   conn = CustomDBConnection.getConnection("mydbserver1", "1433", "tutorialdb", getdbUser(), getdbPassword());
+	   String SQL = "select customerid, name from customers where name = 'orlando';";
+	   
 	   
        try {
            assert conn != null;
@@ -663,7 +675,14 @@ public class EnvDashboardView extends View {
            ResultSet rs = stat.executeQuery(SQL);
 		   //Iterate through the data in the result set and display it.
            while (rs.next()) {
-                System.out.println(rs.getString("PersonID") + " " + rs.getString("name"));
+                //System.out.println(rs.getString("PersonID") + " " + rs.getString("name"));
+				//someString = rs.getString("PersonID") + " " + rs.getString("name");
+				
+				//System.out.println(rs.getString("age_range_id") + " " + rs.getString("age_range"));
+				//someString = rs.getString("age_range_id") + " " + rs.getString("age_range");
+				
+				System.out.println(rs.getString("customerid") + " " + rs.getString("name"));
+				someString = rs.getString("customerid") + " " + rs.getString("name");
            }
 		   
        } catch (SQLException e) {
@@ -673,7 +692,9 @@ public class EnvDashboardView extends View {
        }
 	   
 	   
-       return "success";
+       //return "success";
+	   
+	   return someString;
 	   
     }
 	
