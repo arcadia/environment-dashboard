@@ -793,14 +793,21 @@
 						
 							alert(Q("#SQLscript").val());
 							
-							
+							/*
 							//Connecting directly to SQL server
 							var response = "";
 							EnvDashViewProxy.getTestDataFromLocalSQLserver(function(t) {
 								 response = t.responseObject();
 								 alert(response);
 							});
+							*/
 							
+							//Connecting directly to SQL server by passing SQL query to parse
+							var response2 = "";
+							EnvDashViewProxy.parseSQLquery(Q("#SQLscript").val(),function(t) {
+								 response2 = t.responseObject();
+								 alert(response2);
+							});
 							
 							
 						}
