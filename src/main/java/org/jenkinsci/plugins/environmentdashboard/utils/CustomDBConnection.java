@@ -29,10 +29,10 @@ public class CustomDBConnection {
 		
 		// Generate connection String for DB driver
 		//Use this string for manual testing on your local computer
-		//String dbConnectionString = "jdbc:sqlserver://" + server + ":" + port + ";databaseName=" + db + ";user=" + userName + ";password=" + userPassword;
+		String dbConnectionString = "jdbc:sqlserver://" + server + ":" + port + ";databaseName=" + db + ";user=" + userName + ";password=" + userPassword;
 		
 		//Try using Windows Integrated Authentication once on the domain
-		String dbConnectionString = "jdbc:sqlserver://" + server + ":" + port + ";databaseName=" + db + ";integratedSecurity=true";
+		//String dbConnectionString = "jdbc:sqlserver://" + server + ":" + port + ";databaseName=" + db + ";integratedSecurity=true";
 		
 		
 		//System.out.println(dbConnectionString);
