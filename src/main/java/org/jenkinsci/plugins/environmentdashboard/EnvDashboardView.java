@@ -60,9 +60,11 @@ public class EnvDashboardView extends View {
 	private String dbUser = null;
 	
 	private Secret dbPassword = null;
+	
+	private Boolean SQLauth = null;
 
     @DataBoundConstructor
-    public EnvDashboardView(final String name, final String envOrder, final String compOrder, final String tags, final String betaCustomers, final String deployHistory, final String dbUser, final String dbPassword) {
+    public EnvDashboardView(final String name, final String envOrder, final String compOrder, final String tags, final String betaCustomers, final String deployHistory, final String dbUser, final String dbPassword, final Boolean SQLauth) {
         super(name, Hudson.getInstance());
         this.envOrder = envOrder;
         this.compOrder = compOrder;
@@ -71,6 +73,7 @@ public class EnvDashboardView extends View {
         this.deployHistory = deployHistory;
 		this.dbUser = dbUser;
 		this.dbPassword = Secret.fromString(dbPassword);
+		this.SQLauth = SQLauth;
     }
 
     static {
@@ -157,6 +160,7 @@ public class EnvDashboardView extends View {
         private String deployHistory;
 		private String dbUser;
 		private String dbPassword;
+		private Boolean SQLauth;
 
         /**
          * descriptor impl constructor This empty constructor is required for stapler. If you remove this constructor, text name of
@@ -272,6 +276,7 @@ public class EnvDashboardView extends View {
             deployHistory = formData.getString("deployHistory");
 			dbUser = formData.getString("dbUser");
 			dbPassword = formData.getString("dbPassword");
+			SQLauth = formData.optBoolean("SQLauth");
             save();
             return super.configure(req,formData);
         }
@@ -624,6 +629,13 @@ public class EnvDashboardView extends View {
         return dbUser;
     }
 	
+	public void setSQLauth(final Boolean SQLauth) {
+        this.SQLauth = SQLauth;
+    }
+	
+	public Boolean getSQLauth() {
+        return SQLauth;
+    }
 	
 	public void setdbPassword(final String dbPassword) {
         this.dbPassword = Secret.fromString(dbPassword);
@@ -654,14 +666,14 @@ public class EnvDashboardView extends View {
 	   String user = System.getProperty("user.name");
 	   System.out.println(user);
 	   
-	   conn = CustomDBConnection.getConnection("adoskara-pc2", "1433", "test", getdbUser(), getdbPassword());
+	   conn = CustomDBConnection.getConnection("adoskara-pc2", "1433", "test", getdbUser(), getdbPassword(), getSQLauth());
 	   //String SQL = "select * from dbo.persons where name = 'john';";
 	   String SQL = "select * from dbo.persons;";
 	   
-	   //conn = CustomDBConnection.getConnection("TESTSQLTST04", "1433", "test_warehouse_dev04", getdbUser(), getdbPassword());
+	   //conn = CustomDBConnection.getConnection("TESTSQLTST04", "1433", "test_warehouse_dev04", getdbUser(), getdbPassword(), getSQLauth());
 	   //String SQL = "select age_range_id, age_range from dbo.age_range where age_range_id = 1;";
 	   
-	   //conn = CustomDBConnection.getConnection("mydbserver1", "1433", "tutorialdb", getdbUser(), getdbPassword());
+	   //conn = CustomDBConnection.getConnection("mydbserver1", "1433", "tutorialdb", getdbUser(), getdbPassword(), getSQLauth());
 	   //String SQL = "select customerid, name from customers where name = 'orlando';";
 	   
 	   

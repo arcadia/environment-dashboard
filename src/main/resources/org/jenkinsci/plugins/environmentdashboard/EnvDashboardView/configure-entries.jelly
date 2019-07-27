@@ -21,20 +21,18 @@
         <f:textbox default="10"/>
     </f:entry>
 
-	<f:block>
-	  <table>
-		<f:optionalBlock name="dynamic" title="Perform SQL authentication towards SQL servers">
-			<f:entry title="DB user" field="dbUser">
-			  <f:textbox />
-			</f:entry>
-			<f:entry title="DB password" field="dbPassword">
-			  <f:password value="${instance.dbPasswordSecret}"/>
-			</f:entry>
-		</f:optionalBlock>
-	  </table>
-	</f:block>
+	<f:entry title="SQL authentication" field="SQLauth">
+	  <f:checkbox />
+	</f:entry>
 	
+	<f:entry title="DB user" field="dbUser">
+	  <f:textbox />
+	</f:entry>
 	
+	<f:entry title="DB password" field="dbPassword">
+	  <f:password value="${instance.dbPasswordSecret}"/>
+	</f:entry>
+
     <f:advanced>
 
         <f:entry title="Custom Columns" field="column" >

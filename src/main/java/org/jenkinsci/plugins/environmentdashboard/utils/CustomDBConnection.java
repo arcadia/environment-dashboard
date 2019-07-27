@@ -21,19 +21,23 @@ public class CustomDBConnection {
 	 * Return a database connection object.
 	 * @return a database connection object
 	 */
-	public static Connection getConnection(String server, String port, String db, String userName, String userPassword){
+	public static Connection getConnection(String server, String port, String db, String userName, String userPassword, Boolean SQLauthentication){
 		
 		String timeStamp = new SimpleDateFormat("yyyyMMdd-hh:mm:ss-aaa-z").format(new java.util.Date());
 		System.out.println(timeStamp + ": At getConnection function");
-		
+		String dbConnectionString = null;
 		
 		// Generate connection String for DB driver
-		//Use this string for manual testing on your local computer
-		String dbConnectionString = "jdbc:sqlserver://" + server + ":" + port + ";databaseName=" + db + ";user=" + userName + ";password=" + userPassword;
-		
-		//Try using Windows Integrated Authentication once on the domain
-		//String dbConnectionString = "jdbc:sqlserver://" + server + ":" + port + ";databaseName=" + db + ";integratedSecurity=true";
-		
+		if (SQLauthentication)
+		{
+			//Use this string for manual testing on your local computer
+			dbConnectionString = "jdbc:sqlserver://" + server + ":" + port + ";databaseName=" + db + ";user=" + userName + ";password=" + userPassword;
+		}
+		else
+		{
+			//Try using Windows Integrated Authentication once on the domain
+			dbConnectionString = "jdbc:sqlserver://" + server + ":" + port + ";databaseName=" + db + ";integratedSecurity=true";
+		}
 		
 		//System.out.println(dbConnectionString);
 		
