@@ -437,9 +437,9 @@
 						//Hide the dynamic dialog initially after the page loads					
 						Q(document).ready(function(){
 						
-							Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection, #envSection, #prd-env-cr-job").hide();
+							Q("#overlay, #dialog, #overlay2, #dialog2, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection, #envSection, #prd-env-cr-job").hide();
 							Q("#dialog").draggable();
-							
+							Q("#dialog2").draggable();
 							
 							Q.validator.addMethod("dateTime", function(value, element) {
 								var futureDateTime = new Date(value);
@@ -580,6 +580,10 @@
 							
 							Q("#parse").click(function(){
 								LoginParseValidate();
+							});
+							
+							Q("#edit").click(function(){
+								Q("#overlay2, #dialog2").show();
 							});
 							
 							
@@ -959,8 +963,8 @@
 							 Q("#clientAcronym").val(compSubstr);
 							 Q("#environment").val(env);
 							 Q("#core_version").val(coreVersion);
-							 
-							 
+							 Q("#cr-job-dep").text(compSubstr + "_Change_Request_" + env + "_Dep");
+							  
 						}
 						
 						function CheckClientRevisionDecision()
@@ -1299,12 +1303,11 @@
 		
 		<div id="prd-env-cr-job" style="text-align: left">
 			<!--<label id="CRjobPrompt">Please enter SQL script</label><div class="divider"/>-->
-			<textarea id="SQLscript" rows="4" cols="50" placeholder="Please enter SQL script..."></textarea>
-			<div id="buttons" style="text-align: right">
-				<span id="parse">Parse</span>
+			<p id="cr-job-dep">Placeholder for CR Job Dep Name</p>
+			<div id="buttons" style="text-align: left">
+				<span id="edit">Edit</span>
 			</div>
 		</div>
-		
 		
 		<input type="checkbox" id="startnj"></input>
 		<label for="startnj"> Start nightly job upon successful execution of deployment and/or change request job</label><br></br>
@@ -1352,5 +1355,17 @@
 	
 	
 	
+</form>
+
+
+<div id="overlay2" style="display:none;"></div>
+<form id="dialog2" style="display:none;" autocomplete="off">
+	<div id="SQLstep" style="text-align: left">
+		<!--<label id="CRjobPrompt">Please enter SQL script</label><div class="divider"/>-->
+		<textarea id="SQLscript" rows="20" cols="100" placeholder="Please enter SQL script..."></textarea>
+		<div id="buttons" style="text-align: left">
+			<span id="parse">Parse</span>
+		</div>
+	</div>
 </form>
 </j:jelly>

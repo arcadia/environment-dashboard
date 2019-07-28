@@ -1,4 +1,4 @@
-#submit, #cancel, #reset, #parse{
+#submit, #cancel, #reset, #parse, #edit {
 	background-image: -moz-linear-gradient(top , #f1f1f1, #8F8F8F); 
 	background-image: -webkit-linear-gradient(top , #f1f1f1, #8F8F8F);
 	background-image: -ms-linear-gradient(top , #f1f1f1, #8F8F8F);
@@ -22,6 +22,10 @@
     box-shadow: inset -2px -2px 3px rgba(255, 255, 255, .6),
                 inset 2px 2px 3px rgba(0, 0, 0, .6);
 }
+#edit:active {
+    box-shadow: inset -2px -2px 3px rgba(255, 255, 255, .6),
+                inset 2px 2px 3px rgba(0, 0, 0, .6);
+}
 #title {
 	background-color:steelblue; color:white;
 	height:80px; width:750px; font-size:60px; }
@@ -31,13 +35,13 @@
 #content{
 	height:400px; width: 600px; font-size:40px;
 	background-color:#EEEEEE; }
-#overlay {
+#overlay, #overlay2  {
 	position: absolute; top: 0; left: 0;
 	width: 100%; height: 100%;
 	opacity:.8; background-color:white; 
 	margin:0px; display:inline-block;
 	float:left; text-align:center;}
-#dialog {
+#dialog , #dialog 2 {
 	border: 3px groove blue; text-align:left;
 	padding:10px; 
 	position: fixed;
