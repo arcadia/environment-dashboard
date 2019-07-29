@@ -437,10 +437,19 @@
 						//Hide the dynamic dialog initially after the page loads					
 						Q(document).ready(function(){
 						
-							Q("#overlay, #dialog, #overlay2, #dialog2, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection, #envSection, #prd-env-cr-job").hide();
+							Q("#overlay, #dialog, #dialog2, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection, #envSection, #prd-env-cr-job").hide();
 							Q("#dialog").draggable();
-							Q("#dialog2").draggable();
 							
+							Q("#dialog2").dialog({
+								autoOpen: false, 
+								modal: true,
+								draggable: true,
+								resizable: false,
+								height: 400,
+								width: 350,
+								dialogClass: "no-close"
+							}).prev(".ui-dialog-titlebar").css("background","#81BEF7");
+														
 							Q.validator.addMethod("dateTime", function(value, element) {
 								var futureDateTime = new Date(value);
 								var now = new Date();
@@ -582,8 +591,8 @@
 								LoginParseValidate();
 							});
 							
-							Q("#edit").click(function(){
-								Q("#overlay2, #dialog2").show();
+							Q("#properties").click(function(){
+								Q("#dialog2").dialog("open");
 							});
 							
 							
@@ -964,7 +973,8 @@
 							 Q("#environment").val(env);
 							 Q("#core_version").val(coreVersion);
 							 Q("#cr-job-dep").text(compSubstr + "_Change_Request_" + env + "_Dep");
-							  
+							 Q("#dialog2Title").text(compSubstr + "_Change_Request_" + env + "_Dep");
+							 Q("#dialog2").dialog("option","title",compSubstr + "_Change_Request_" + env + "_Dep");
 						}
 						
 						function CheckClientRevisionDecision()
@@ -1302,11 +1312,7 @@
 		<label for="startcrjob"> Start change request job upon successful deployment</label><br></br>
 		
 		<div id="prd-env-cr-job" style="text-align: left">
-			<!--<label id="CRjobPrompt">Please enter SQL script</label><div class="divider"/>-->
-			<p id="cr-job-dep">Placeholder for CR Job Dep Name</p>
-			<div id="buttons" style="text-align: left">
-				<span id="edit">Edit</span>
-			</div>
+			<label id="CRjobPrompt">  Please provide details for </label><label id="cr-job-dep">Placeholder for CR Job Dep Name</label><label id="CRjobPrompt2"> by clicking Properties button</label><div class="divider"/><input type="button" id="properties" value="Properties"></input>	
 		</div>
 		
 		<input type="checkbox" id="startnj"></input>
@@ -1356,13 +1362,12 @@
 	
 	
 </form>
-
-
-<div id="overlay2" style="display:none;"></div>
-<form id="dialog2" style="display:none;" autocomplete="off">
+<form id="dialog2" title="cr-job-title" style="display:none;" autocomplete="off">
+	<!--<p id="dialog2Title">Placeholder for CR job Information</p>-->
 	<div id="SQLstep" style="text-align: left">
 		<!--<label id="CRjobPrompt">Please enter SQL script</label><div class="divider"/>-->
-		<textarea id="SQLscript" rows="20" cols="100" placeholder="Please enter SQL script..."></textarea>
+		<label id="stepnameLabel">Step name</label>	<div class="divider"/><input id="SQLstepname" type="text"/><br></br>
+		<textarea id="SQLscript" rows="4" cols="20" placeholder="Please enter SQL script..."></textarea>
 		<div id="buttons" style="text-align: left">
 			<span id="parse">Parse</span>
 		</div>
