@@ -24,6 +24,11 @@ import java.util.HashMap;
 
 import javax.servlet.ServletException;
 
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonArray;
+
 import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 
@@ -778,6 +783,103 @@ public class EnvDashboardView extends View {
 	   
     }
 	
+	
+	@JavaScriptMethod
+	public String GetCRjobStepsSQLquery(String job) 
+	{
+	
+	   String timeStamp = new SimpleDateFormat("yyyyMMdd-hh:mm:ss-aaa-z").format(new java.util.Date());
+	   System.out.println(timeStamp + ": At GetCRjobStepsSQLquery function");
+	   System.out.println(timeStamp + ": Here is the change request job passed to GetCRjobStepsSQLquery function:");
+	   System.out.println(job);
+	
+       Connection conn = null;
+       Statement stat = null;
+	   
+	   String someString = new String();
+	   String error = new String();
+	  	   
+	   System.out.println(timeStamp + ": Getting the user executing Jenkins...");
+	   String user = System.getProperty("user.name");
+	   
+	   System.out.println(timeStamp + ": Getting java version used by Jenkins...");
+	   String javaVersion = System.getProperty("java.version");
+	   System.out.println(javaVersion);
+	   
+	   conn = CustomDBConnection.getConnection("adoskara-pc2", "1433", "msdb", getdbUser(), getdbPassword(), getSQLauth());
+	   String SQL = "EXEC dbo.sp_help_job @job_name = N'" + job + "',  @job_aspect = N'steps';";
+	   System.out.println(timeStamp + ": Here is the built change request:");
+	   System.out.println(SQL);
+	   
+	   //conn = CustomDBConnection.getConnection("TESTSQLTST04", "1433", "test_warehouse_dev04", getdbUser(), getdbPassword(), getSQLauth());
+	   //String SQL = "select age_range_id, age_range from dbo.age_range where age_range_id = 1;";
+	   
+	   //conn = CustomDBConnection.getConnection("mydbserver1", "1433", "tutorialdb", getdbUser(), getdbPassword(), getSQLauth());
+	   //String SQL = "select customerid, name from customers where name = 'orlando';";
+	   
+	   
+       try 
+	   {
+           assert conn != null;
+           stat = conn.createStatement();
+       } 
+	   catch (SQLException e)
+	   {
+		   error = "E13" + e.getMessage();
+           System.out.println(error);
+		   return error;
+       }
+	   
+       try 
+	   {
+	       System.out.println(timeStamp + ": About to execute SQL query...");
+           ResultSet rs = stat.executeQuery(SQL);
+		   
+		   //Iterate through the data in the result set and display it.
+		   JsonArrayBuilder jarr = Json.createArrayBuilder();
+		   
+           while (rs.next()) {
+                System.out.println(rs.getString("step_id") + " " + rs.getString("step_name") + " " + rs.getString("on_fail_action"));
+				someString += rs.getString("step_id") + " " + rs.getString("step_name") + " " + rs.getString("on_fail_action") + "\n";
+				
+				//System.out.println(rs.getString("age_range_id") + " " + rs.getString("age_range"));
+				//someString = rs.getString("age_range_id") + " " + rs.getString("age_range");
+				
+				//System.out.println(rs.getString("customerid") + " " + rs.getString("name"));
+				//someString = rs.getString("customerid") + " " + rs.getString("name");
+				
+				jarr.add(Json.createObjectBuilder()
+					  .add("step_id", rs.getString("step_id"))
+					  .add("step_name", rs.getString("step_name"))
+					  .add("on_fail_action", rs.getString("on_fail_action"))
+				  .build());
+           }
+		   
+		   JsonArray arr = jarr.build();
+		   JsonObject jo = Json.createObjectBuilder().add("steps", arr).build();
+		   
+		    //return "success";
+	   
+			//return someString;
+			
+			System.out.println(jo);
+			return jo.toString();
+		   
+       } 
+	   catch (SQLException e) 
+	   {
+		   error = timeStamp + ": Something went wrong in getTestDataFromLocalSQLserver function.\n" + e.getMessage();
+           System.out.println(error);
+		   return error;
+		   
+       } 
+	   finally 
+	   { 
+           CustomDBConnection.closeConnection(conn);
+       }
+	   
+	   
+    }
 	
 	public Secret getdbPasswordSecret() {
         return dbPassword;

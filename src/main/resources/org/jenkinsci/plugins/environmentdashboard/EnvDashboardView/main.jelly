@@ -429,6 +429,7 @@
 						var refreshIntervalId;
 						var prevBuildForFoundSHA;
 						var typeofDeployment;
+						var CRjob;
 						
 						//Create a proxy for EnvDashView Java object on a server side so it can later be used during AJAX calls
 						var EnvDashViewProxy = <st:bind value="${it}"/>
@@ -804,7 +805,8 @@
 						function LoginParseValidate()
 						{
 						
-							alert(Q("#SQLscript").val());
+							alert("In LoginParseValidate function");
+							//alert(Q("#SQLscript").val());
 							
 							/*
 							//Connecting directly to SQL server
@@ -815,11 +817,38 @@
 							});
 							*/
 							
+							/*
 							//Connecting directly to SQL server by passing SQL query to parse
 							var response2 = "";
 							EnvDashViewProxy.parseSQLquery(Q("#SQLscript").val(),function(t) {
 								 response2 = t.responseObject();
 								 alert(response2);
+							});
+							*/
+							
+							//Connecting directly to SQL server by passing SQL query to parse
+							var response3 = "";
+							EnvDashViewProxy.GetCRjobStepsSQLquery(CRjob,function(t) {
+								 response3 = t.responseObject();
+								 alert(response3);
+								 var stepsjobject = JSON.parse(response3);
+								 //alert(stepsjobject);
+								 
+
+
+								 
+								 
+								 Q.each(stepsjobject.steps, function(index, element) {
+									alert(element.step_id); 
+									alert(element.step_name); 
+									alert(element.on_fail_action); 
+												  
+									 //Q("demo").innerHTML = stepsjobject.steps[index].step_id
+									 //Q("demo").innerHTML = stepsjobject.steps[index].step_name
+									 //Q("demo").innerHTML = stepsjobject.steps[index].on_fail_action
+								 
+								});
+								 
 							});
 							
 							
@@ -972,9 +1001,11 @@
 							 Q("#clientAcronym").val(compSubstr);
 							 Q("#environment").val(env);
 							 Q("#core_version").val(coreVersion);
-							 Q("#cr-job-dep").text(compSubstr + "_Change_Request_" + env + "_Dep");
-							 Q("#dialog2Title").text(compSubstr + "_Change_Request_" + env + "_Dep");
-							 Q("#dialog2").dialog("option","title",compSubstr + "_Change_Request_" + env + "_Dep");
+							 
+							 CRjob = compSubstr + "_Change_Request";
+							 Q("#cr-job-dep").text(CRjob);
+							 //Q("#dialog2Title").text(CRjob);
+							 Q("#dialog2").dialog("option","title",CRjob);
 						}
 						
 						function CheckClientRevisionDecision()
@@ -1359,8 +1390,6 @@
 		<input type="submit" id="submit" value="Submit"/><div class="divider"/><span id="reset">Reset</span><div class="divider"/><span id="cancel">Cancel</span>
 	</div>
 	
-	
-	
 </form>
 <form id="dialog2" title="cr-job-title" style="display:none;" autocomplete="off">
 	<!--<p id="dialog2Title">Placeholder for CR job Information</p>-->
@@ -1373,4 +1402,5 @@
 		</div>
 	</div>
 </form>
+
 </j:jelly>
