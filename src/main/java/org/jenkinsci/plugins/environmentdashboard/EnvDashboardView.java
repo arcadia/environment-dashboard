@@ -11,6 +11,8 @@ import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import hudson.util.Secret;
 
+import hudson.model.User;
+
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -42,7 +44,10 @@ import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.interceptor.RequirePOST;
 import org.kohsuke.stapler.bind.JavaScriptMethod;
 
+
+
 import java.text.SimpleDateFormat;
+
 
 
 /**
@@ -801,6 +806,11 @@ public class EnvDashboardView extends View {
 	  	   
 	   System.out.println(timeStamp + ": Getting the user executing Jenkins...");
 	   String user = System.getProperty("user.name");
+	   System.out.println(user);
+	   
+	   System.out.println(timeStamp + ": Getting the user who logged in to Jenkins...");
+	   String builduser = User.current().getId();
+	   System.out.println(builduser);
 	   
 	   System.out.println(timeStamp + ": Getting java version used by Jenkins...");
 	   String javaVersion = System.getProperty("java.version");
