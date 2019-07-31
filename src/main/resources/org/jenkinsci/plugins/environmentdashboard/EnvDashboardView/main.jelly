@@ -446,8 +446,8 @@
 								modal: true,
 								draggable: true,
 								resizable: false,
-								height: 400,
-								width: 350,
+								autoResize: true,
+								width: 900,
 								dialogClass: "no-close"
 							}).prev(".ui-dialog-titlebar").css("background","#81BEF7");
 														
@@ -588,12 +588,57 @@
 							});
 							
 							
-							Q("#parse").click(function(){
-								LoginParseValidate();
-							});
+							//Q("#parse").click(function(){
+							//	LoginParseValidate();
+							//});
+							
 							
 							Q("#properties").click(function(){
-								Q("#dialog2").dialog("open");
+								
+								alert("properties button was clicked");
+								
+								//Retrieve CR job steps
+								var response = "";
+								EnvDashViewProxy.GetCRjobStepsSQLquery(CRjob,function(t) {
+									 response = t.responseObject();
+									 //alert(response);
+									 var stepsjobject = JSON.parse(response);
+									 //alert(stepsjobject);
+									 
+									 
+									 alert(response);
+									 alert("About to populate the table...");
+									 
+									 
+									 
+									 Q.each(stepsjobject.steps, function(index, element){
+										//alert(element.step_id); 
+										//alert(element.step_name); 
+										//alert(element.on_fail_action); 
+										
+										 Q("#CRjobstepsTable tbody").append('<tr>');
+										 Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center">' + element.step_id + '</td>');
+										 Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center">' + element.step_name + '</td>');
+										 Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center">' + element.on_fail_action + '</td>');
+										 //Q("#CRjobstepsTable tbody").append('<td>EditButton</td>');
+										 Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center"><input type="button" id="edit" value="edit"></input></td>');
+										 Q("#CRjobstepsTable tbody").append('</tr>');
+									 
+									 });
+									 
+									 
+									alert("Finished populating the table");
+									
+									
+									 
+									 //Present CR job details
+									 Q("#dialog2").dialog("open");
+									 Q("#CRjobsteps").show();
+									 
+									 
+									 
+								});
+								
 							});
 							
 							
@@ -826,30 +871,7 @@
 							});
 							*/
 							
-							//Connecting directly to SQL server by passing SQL query to parse
-							var response3 = "";
-							EnvDashViewProxy.GetCRjobStepsSQLquery(CRjob,function(t) {
-								 response3 = t.responseObject();
-								 alert(response3);
-								 var stepsjobject = JSON.parse(response3);
-								 //alert(stepsjobject);
-								 
 
-
-								 
-								 
-								 Q.each(stepsjobject.steps, function(index, element) {
-									alert(element.step_id); 
-									alert(element.step_name); 
-									alert(element.on_fail_action); 
-												  
-									 //Q("demo").innerHTML = stepsjobject.steps[index].step_id
-									 //Q("demo").innerHTML = stepsjobject.steps[index].step_name
-									 //Q("demo").innerHTML = stepsjobject.steps[index].on_fail_action
-								 
-								});
-								 
-							});
 							
 							
 						}
@@ -1392,15 +1414,17 @@
 	
 </form>
 <form id="dialog2" title="cr-job-title" style="display:none;" autocomplete="off">
-	<!--<p id="dialog2Title">Placeholder for CR job Information</p>-->
-	<div id="SQLstep" style="text-align: left">
-		<!--<label id="CRjobPrompt">Please enter SQL script</label><div class="divider"/>-->
-		<label id="stepnameLabel">Step name</label>	<div class="divider"/><input id="SQLstepname" type="text"/><br></br>
-		<textarea id="SQLscript" rows="4" cols="20" placeholder="Please enter SQL script..."></textarea>
-		<div id="buttons" style="text-align: left">
-			<span id="parse">Parse</span>
-		</div>
+	<div id="CRjobsteps" style="display: none; height:200px; overflow: auto;">
+	<label id="requestforStep">Please edit the step in question     </label>
+	<span id="customErrorPlacement2" style="color:red; font-weight:bold"></span><br></br>
+	<table id="CRjobstepsTable" style="width=100%;" class="table table-bordered table-striped table-condensed hoverable-table-in-dialog">
+		<tbody>
+			<th style="width: 8%;text-align:center">step_id</th>
+			<th style="width: 8%;text-align:center">step_name</th>
+			<th style="width: 8%;text-align:center">on_fail_action</th>
+			<th style="width: 8%;text-align:center">Action</th>
+		</tbody>
+	</table>
 	</div>
 </form>
-
 </j:jelly>

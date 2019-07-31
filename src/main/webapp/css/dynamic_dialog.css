@@ -1,4 +1,4 @@
-#submit, #cancel, #reset, #parse, #edit {
+#submit, #cancel, #reset, #parse{
 	background-image: -moz-linear-gradient(top , #f1f1f1, #8F8F8F); 
 	background-image: -webkit-linear-gradient(top , #f1f1f1, #8F8F8F);
 	background-image: -ms-linear-gradient(top , #f1f1f1, #8F8F8F);
