@@ -21,7 +21,7 @@
         <f:textbox default="10"/>
     </f:entry>
 
-	<f:entry title="SQL authentication" field="SQLauth">
+	<f:entry title="SQL authentication (Check this checkbox only when doing tests via Jenkins master DEV)" field="SQLauth">
 	  <f:checkbox />
 	</f:entry>
 	
@@ -33,6 +33,20 @@
 	  <f:password value="${instance.dbPasswordSecret}"/>
 	</f:entry>
 
+	
+	<f:entry title="LDAP server" field="LDAPserver">
+	  <f:textbox />
+	</f:entry>
+	
+	<f:entry title="LDAP user" field="LDAPuser">
+	  <f:textbox />
+	</f:entry>
+	
+	<f:entry title="LDAP password" field="LDAPpassword">
+	  <f:password value="${instance.LDAPpasswordSecret}"/>
+	</f:entry>
+	
+	
     <f:advanced>
 
         <f:entry title="Custom Columns" field="column" >

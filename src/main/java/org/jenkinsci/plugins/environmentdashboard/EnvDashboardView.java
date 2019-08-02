@@ -44,10 +44,21 @@ import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.interceptor.RequirePOST;
 import org.kohsuke.stapler.bind.JavaScriptMethod;
 
-
-
 import java.text.SimpleDateFormat;
 
+
+//Needed for AD connectivity
+import java.util.Hashtable;
+import javax.naming.Context;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.ldap.InitialLdapContext;
+import javax.naming.ldap.LdapContext;
+
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 
 
 /**
@@ -72,9 +83,18 @@ public class EnvDashboardView extends View {
 	private Secret dbPassword = null;
 	
 	private Boolean SQLauth = null;
+	
+	
+	private String LDAPserver = null;
+	
+	private String LDAPuser = null;
+	
+	private Secret LDAPpassword = null;
+	
+	
 
     @DataBoundConstructor
-    public EnvDashboardView(final String name, final String envOrder, final String compOrder, final String tags, final String betaCustomers, final String deployHistory, final String dbUser, final String dbPassword, final Boolean SQLauth) {
+    public EnvDashboardView(final String name, final String envOrder, final String compOrder, final String tags, final String betaCustomers, final String deployHistory, final String dbUser, final String dbPassword, final Boolean SQLauth, final String LDAPserver, final String LDAPuser, final String LDAPpassword) {
         super(name, Hudson.getInstance());
         this.envOrder = envOrder;
         this.compOrder = compOrder;
@@ -84,6 +104,11 @@ public class EnvDashboardView extends View {
 		this.dbUser = dbUser;
 		this.dbPassword = Secret.fromString(dbPassword);
 		this.SQLauth = SQLauth;
+		
+		this.LDAPserver = LDAPserver;
+		this.LDAPuser = LDAPuser;
+		this.LDAPpassword = Secret.fromString(LDAPpassword);
+		
     }
 
     static {
@@ -171,7 +196,12 @@ public class EnvDashboardView extends View {
 		private String dbUser;
 		private String dbPassword;
 		private Boolean SQLauth;
+		
+		private String LDAPserver;
+		private String LDAPuser;
+		private String LDAPpassword;
 
+		
         /**
          * descriptor impl constructor This empty constructor is required for stapler. If you remove this constructor, text name of
          * "Build Pipeline View" will be not displayed in the "NewView" page
@@ -287,6 +317,11 @@ public class EnvDashboardView extends View {
 			dbUser = formData.getString("dbUser");
 			dbPassword = formData.getString("dbPassword");
 			SQLauth = formData.optBoolean("SQLauth");
+			
+			LDAPserver = formData.getString("LDAPserver");
+			LDAPuser = formData.getString("LDAPuser");
+			LDAPpassword = formData.getString("LDAPpassword");
+			
             save();
             return super.configure(req,formData);
         }
@@ -635,9 +670,26 @@ public class EnvDashboardView extends View {
         this.dbUser = dbUser;
     }
 	
+	public void setLDAPserver(final String LDAPserver) {
+        this.LDAPserver = LDAPserver;
+    }
+	
+	public void setLDAPuser(final String LDAPuser) {
+        this.LDAPuser = LDAPuser;
+    }
+	
 	public String getdbUser() {
         return dbUser;
     }
+	
+	public String getLDAPserver() {
+        return LDAPserver;
+    }
+	
+	public String getLDAPuser() {
+        return LDAPuser;
+    }
+	
 	
 	public void setSQLauth(final Boolean SQLauth) {
         this.SQLauth = SQLauth;
@@ -655,6 +707,14 @@ public class EnvDashboardView extends View {
         return Secret.toString(dbPassword);
     }
 	
+	
+	public void setLDAPpassword(final String LDAPpassword) {
+        this.LDAPpassword = Secret.fromString(LDAPpassword);
+    }
+	
+	public String getLDAPpassword() {
+        return Secret.toString(LDAPpassword);
+    }
 
     //@JavaScriptMethod
 	//public String getdbPasswordJavaScript() {
@@ -797,13 +857,8 @@ public class EnvDashboardView extends View {
 	   System.out.println(timeStamp + ": At GetCRjobStepsSQLquery function");
 	   System.out.println(timeStamp + ": Here is the change request job passed to GetCRjobStepsSQLquery function:");
 	   System.out.println(job);
-	
-       Connection conn = null;
-       Statement stat = null;
 	   
-	   String someString = new String();
-	   String error = new String();
-	  	   
+	   
 	   System.out.println(timeStamp + ": Getting the user executing Jenkins...");
 	   String user = System.getProperty("user.name");
 	   System.out.println(user);
@@ -815,6 +870,86 @@ public class EnvDashboardView extends View {
 	   System.out.println(timeStamp + ": Getting java version used by Jenkins...");
 	   String javaVersion = System.getProperty("java.version");
 	   System.out.println(javaVersion);
+	   
+	   //Checking connectivity to AD/LDAP server
+	    try 
+		{
+            // Create a LDAP Context
+            Hashtable env = new Hashtable();  
+            env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");  
+            env.put(Context.SECURITY_AUTHENTICATION, "simple");  
+			
+			env.put(Context.SECURITY_PRINCIPAL, getLDAPuser());  
+            env.put(Context.SECURITY_CREDENTIALS, getLDAPpassword());  
+			env.put(Context.PROVIDER_URL, getLDAPserver());
+						
+			
+            LdapContext ctx = new InitialLdapContext(env, null);  
+            System.out.println("Connection Successful.");
+ 
+			/*
+            // Print all attributes of the name in namespace
+            Attributes attributes = null;
+            attributes = ctx.getAttributes(ctx.getNameInNamespace());
+            for (NamingEnumeration ae = attributes.getAll(); ae.hasMoreElements();) {
+                Attribute attr = (Attribute)ae.next();
+                String attrId = attr.getID();
+                for (NamingEnumeration vals = attr.getAll(); vals.hasMore();) {
+                    String thing = vals.next().toString();
+                    System.out.println(attrId + ": " + thing);
+                }
+            }
+			*/
+			
+			
+            String str = getLDAPserver();
+            String[] arrOfStr = str.split("\\.");
+           
+            String preptopleveldomain = arrOfStr[arrOfStr.length - 1];
+            String topleveldomain = preptopleveldomain.split(":")[0];
+         
+            System.out.println(topleveldomain);
+            String subdomain = arrOfStr[arrOfStr.length - 2];
+            System.out.println(subdomain);
+            
+			
+			String searchBase = "DC=" + subdomain + ",DC=" + topleveldomain;
+			System.out.println(searchBase);
+			
+			String FILTER = "(&(samAccountName=" + builduser + "))";
+			
+			SearchControls ctls = new SearchControls();
+			ctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+			NamingEnumeration<SearchResult> answer = ctx.search(searchBase, FILTER, ctls);
+			SearchResult result = answer.next();
+			Attribute email = result.getAttributes().get("mail");
+			Attribute cn = result.getAttributes().get("cn");
+			System.out.println(cn + " : " + email);
+	
+            ctx.close();
+			return "success";
+			
+        } 
+		catch (NamingException e) 
+		{
+            System.out.println("LDAP Connection: FAILED");  
+            e.printStackTrace();  
+			return "failure";			
+        }
+
+
+	  
+	  
+	   
+	   /*
+	   
+	
+       Connection conn = null;
+       Statement stat = null;
+	   
+	   String someString = new String();
+	   String error = new String();
+	  	   
 	   
 	   conn = CustomDBConnection.getConnection("adoskara-pc2", "1433", "msdb", getdbUser(), getdbPassword(), getSQLauth());
 	   String SQL = "EXEC dbo.sp_help_job @job_name = N'" + job + "',  @job_aspect = N'steps';";
@@ -888,6 +1023,7 @@ public class EnvDashboardView extends View {
            CustomDBConnection.closeConnection(conn);
        }
 	   
+	   */
 	   
     }
 	

@@ -601,7 +601,7 @@
 								var response = "";
 								EnvDashViewProxy.GetCRjobStepsSQLquery(CRjob,function(t) {
 									 response = t.responseObject();
-									 //alert(response);
+									 alert(response);
 									 var stepsjobject = JSON.parse(response);
 									 //alert(stepsjobject);
 									 
