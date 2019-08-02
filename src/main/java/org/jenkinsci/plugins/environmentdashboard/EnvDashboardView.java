@@ -918,6 +918,8 @@ public class EnvDashboardView extends View {
 			
 			String FILTER = "(&(samAccountName=" + builduser + "))";
 			
+			String PRD_Group = "Jenkins_PRD_Dep_Group";
+			
 			SearchControls ctls = new SearchControls();
 			ctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 			NamingEnumeration<SearchResult> answer = ctx.search(searchBase, FILTER, ctls);
@@ -925,6 +927,31 @@ public class EnvDashboardView extends View {
 			Attribute email = result.getAttributes().get("mail");
 			Attribute cn = result.getAttributes().get("cn");
 			System.out.println(cn + " : " + email);
+			
+			//Get all the groups this user is member of and check whether he/she is in Jenkins PRD group
+			Attribute memberOf = result.getAttributes().get("memberOf");
+			String userGroup = (String) memberOf.get();                    
+			String[] groups = userGroup.split(",");
+			boolean isMemberOfGroup = false;
+			for(String groupName: groups)
+			{
+				System.out.println(groupName);
+				if(groupName.equals("CN=" + PRD_Group))
+				{
+					isMemberOfGroup = true;
+					break;
+				}
+			}
+			
+			if(!isMemberOfGroup)
+			{
+				System.out.println(builduser + " user is not a member of " + PRD_Group);
+			}
+			else
+			{
+				System.out.println(builduser + " user is a member of " + PRD_Group);
+			}
+			
 	
             ctx.close();
 			return "success";
