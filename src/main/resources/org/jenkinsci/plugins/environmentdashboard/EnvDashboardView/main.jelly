@@ -442,6 +442,13 @@
 							Q("#overlay, #dialog, #dialog2, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection, #envSection, #prd-env-cr-job").hide();
 							Q("#dialog").draggable();
 							
+							Q("#dialog3").dialog({
+								autoOpen: false, 
+								modal: true,
+								draggable: true,
+								dialogClass: "titlebar"
+							});
+							
 							Q("#dialog2").dialog({
 								autoOpen: false, 
 								modal: true,
@@ -570,7 +577,10 @@
 									}
 									else
 									{
-										alert("something went wrong");
+										//alert("something went wrong");
+										Q("#dialog3").dialog("option","title","Error");
+										Q("#dialog3text").text("something went wrong");
+										Q("#dialog3").dialog("open");
 									}
 								
 								}
@@ -851,11 +861,17 @@
 								 if (response.indexOf("failed") == -1)
 								 {
 									authorizedForPRDactions = response;
-									alert(authorizedForPRDactions);
+									//alert(authorizedForPRDactions);
+									Q("#dialog3").dialog("option","title","Debug");
+									Q("#dialog3text").text(authorizedForPRDactions);
+									Q("#dialog3").dialog("open");
 								 }
 								 else
 								 {
-									alert(response);
+									//alert(response);
+									Q("#dialog3").dialog("option","title","Error");
+									Q("#dialog3text").text(response);
+									Q("#dialog3").dialog("open");
 								 }
 							});
 							
@@ -1015,35 +1031,56 @@
 						}
 						
 						function showBackendDepDynamicDialog(comp, env, coreVersion) 
-						{ 
-							//alert( "You are running jQuery version: " + Q.fn.jquery );
-							//alert(Q().jquery); //it is 1.7.2
+						{
+							if (authorizedForPRDactions != "TBD")
+							{
 							
-							typeofDeployment = "backend";
-							
-							 Q("#overlay, #dialog").show();
-							 
-							 if (env != "DEV")
-							 {
-								Q("#non-dev-env").show();
+								//alert( "You are running jQuery version: " + Q.fn.jquery );
+								//alert(Q().jquery); //it is 1.7.2
 								
-								if (env == "PRD")
-								{
-									Q("#PRDsection").show();
-								}
+								typeofDeployment = "backend";
+								
+								 Q("#overlay, #dialog").show();
+								 
+								 if (env != "DEV")
+								 {
+									Q("#non-dev-env").show();
+									
+									if (env == "PRD" &amp;&amp; authorizedForPRDactions == "authorized")
+									{
+										Q("#PRDsection").show();
+									}
+									else
+									{
+										//alert('You are not authorized to access client PRD environments')
+										Q("#dialog3").dialog("option","title","Warning");
+										Q("#dialog3text").text("You are not authorized to access client PRD environments");
+										Q("#dialog3").dialog("open");
+									
+									}
+								 }
+								
+								 //Set the html elements
+								 var compSubstr = comp.substring(0, comp.indexOf(' '))
+								 Q("#dialogTitle").text("Backend deploy " + compSubstr + " to " + env + " for " + coreVersion);
+								 Q("#clientAcronym").val(compSubstr);
+								 Q("#environment").val(env);
+								 Q("#core_version").val(coreVersion);
+								 
+								 CRjob = compSubstr + "_Change_Request";
+								 Q("#cr-job-dep").text(CRjob);
+								 //Q("#dialog2Title").text(CRjob);
+								 Q("#dialog2").dialog("option","title",CRjob);
+								 
 							 }
-							
-							 //Set the html elements
-							 var compSubstr = comp.substring(0, comp.indexOf(' '))
-							 Q("#dialogTitle").text("Backend deploy " + compSubstr + " to " + env + " for " + coreVersion);
-							 Q("#clientAcronym").val(compSubstr);
-							 Q("#environment").val(env);
-							 Q("#core_version").val(coreVersion);
-							 
-							 CRjob = compSubstr + "_Change_Request";
-							 Q("#cr-job-dep").text(CRjob);
-							 //Q("#dialog2Title").text(CRjob);
-							 Q("#dialog2").dialog("option","title",CRjob);
+							 else
+							 {
+								//alert('Cannot proceed due to failing to determine the user level of access')
+								Q("#dialog3").dialog("option","title","Warning");
+								Q("#dialog3text").text("Cannot proceed due to failing to determine the user level of access");
+								Q("#dialog3").dialog("open");
+								
+							 }
 						}
 						
 						function CheckClientRevisionDecision()
@@ -1443,4 +1480,7 @@
 	</table>
 	</div>
 </form>
+<div id="dialog3" title="Title place holder">
+  <p id="dialog3text">Place holder for message</p>
+</div>
 </j:jelly>

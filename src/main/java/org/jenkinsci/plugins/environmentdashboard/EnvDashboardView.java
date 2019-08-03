@@ -852,9 +852,6 @@ public class EnvDashboardView extends View {
 	   System.out.println(getCurentDateTime() + ": Here is the change request job passed to getCRjobStepsSQLquery function:");
 	   System.out.println(job);
 	   
-	  
-	   
-	   
 	
        Connection conn = null;
        Statement stat = null;
