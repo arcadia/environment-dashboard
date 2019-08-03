@@ -434,6 +434,7 @@
 						//Create a proxy for EnvDashView Java object on a server side so it can later be used during AJAX calls
 						var EnvDashViewProxy = <st:bind value="${it}"/>
 
+						var authorizedForPRDactions = "TBD";
 						
 						//Hide the dynamic dialog initially after the page loads					
 						Q(document).ready(function(){
@@ -598,15 +599,15 @@
 								alert("properties button was clicked");
 								
 								//Retrieve CR job steps
-								var response = "";
-								EnvDashViewProxy.GetCRjobStepsSQLquery(CRjob,function(t) {
-									 response = t.responseObject();
-									 alert(response);
-									 var stepsjobject = JSON.parse(response);
+								var response2 = "";
+								EnvDashViewProxy.getCRjobStepsSQLquery(CRjob,function(t) {
+									 response2 = t.responseObject();
+									 alert(response2);
+									 var stepsjobject = JSON.parse(response2);
 									 //alert(stepsjobject);
 									 
 									 
-									 alert(response);
+									 alert(response2);
 									 alert("About to populate the table...");
 									 
 									 
@@ -842,6 +843,21 @@
 							});
 							
 							
+							//Check if user is authorized to initiate PRD deployments or update PRD CR jobs
+							var response = "";
+							EnvDashViewProxy.checkIfUserIsInJenkinsPRDgroup(function(t) {
+								 response = t.responseObject();
+								 
+								 if (response.indexOf("failed") == -1)
+								 {
+									authorizedForPRDactions = response;
+									alert(authorizedForPRDactions);
+								 }
+								 else
+								 {
+									alert(response);
+								 }
+							});
 							
 							
 						});

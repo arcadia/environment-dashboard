@@ -716,23 +716,19 @@ public class EnvDashboardView extends View {
         return Secret.toString(LDAPpassword);
     }
 
-    //@JavaScriptMethod
-	//public String getdbPasswordJavaScript() {
-    //    return Secret.toString(dbPassword);
-    //}
+
 
 	@JavaScriptMethod
 	public String getTestDataFromLocalSQLserver() {
 	
-	   String timeStamp = new SimpleDateFormat("yyyyMMdd-hh:mm:ss-aaa-z").format(new java.util.Date());
-	   System.out.println(timeStamp + ": At getTestDataFromLocalSQLserver function");
+	   System.out.println(getCurentDateTime() + ": At getTestDataFromLocalSQLserver function");
 	
        Connection conn = null;
        Statement stat = null;
 	   
 	   String someString = new String();
 	  	   
-	   System.out.println(timeStamp + ": Getting the user executing Jenkins...");
+	   System.out.println(getCurentDateTime() + ": Getting the user executing Jenkins...");
 	   String user = System.getProperty("user.name");
 	   System.out.println(user);
 	   
@@ -754,7 +750,7 @@ public class EnvDashboardView extends View {
            System.out.println("E13" + e.getMessage());
        }
        try {
-	       System.out.println(timeStamp + ": About to execute SQL query...");
+	       System.out.println(getCurentDateTime() + ": About to execute SQL query...");
            ResultSet rs = stat.executeQuery(SQL);
 		   //Iterate through the data in the result set and display it.
            while (rs.next()) {
@@ -771,7 +767,7 @@ public class EnvDashboardView extends View {
            }
 		   
        } catch (SQLException e) {
-           System.out.println(timeStamp + ": Something went wrong in getTestDataFromLocalSQLserver function.\n" + e.getMessage());
+           System.out.println(getCurentDateTime() + ": Something went wrong in getTestDataFromLocalSQLserver function.\n" + e.getMessage());
        } finally { 
            CustomDBConnection.closeConnection(conn);
        }
@@ -787,9 +783,8 @@ public class EnvDashboardView extends View {
 	@JavaScriptMethod
 	public String parseSQLquery(String SQL) {
 	
-	   String timeStamp = new SimpleDateFormat("yyyyMMdd-hh:mm:ss-aaa-z").format(new java.util.Date());
-	   System.out.println(timeStamp + ": At getTestDataFromLocalSQLserver function");
-	   System.out.println(timeStamp + ": Here is the SQl query passed to parseSQLquery function");
+	   System.out.println(getCurentDateTime() + ": At getTestDataFromLocalSQLserver function");
+	   System.out.println(getCurentDateTime() + ": Here is the SQl query passed to parseSQLquery function");
 	   System.out.println(SQL);
 	
        Connection conn = null;
@@ -797,7 +792,7 @@ public class EnvDashboardView extends View {
 	   
 	   String someString = new String();
 	  	   
-	   System.out.println(timeStamp + ": Getting the user executing Jenkins...");
+	   System.out.println(getCurentDateTime() + ": Getting the user executing Jenkins...");
 	   String user = System.getProperty("user.name");
 	   System.out.println(user);
 	   
@@ -819,7 +814,7 @@ public class EnvDashboardView extends View {
            System.out.println("E13" + e.getMessage());
        }
        try {
-	       System.out.println(timeStamp + ": About to execute SQL query...");
+	       System.out.println(getCurentDateTime() + ": About to execute SQL query...");
            ResultSet rs = stat.executeQuery(SQL);
 		   //Iterate through the data in the result set and display it.
            while (rs.next()) {
@@ -836,7 +831,7 @@ public class EnvDashboardView extends View {
            }
 		   
        } catch (SQLException e) {
-           System.out.println(timeStamp + ": Something went wrong in getTestDataFromLocalSQLserver function.\n" + e.getMessage());
+           System.out.println(getCurentDateTime() + ": Something went wrong in getTestDataFromLocalSQLserver function.\n" + e.getMessage());
        } finally { 
            CustomDBConnection.closeConnection(conn);
        }
@@ -850,125 +845,15 @@ public class EnvDashboardView extends View {
 	
 	
 	@JavaScriptMethod
-	public String GetCRjobStepsSQLquery(String job) 
+	public String getCRjobStepsSQLquery(String job) 
 	{
 	
-	   String timeStamp = new SimpleDateFormat("yyyyMMdd-hh:mm:ss-aaa-z").format(new java.util.Date());
-	   System.out.println(timeStamp + ": At GetCRjobStepsSQLquery function");
-	   System.out.println(timeStamp + ": Here is the change request job passed to GetCRjobStepsSQLquery function:");
+	   System.out.println(getCurentDateTime() + ": At getCRjobStepsSQLquery function");
+	   System.out.println(getCurentDateTime() + ": Here is the change request job passed to getCRjobStepsSQLquery function:");
 	   System.out.println(job);
 	   
-	   
-	   System.out.println(timeStamp + ": Getting the user executing Jenkins...");
-	   String user = System.getProperty("user.name");
-	   System.out.println(user);
-	   
-	   System.out.println(timeStamp + ": Getting the user who logged in to Jenkins...");
-	   String builduser = User.current().getId();
-	   System.out.println(builduser);
-	   
-	   System.out.println(timeStamp + ": Getting java version used by Jenkins...");
-	   String javaVersion = System.getProperty("java.version");
-	   System.out.println(javaVersion);
-	   
-	   //Checking connectivity to AD/LDAP server
-	    try 
-		{
-            // Create a LDAP Context
-            Hashtable env = new Hashtable();  
-            env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");  
-            env.put(Context.SECURITY_AUTHENTICATION, "simple");  
-			
-			env.put(Context.SECURITY_PRINCIPAL, getLDAPuser());  
-            env.put(Context.SECURITY_CREDENTIALS, getLDAPpassword());  
-			env.put(Context.PROVIDER_URL, getLDAPserver());
-						
-			
-            LdapContext ctx = new InitialLdapContext(env, null);  
-            System.out.println("Connection Successful.");
- 
-			/*
-            // Print all attributes of the name in namespace
-            Attributes attributes = null;
-            attributes = ctx.getAttributes(ctx.getNameInNamespace());
-            for (NamingEnumeration ae = attributes.getAll(); ae.hasMoreElements();) {
-                Attribute attr = (Attribute)ae.next();
-                String attrId = attr.getID();
-                for (NamingEnumeration vals = attr.getAll(); vals.hasMore();) {
-                    String thing = vals.next().toString();
-                    System.out.println(attrId + ": " + thing);
-                }
-            }
-			*/
-			
-			
-            String str = getLDAPserver();
-            String[] arrOfStr = str.split("\\.");
-           
-            String preptopleveldomain = arrOfStr[arrOfStr.length - 1];
-            String topleveldomain = preptopleveldomain.split(":")[0];
-         
-            System.out.println(topleveldomain);
-            String subdomain = arrOfStr[arrOfStr.length - 2];
-            System.out.println(subdomain);
-            
-			
-			String searchBase = "DC=" + subdomain + ",DC=" + topleveldomain;
-			System.out.println(searchBase);
-			
-			String FILTER = "(&(samAccountName=" + builduser + "))";
-			
-			String PRD_Group = "Jenkins_PRD_Dep_Group";
-			
-			SearchControls ctls = new SearchControls();
-			ctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-			NamingEnumeration<SearchResult> answer = ctx.search(searchBase, FILTER, ctls);
-			SearchResult result = answer.next();
-			Attribute email = result.getAttributes().get("mail");
-			Attribute cn = result.getAttributes().get("cn");
-			System.out.println(cn + " : " + email);
-			
-			//Get all the groups this user is member of and check whether he/she is in Jenkins PRD group
-			Attribute memberOf = result.getAttributes().get("memberOf");
-			String userGroup = (String) memberOf.get();                    
-			String[] groups = userGroup.split(",");
-			boolean isMemberOfGroup = false;
-			for(String groupName: groups)
-			{
-				System.out.println(groupName);
-				if(groupName.equals("CN=" + PRD_Group))
-				{
-					isMemberOfGroup = true;
-					break;
-				}
-			}
-			
-			if(!isMemberOfGroup)
-			{
-				System.out.println(builduser + " user is not a member of " + PRD_Group);
-			}
-			else
-			{
-				System.out.println(builduser + " user is a member of " + PRD_Group);
-			}
-			
-	
-            ctx.close();
-			return "success";
-			
-        } 
-		catch (NamingException e) 
-		{
-            System.out.println("LDAP Connection: FAILED");  
-            e.printStackTrace();  
-			return "failure";			
-        }
-
-
-	  
 	  
 	   
-	   /*
 	   
 	
        Connection conn = null;
@@ -980,7 +865,7 @@ public class EnvDashboardView extends View {
 	   
 	   conn = CustomDBConnection.getConnection("adoskara-pc2", "1433", "msdb", getdbUser(), getdbPassword(), getSQLauth());
 	   String SQL = "EXEC dbo.sp_help_job @job_name = N'" + job + "',  @job_aspect = N'steps';";
-	   System.out.println(timeStamp + ": Here is the built change request:");
+	   System.out.println(getCurentDateTime() + ": Here is the built change request:");
 	   System.out.println(SQL);
 	   
 	   //conn = CustomDBConnection.getConnection("TESTSQLTST04", "1433", "test_warehouse_dev04", getdbUser(), getdbPassword(), getSQLauth());
@@ -1004,7 +889,7 @@ public class EnvDashboardView extends View {
 	   
        try 
 	   {
-	       System.out.println(timeStamp + ": About to execute SQL query...");
+	       System.out.println(getCurentDateTime() + ": About to execute SQL query...");
            ResultSet rs = stat.executeQuery(SQL);
 		   
 		   //Iterate through the data in the result set and display it.
@@ -1040,7 +925,7 @@ public class EnvDashboardView extends View {
        } 
 	   catch (SQLException e) 
 	   {
-		   error = timeStamp + ": Something went wrong in getTestDataFromLocalSQLserver function.\n" + e.getMessage();
+		   error = getCurentDateTime() + ": Something went wrong in getTestDataFromLocalSQLserver function.\n" + e.getMessage();
            System.out.println(error);
 		   return error;
 		   
@@ -1049,10 +934,132 @@ public class EnvDashboardView extends View {
 	   { 
            CustomDBConnection.closeConnection(conn);
        }
+	  
 	   
-	   */
 	   
     }
+	
+	
+	@JavaScriptMethod
+	public String checkIfUserIsInJenkinsPRDgroup() 
+	{
+	
+		 String returnString = null;
+		 
+	   
+	   //Checking connectivity to AD/LDAP server
+	    try 
+		{
+			
+		   System.out.println(getCurentDateTime() + ": At checkIfUserIsInJenkinsPRDgroup function");
+		   System.out.println(getCurentDateTime() + ": Getting the user executing Jenkins...");
+		   String user = System.getProperty("user.name");
+		   System.out.println(user);
+		   
+		   System.out.println(getCurentDateTime() + ": Getting the user who logged in to Jenkins...");
+		   String builduser = User.current().getId();
+		   System.out.println(builduser);
+		   
+		   System.out.println(getCurentDateTime() + ": Getting java version used by Jenkins...");
+		   String javaVersion = System.getProperty("java.version");
+		   System.out.println(javaVersion);
+			
+            // Create a LDAP Context
+            Hashtable env = new Hashtable();  
+            env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");  
+            env.put(Context.SECURITY_AUTHENTICATION, "simple");  
+			
+			env.put(Context.SECURITY_PRINCIPAL, getLDAPuser());  
+            env.put(Context.SECURITY_CREDENTIALS, getLDAPpassword());  
+			env.put(Context.PROVIDER_URL, getLDAPserver());
+						
+			
+            LdapContext ctx = new InitialLdapContext(env, null);  
+            System.out.println(getCurentDateTime() + ": Successfully connected to LDAP server");
+ 
+            String str = getLDAPserver();
+            String[] arrOfStr = str.split("\\.");
+           
+            String preptopleveldomain = arrOfStr[arrOfStr.length - 1];
+            String topleveldomain = preptopleveldomain.split(":")[0];
+         
+            //System.out.println(topleveldomain);
+            String subdomain = arrOfStr[arrOfStr.length - 2];
+            //System.out.println(subdomain);
+            
+			String searchBase = "DC=" + subdomain + ",DC=" + topleveldomain;
+			System.out.println(searchBase);
+			
+			String FILTER = "(&(samAccountName=" + builduser + "))";
+			
+			String PRD_Group = "Jenkins_PRD_Dep_Group";
+			
+			SearchControls ctls = new SearchControls();
+			ctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+			NamingEnumeration<SearchResult> answer = ctx.search(searchBase, FILTER, ctls);
+			SearchResult result = answer.next();
+			//Attribute email = result.getAttributes().get("mail");
+			Attribute cn = result.getAttributes().get("cn");
+			System.out.println(cn);
+			
+			//Get all the groups this user is member of and check whether he/she is in Jenkins PRD group
+			Attribute memberOf = result.getAttributes().get("memberOf");
+			String userGroup = (String) memberOf.get();                    
+			String[] groups = userGroup.split(",");
+			boolean isMemberOfGroup = false;
+			for(String groupName: groups)
+			{
+				if(groupName.equals("CN=" + PRD_Group))
+				{
+					System.out.println(groupName);
+					isMemberOfGroup = true;
+					break;
+				}
+			}
+			
+			if(!isMemberOfGroup)
+			{
+				System.out.println(builduser + " user is not a member of " + PRD_Group);
+				returnString = "unauthorized";
+			}
+			else
+			{
+				System.out.println(builduser + " user is a member of " + PRD_Group);
+				returnString = "authorized";
+			}
+			
+			ctx.close();
+			
+        } 
+		catch (Exception e) 
+		{
+            System.out.println(getCurentDateTime() + ": Something failed at checkIfUserIsInJenkinsPRDgroup function"); 
+			System.out.println(e.toString());			
+            e.printStackTrace();  
+			returnString = "Something failed at checkIfUserIsInJenkinsPRDgroup function: " + e.toString();			
+        }
+		finally
+		{
+			
+			if(returnString == null)
+			{
+				returnString = "failed";
+			}
+			
+		}
+		
+		return returnString;
+		
+	}
+	
+	
+	public String getCurentDateTime()
+	{
+
+		String timeStamp = new SimpleDateFormat("yyyyMMdd-hh:mm:ss-aaa-z").format(new java.util.Date());
+		return timeStamp;
+    }
+	
 	
 	public Secret getdbPasswordSecret() {
         return dbPassword;
