@@ -1077,7 +1077,7 @@
 							 {
 								//alert('Cannot proceed due to failing to determine the user level of access')
 								Q("#dialog3").dialog("option","title","Warning");
-								Q("#dialog3text").text("Cannot proceed due to failing to determine the user level of access");
+								Q("#dialog3text").text("Cannot proceed due to failing to determine user's level of access");
 								Q("#dialog3").dialog("open");
 								
 							 }

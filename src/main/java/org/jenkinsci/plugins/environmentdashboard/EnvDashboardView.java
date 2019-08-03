@@ -1000,17 +1000,25 @@ public class EnvDashboardView extends View {
 			System.out.println(cn);
 			
 			//Get all the groups this user is member of and check whether he/she is in Jenkins PRD group
+			
 			Attribute memberOf = result.getAttributes().get("memberOf");
-			String userGroup = (String) memberOf.get();                    
-			String[] groups = userGroup.split(",");
+			//System.out.println("right after getting memberof attributes");
+			
+			
 			boolean isMemberOfGroup = false;
-			for(String groupName: groups)
+			if(memberOf != null)
 			{
-				if(groupName.equals("CN=" + PRD_Group))
-				{
-					System.out.println(groupName);
-					isMemberOfGroup = true;
-					break;
+				//System.out.println(memberOf.size());
+				
+				for (int i=0; i < memberOf.size(); i++) 
+				{                
+				   // print out each group that user belongs to
+					System.out.println("memberOf: " + memberOf.get(i));
+					if (String.valueOf(memberOf.get(i)).contains("CN=" + PRD_Group))
+					{
+						isMemberOfGroup = true;
+						break;
+					}
 				}
 			}
 			
@@ -1024,6 +1032,8 @@ public class EnvDashboardView extends View {
 				System.out.println(builduser + " user is a member of " + PRD_Group);
 				returnString = "authorized";
 			}
+			
+			
 			
 			ctx.close();
 			
