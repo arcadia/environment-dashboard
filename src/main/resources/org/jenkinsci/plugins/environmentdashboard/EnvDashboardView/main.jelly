@@ -606,46 +606,60 @@
 							
 							Q("#properties").click(function(){
 								
-								alert("properties button was clicked");
+								//alert("properties button was clicked");
 								
 								//Retrieve CR job steps
 								var response2 = "";
 								EnvDashViewProxy.getCRjobStepsSQLquery(CRjob,Q("#clientAcronym").val(),Q("#environment").val(),"db_name", function(t) {
 									 response2 = t.responseObject();
-									 alert(response2);
-									 var stepsjobject = JSON.parse(response2);
-									 //alert(stepsjobject);
 									 
-									 
-									 alert(response2);
-									 alert("About to populate the table...");
-									 
-									 
-									 
-									 Q.each(stepsjobject.steps, function(index, element){
-										//alert(element.step_id); 
-										//alert(element.step_name); 
-										//alert(element.on_fail_action); 
+									
+									 if (response2.indexOf("failed") == -1)
+									 {
+										Q("#dialog3").dialog("option","title","Debug");
+										Q("#dialog3text").text(response2);
+										Q("#dialog3").dialog("open");
 										
-										 Q("#CRjobstepsTable tbody").append('<tr>');
-										 Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center">' + element.step_id + '</td>');
-										 Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center">' + element.step_name + '</td>');
-										 Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center">' + element.on_fail_action + '</td>');
-										 //Q("#CRjobstepsTable tbody").append('<td>EditButton</td>');
-										 Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center"><input type="button" id="edit" value="edit"></input></td>');
-										 Q("#CRjobstepsTable tbody").append('</tr>');
-									 
-									 });
-									 
-									 
-									alert("Finished populating the table");
-									
-									
-									 
-									 //Present CR job details
-									 Q("#dialog2").dialog("open");
-									 Q("#CRjobsteps").show();
-									 
+										
+										 var stepsjobject = JSON.parse(response2);
+										 //alert(stepsjobject);
+										 
+										 
+										 //alert(response2);
+										 //alert("About to populate the table...");
+										 
+										 
+										 
+										 Q.each(stepsjobject.steps, function(index, element){
+											//alert(element.step_id); 
+											//alert(element.step_name); 
+											//alert(element.on_fail_action); 
+											
+											 Q("#CRjobstepsTable tbody").append('<tr>');
+											 Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center">' + element.step_id + '</td>');
+											 Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center">' + element.step_name + '</td>');
+											 Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center">' + element.on_fail_action + '</td>');
+											 //Q("#CRjobstepsTable tbody").append('<td>EditButton</td>');
+											 Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center"><input type="button" id="edit" value="edit"></input></td>');
+											 Q("#CRjobstepsTable tbody").append('</tr>');
+										 
+										 });
+										 
+										 
+										//alert("Finished populating the table");
+										 
+										 //Present CR job details
+										 Q("#dialog2").dialog("open");
+										 Q("#CRjobsteps").show();
+										
+										
+									 }
+									 else
+									 {
+										Q("#dialog3").dialog("option","title","Error");
+										Q("#dialog3text").text(response2);
+										Q("#dialog3").dialog("open");
+									 }
 									 
 									 
 								});

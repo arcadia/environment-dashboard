@@ -848,7 +848,8 @@ public class EnvDashboardView extends View {
 	public String getCRjobStepsSQLquery(String job, String customer, String env, String property) 
 	{
 	
-		String returnString = null;
+	   String returnString = null;
+	   String error = new String();
 		
 	   System.out.println(getCurentDateTime() + ": At getCRjobStepsSQLquery function");
 	   System.out.println(getCurentDateTime() + ": Here is the change request job passed to getCRjobStepsSQLquery function:");
@@ -856,15 +857,36 @@ public class EnvDashboardView extends View {
 	   
 		
 	   //identify the active database
-	   getActiveClientDatabase(customer, env, property);
+	   String returnValue = getActiveClientDatabase(customer, env, property);
+	   if(returnValue.contains("failed"))
+	   {
+			System.out.println(returnValue);
+			returnString = returnValue;
+			return returnString;
+	   }
+	   else
+	   {
+			String activeDB = returnValue;
+			//System.out.println(activeDB);
+			
+	   }
+	  
+	  	String activeServer = "TESTSQLTST04";
 	   
+	   //Check if server is reachable
+	   if (!testServerConnection(activeServer))
+	   {
+			error = "failed " + activeServer + " is not reachable";
+			System.out.println(getCurentDateTime() + ": " + error);
+			returnString = error;
+			return returnString;
+	   }
 	  
        Connection conn = null;
        Statement stat = null;
 	   
-	   String someString = new String();
-	   String error = new String();
-	  	   
+	   String CRjobSteps = new String();
+	   
 	   
 	   //conn = CustomDBConnection.getConnection("adoskara-pc2", "1433", "msdb", getdbUser(), getdbPassword(), getSQLauth());
 	   //String SQL = "EXEC dbo.sp_help_job @job_name = N'" + job + "',  @job_aspect = N'steps';";
@@ -874,24 +896,30 @@ public class EnvDashboardView extends View {
 	   //conn = CustomDBConnection.getConnection("TESTSQLTST04", "1433", "test_warehouse_dev04", getdbUser(), getdbPassword(), getSQLauth());
 	   //String SQL = "select age_range_id, age_range from dbo.age_range where age_range_id = 1;";
 	   
-	   conn = CustomDBConnection.getConnection("TESTSQLTST04", "1433", "msdb", getdbUser(), getdbPassword(), getSQLauth());
+	   conn = CustomDBConnection.getConnection(activeServer, "1433", "msdb", getdbUser(), getdbPassword(), getSQLauth());
 	   String SQL = "EXEC dbo.sp_help_job @job_name = N'" + job + "',  @job_aspect = N'steps';";
 	   
 	   //conn = CustomDBConnection.getConnection("mydbserver1", "1433", "tutorialdb", getdbUser(), getdbPassword(), getSQLauth());
 	   //String SQL = "select customerid, name from customers where name = 'orlando';";
 	   
 	   
+	   
+	   
        try 
 	   {
-           assert conn != null;
+           if (conn == null){throw new Exception("Failed to create connection to database");};
            stat = conn.createStatement();
        } 
-	   catch (SQLException e)
+	   catch (Exception e)
 	   {
-		   error = "E13" + e.getMessage();
+		   error = "E13" + " failed " + e.getMessage();
            System.out.println(error);
-		   return error;
+		   
+		   returnString = error;
+		   return returnString;
+
        }
+	   
 	   
        try 
 	   {
@@ -903,13 +931,13 @@ public class EnvDashboardView extends View {
 		   
            while (rs.next()) {
                 System.out.println(rs.getString("step_id") + " " + rs.getString("step_name") + " " + rs.getString("on_fail_action"));
-				someString += rs.getString("step_id") + " " + rs.getString("step_name") + " " + rs.getString("on_fail_action") + "\n";
+				CRjobSteps += rs.getString("step_id") + " " + rs.getString("step_name") + " " + rs.getString("on_fail_action") + "\n";
 				
 				//System.out.println(rs.getString("age_range_id") + " " + rs.getString("age_range"));
-				//someString = rs.getString("age_range_id") + " " + rs.getString("age_range");
+				//CRjobSteps = rs.getString("age_range_id") + " " + rs.getString("age_range");
 				
 				//System.out.println(rs.getString("customerid") + " " + rs.getString("name"));
-				//someString = rs.getString("customerid") + " " + rs.getString("name");
+				//CRjobSteps = rs.getString("customerid") + " " + rs.getString("name");
 				
 				jarr.add(Json.createObjectBuilder()
 					  .add("step_id", rs.getString("step_id"))
@@ -1105,9 +1133,7 @@ public class EnvDashboardView extends View {
 	   String returnString = null;
        Connection conn = null;
        Statement stat = null;
-	   
-	   String someString = new String();
-	  	   
+	   	  	   
 	   
 	   conn = CustomDBConnection.getConnection(getOpsDBinstance(), getOpsDBinstancePort(), getOpsDB(), getdbUser(), getdbPassword(), getSQLauth());	   
 	   String SQL = "select c.acronym as 'client_acronym', d.name as 'db_name', p.name as 'prov_name' from dbo.[database] d inner join dbo.client c on d.client_id = c.client_id\n" +
@@ -1123,9 +1149,12 @@ public class EnvDashboardView extends View {
            assert conn != null;
            stat = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
        } catch (SQLException e) {
-           System.out.println("E13" + e.getMessage());
-		   returnString = "E13" + e.getMessage();
+           System.out.println("E13" + " failed " + e.getMessage());
+		   returnString = "E13" + " failed " + e.getMessage();
+		   return returnString;
        }
+	   
+	   
        try {
 	       System.out.println(getCurentDateTime() + ": About to execute SQL query...");
            ResultSet rs = stat.executeQuery(SQL);
@@ -1169,6 +1198,55 @@ public class EnvDashboardView extends View {
 	   
 	 
 	   return returnString;
+	   
+    }
+	
+	
+	@JavaScriptMethod
+	public boolean testServerConnection(String hostname) {
+		boolean result = false;
+            
+		//If running on Windows platform use "-n" option
+		String pingCommand;
+		if(System.getProperty("os.name").startsWith("Windows")) 
+		{
+			pingCommand = "ping -n 2 " + hostname;
+		} 
+		//Else other platform, use "-c" option
+		else
+		{
+			pingCommand = "ping -c 2 " + hostname;
+		}
+
+		try
+		{   
+			//Call Runtime Exec and give it command to run
+			Process myProcess = Runtime.getRuntime().exec(pingCommand);
+
+			//Wait for a response or return
+			myProcess.waitFor();
+
+
+			if(myProcess.exitValue() == 0) 
+			{ 
+				result = true; 
+			}
+			else
+			{ 
+				result = false; 
+			}
+
+			//Cleanup this Runtime process
+			myProcess.destroy();
+		}
+		catch(Exception ex)
+		{
+			System.out.println("Exception:"+ex.toString());
+		}
+
+		//Return the result
+		return result;
+	   
 	   
     }
 	

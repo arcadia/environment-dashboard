@@ -53,6 +53,7 @@ public class CustomDBConnection {
 		} catch (SQLException e){
 			System.err.println("WARN: Could not acquire connection to SQL Server at " + server);
 		}
+		
 		return con;
 	}
 	
