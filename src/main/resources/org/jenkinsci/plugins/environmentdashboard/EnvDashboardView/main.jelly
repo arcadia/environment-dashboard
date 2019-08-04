@@ -610,7 +610,7 @@
 								
 								//Retrieve CR job steps
 								var response2 = "";
-								EnvDashViewProxy.getCRjobStepsSQLquery(CRjob,function(t) {
+								EnvDashViewProxy.getCRjobStepsSQLquery(CRjob,Q("#clientAcronym").val(),Q("#environment").val(),"db_name", function(t) {
 									 response2 = t.responseObject();
 									 alert(response2);
 									 var stepsjobject = JSON.parse(response2);
@@ -1034,43 +1034,58 @@
 						{
 							if (authorizedForPRDactions != "TBD")
 							{
-							
-								//alert( "You are running jQuery version: " + Q.fn.jquery );
-								//alert(Q().jquery); //it is 1.7.2
+								var proceed = false;
+								if (authorizedForPRDactions == "authorized" &amp;&amp; env == "PRD")
+								{
+									proceed = true;
+								}								
+								else if (authorizedForPRDactions == "unauthorized" &amp;&amp; env == "PRD")
+								{
+									//alert('You are not authorized to access client PRD environments')
+									Q("#dialog3").dialog("option","title","Warning");
+									Q("#dialog3text").text("You are not authorized to access client PRD environments");
+									Q("#dialog3").dialog("open");
 								
-								typeofDeployment = "backend";
+								}
+								else
+								{
+									proceed = true;
+								}
 								
-								 Q("#overlay, #dialog").show();
-								 
-								 if (env != "DEV")
-								 {
-									Q("#non-dev-env").show();
+								
+								if (proceed)
+								{
+									//alert( "You are running jQuery version: " + Q.fn.jquery );
+									//alert(Q().jquery); //it is 1.7.2
 									
-									if (env == "PRD" &amp;&amp; authorizedForPRDactions == "authorized")
-									{
-										Q("#PRDsection").show();
-									}
-									else
-									{
-										//alert('You are not authorized to access client PRD environments')
-										Q("#dialog3").dialog("option","title","Warning");
-										Q("#dialog3text").text("You are not authorized to access client PRD environments");
-										Q("#dialog3").dialog("open");
+									typeofDeployment = "backend";
 									
-									}
+									 Q("#overlay, #dialog").show();
+									 
+									 if (env != "DEV")
+									 {
+										Q("#non-dev-env").show();
+										
+										if (env == "PRD" &amp;&amp; authorizedForPRDactions == "authorized") 
+										{
+											Q("#PRDsection").show();
+										}
+
+									 }
+									
+									 //Set the html elements
+									 var compSubstr = comp.substring(0, comp.indexOf(' '))
+									 Q("#dialogTitle").text("Backend deploy " + compSubstr + " to " + env + " for " + coreVersion);
+									 Q("#clientAcronym").val(compSubstr);
+									 Q("#environment").val(env);
+									 Q("#core_version").val(coreVersion);
+									 
+									 CRjob = compSubstr + "_Change_Request";
+									 Q("#cr-job-dep").text(CRjob);
+									 //Q("#dialog2Title").text(CRjob);
+									 Q("#dialog2").dialog("option","title",CRjob);
 								 }
-								
-								 //Set the html elements
-								 var compSubstr = comp.substring(0, comp.indexOf(' '))
-								 Q("#dialogTitle").text("Backend deploy " + compSubstr + " to " + env + " for " + coreVersion);
-								 Q("#clientAcronym").val(compSubstr);
-								 Q("#environment").val(env);
-								 Q("#core_version").val(coreVersion);
-								 
-								 CRjob = compSubstr + "_Change_Request";
-								 Q("#cr-job-dep").text(CRjob);
-								 //Q("#dialog2Title").text(CRjob);
-								 Q("#dialog2").dialog("option","title",CRjob);
+
 								 
 							 }
 							 else

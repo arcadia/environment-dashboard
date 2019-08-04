@@ -845,14 +845,20 @@ public class EnvDashboardView extends View {
 	
 	
 	@JavaScriptMethod
-	public String getCRjobStepsSQLquery(String job) 
+	public String getCRjobStepsSQLquery(String job, String customer, String env, String property) 
 	{
 	
+		String returnString = null;
+		
 	   System.out.println(getCurentDateTime() + ": At getCRjobStepsSQLquery function");
 	   System.out.println(getCurentDateTime() + ": Here is the change request job passed to getCRjobStepsSQLquery function:");
 	   System.out.println(job);
 	   
-	
+		
+	   //identify the active database
+	   getActiveClientDatabase(customer, env, property);
+	   
+	  
        Connection conn = null;
        Statement stat = null;
 	   
@@ -860,13 +866,16 @@ public class EnvDashboardView extends View {
 	   String error = new String();
 	  	   
 	   
-	   conn = CustomDBConnection.getConnection("adoskara-pc2", "1433", "msdb", getdbUser(), getdbPassword(), getSQLauth());
-	   String SQL = "EXEC dbo.sp_help_job @job_name = N'" + job + "',  @job_aspect = N'steps';";
-	   System.out.println(getCurentDateTime() + ": Here is the built change request:");
-	   System.out.println(SQL);
+	   //conn = CustomDBConnection.getConnection("adoskara-pc2", "1433", "msdb", getdbUser(), getdbPassword(), getSQLauth());
+	   //String SQL = "EXEC dbo.sp_help_job @job_name = N'" + job + "',  @job_aspect = N'steps';";
+	   //System.out.println(getCurentDateTime() + ": Here is the built change request:");
+	   //System.out.println(SQL);
 	   
 	   //conn = CustomDBConnection.getConnection("TESTSQLTST04", "1433", "test_warehouse_dev04", getdbUser(), getdbPassword(), getSQLauth());
 	   //String SQL = "select age_range_id, age_range from dbo.age_range where age_range_id = 1;";
+	   
+	   conn = CustomDBConnection.getConnection("TESTSQLTST04", "1433", "msdb", getdbUser(), getdbPassword(), getSQLauth());
+	   String SQL = "EXEC dbo.sp_help_job @job_name = N'" + job + "',  @job_aspect = N'steps';";
 	   
 	   //conn = CustomDBConnection.getConnection("mydbserver1", "1433", "tutorialdb", getdbUser(), getdbPassword(), getSQLauth());
 	   //String SQL = "select customerid, name from customers where name = 'orlando';";
@@ -912,27 +921,27 @@ public class EnvDashboardView extends View {
 		   JsonArray arr = jarr.build();
 		   JsonObject jo = Json.createObjectBuilder().add("steps", arr).build();
 		   
-		    //return "success";
-	   
-			//return someString;
-			
 			System.out.println(jo);
-			return jo.toString();
+			returnString = jo.toString();
 		   
        } 
-	   catch (SQLException e) 
+	   catch (Exception e) 
 	   {
-		   error = getCurentDateTime() + ": Something went wrong in getTestDataFromLocalSQLserver function.\n" + e.getMessage();
-           System.out.println(error);
-		   return error;
-		   
+		    System.out.println(getCurentDateTime() + ": Something failed at getTestDataFromLocalSQLserver function"); 
+			System.out.println(e.toString());			
+            e.printStackTrace();  
+			returnString = "Something failed at checkIfUserIsInJenkinsPRDgroup function: " + e.getMessage();
        } 
 	   finally 
 	   { 
            CustomDBConnection.closeConnection(conn);
+		   	if(returnString == null)
+			{
+				returnString = "failed";
+			}
        }
 	  
-	   
+	   return returnString;
 	   
     }
 	
@@ -1043,7 +1052,8 @@ public class EnvDashboardView extends View {
             System.out.println(getCurentDateTime() + ": Something failed at checkIfUserIsInJenkinsPRDgroup function"); 
 			System.out.println(e.toString());			
             e.printStackTrace();  
-			returnString = "Something failed at checkIfUserIsInJenkinsPRDgroup function: " + e.toString();			
+			returnString = "Something failed at checkIfUserIsInJenkinsPRDgroup function: " + e.getMessage();	
+			
         }
 		finally
 		{
@@ -1059,12 +1069,107 @@ public class EnvDashboardView extends View {
 		
 	}
 	
-	
 	public String getCurentDateTime()
 	{
 
 		String timeStamp = new SimpleDateFormat("yyyyMMdd-hh:mm:ss-aaa-z").format(new java.util.Date());
 		return timeStamp;
+    }
+	
+	public String getOpsDBinstance()
+	{
+		String dbinstance = "qdwsqlops01";
+		return dbinstance;
+    }
+	
+	public String getOpsDBinstancePort()
+	{
+		String dbinstanceport = "1433";
+		return dbinstanceport;
+    }
+	
+	public String getOpsDB()
+	{
+		String db = "opsdb_dev";
+		return db;
+    }
+	
+	@JavaScriptMethod
+	public String getActiveClientDatabase(String customer, String env, String property) {
+	
+	   System.out.println(getCurentDateTime() + ": At getActiveClientDatabase function");
+	   System.out.println(customer);
+	   System.out.println(env);
+	   System.out.println(property);
+		
+	   String returnString = null;
+       Connection conn = null;
+       Statement stat = null;
+	   
+	   String someString = new String();
+	  	   
+	   
+	   conn = CustomDBConnection.getConnection(getOpsDBinstance(), getOpsDBinstancePort(), getOpsDB(), getdbUser(), getdbPassword(), getSQLauth());	   
+	   String SQL = "select c.acronym as 'client_acronym', d.name as 'db_name', p.name as 'prov_name' from dbo.[database] d inner join dbo.client c on d.client_id = c.client_id\n" +
+				"										  inner join dbo.provisioning_environment p on d.provisioning_environment_id = p.provisioning_environment_id\n" +
+				"										  inner join dbo.environment e on e.environment_id = p.environment_id\n" +
+				"										  inner join dbo.type t on t.type_id = d.type_id\n" +
+				"										  inner join dbo.db_instance_database dbi on dbi.database_id = d.database_id\n" +
+				"										  inner join dbo.status s on s.status_id = dbi.status_id\n" +
+				"where c.acronym = '" + customer + "' and e.name = '" + env + "' and t.name = 'WAREHOUSE' and s.name = 'Active';";
+
+	   
+       try {
+           assert conn != null;
+           stat = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
+       } catch (SQLException e) {
+           System.out.println("E13" + e.getMessage());
+		   returnString = "E13" + e.getMessage();
+       }
+       try {
+	       System.out.println(getCurentDateTime() + ": About to execute SQL query...");
+           ResultSet rs = stat.executeQuery(SQL);
+		   
+		    int size = 0;
+			if (rs != null) 
+			{
+			  rs.last();    // moves cursor to the last row
+			  size = rs.getRow(); // get row id 
+			  if (size > 1)
+			  {
+				throw new Exception("Only one row is expected to be returned but there was more than one.");
+			  }
+			}
+			else
+			{
+				throw new Exception("No rows were returned.");
+			
+			}
+		   
+		   //Iterate through the data in the result set and display it.
+		   rs.beforeFirst();    // moves cursor to the beginning
+           while (rs.next()) {
+                System.out.println(rs.getString(property));
+				returnString = rs.getString(property);
+				
+           }
+		   
+       } catch (Exception e) {
+            System.out.println(getCurentDateTime() + ": Something failed at getActiveClientDatabase function"); 
+			System.out.println(e.toString());			
+            e.printStackTrace();  
+			returnString = "Something failed at getActiveClientDatabase function.\n" + e.getMessage();			
+       } finally { 
+           CustomDBConnection.closeConnection(conn);
+		   	if(returnString == null)
+			{
+				returnString = "failed";
+			}
+       }
+	   
+	 
+	   return returnString;
+	   
     }
 	
 	
