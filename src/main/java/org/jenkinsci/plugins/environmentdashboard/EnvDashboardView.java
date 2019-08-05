@@ -33,6 +33,7 @@ import javax.json.JsonArray;
 
 import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
+import javax.json.JsonObjectBuilder;
 
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.environmentdashboard.utils.DBConnection;
@@ -59,6 +60,8 @@ import javax.naming.ldap.LdapContext;
 
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
+
+
 
 
 /**
@@ -920,6 +923,7 @@ public class EnvDashboardView extends View {
        Statement stat = null;
 	   
 	   String CRjobSteps = new String();
+	   String CRjobInfo = new String();
 	   
 	   
 	   //conn = CustomDBConnection.getConnection("adoskara-pc2", "1433", "msdb", getdbUser(), getdbPassword(), getSQLauth());
@@ -957,7 +961,7 @@ public class EnvDashboardView extends View {
 	   
        try 
 	   {
-	       System.out.println(getCurentDateTime() + ": About to execute SQL query...");
+	       System.out.println(getCurentDateTime() + ": About to execute SQL query for retrieving CR job steps...");
            ResultSet rs = stat.executeQuery(SQL);
 		   
 		   //Iterate through the data in the result set and display it.
@@ -981,10 +985,52 @@ public class EnvDashboardView extends View {
            }
 		   
 		   JsonArray arr = jarr.build();
-		   JsonObject jo = Json.createObjectBuilder().add("steps", arr).build();
+		   JsonObject joSteps = Json.createObjectBuilder().add("steps", arr).build();
+		   System.out.println(joSteps);
+			
+			
+			//Let's append job info itself
+			SQL = "EXEC dbo.sp_help_job @job_name = N'" + job + "',  @job_aspect = N'job';";
+			System.out.println(getCurentDateTime() + ": About to execute SQL query for retriving CR job status info...");
+            rs = stat.executeQuery(SQL);
+			
+			while (rs.next()) {
+                System.out.println(rs.getString("start_step_id") + " " + rs.getString("date_modified") + " " + rs.getString("last_run_date"));
+				CRjobInfo += rs.getString("start_step_id") + " " + rs.getString("date_modified") + " " + rs.getString("last_run_date") + "\n";
+				
+				//System.out.println(rs.getString("age_range_id") + " " + rs.getString("age_range"));
+				//CRjobInfo = rs.getString("age_range_id") + " " + rs.getString("age_range");
+				
+				//System.out.println(rs.getString("customerid") + " " + rs.getString("name"));
+				//CRjobInfo = rs.getString("customerid") + " " + rs.getString("name");
+				
+				jarr.add(Json.createObjectBuilder()
+					  .add("start_step_id", rs.getString("start_step_id"))
+					  .add("date_modified", rs.getString("date_modified"))
+					  .add("last_run_date", rs.getString("last_run_date"))
+				  .build());
+           }
 		   
-			System.out.println(jo);
-			returnString = jo.toString();
+		   arr = jarr.build();
+		   JsonObject joInfo = Json.createObjectBuilder().add("info", arr).build();
+		   System.out.println(joInfo);
+			
+			//Combine two json objects
+		   JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
+
+			for (String key : joSteps.keySet()) {
+				jsonObjectBuilder.add(key, joSteps.get(key));
+			}
+			for (String key : joInfo.keySet()) {
+				jsonObjectBuilder.add(key, joInfo.get(key));
+			}
+			 
+			JsonObject combinedStepsAndInfo = jsonObjectBuilder.build();
+			System.out.println(combinedStepsAndInfo);
+			
+			
+		
+		    returnString = combinedStepsAndInfo.toString();
 		   
        } 
 	   catch (Exception e) 

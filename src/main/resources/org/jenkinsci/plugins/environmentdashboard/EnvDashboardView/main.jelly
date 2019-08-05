@@ -622,18 +622,18 @@
 										
 										
 										 var stepsjobject = JSON.parse(response2);
-										 //alert(stepsjobject);
+										 alert(stepsjobject);
 										 
 										 
 										 //alert(response2);
-										 //alert("About to populate the table...");
+										 alert("About to populate the table...");
 										 
 										 
 										 
 										 Q.each(stepsjobject.steps, function(index, element){
-											//alert(element.step_id); 
-											//alert(element.step_name); 
-											//alert(element.on_fail_action); 
+											alert(element.step_id); 
+											alert(element.step_name); 
+											alert(element.on_fail_action); 
 											
 											 Q("#CRjobstepsTable tbody").append('<tr>');
 											 Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center">' + element.step_id + '</td>');
@@ -642,11 +642,25 @@
 											 //Q("#CRjobstepsTable tbody").append('<td>EditButton</td>');
 											 Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center"><input type="button" id="edit" value="edit"></input></td>');
 											 Q("#CRjobstepsTable tbody").append('</tr>');
-										 
+											 
 										 });
 										 
 										 
-										//alert("Finished populating the table");
+										 
+										 Q.each(stepsjobject.info, function(index, element){
+											alert(element.start_step_id); 
+											alert(element.date_modified); 
+											alert(element.last_run_date); 
+											
+											 Q("#CRjobinfoTable tbody").append('<tr>');
+											 Q("#CRjobinfoTable tbody").append('<td style="width: 8%;text-align:center">' + element.start_step_id + '</td>');
+											 Q("#CRjobinfoTable tbody").append('<td style="width: 8%;text-align:center">' + element.date_modified + '</td>');
+											 Q("#CRjobinfoTable tbody").append('<td style="width: 8%;text-align:center">' + element.last_run_date + '</td>');
+											 Q("#CRjobinfoTable tbody").append('</tr>');
+											 
+										 });
+										 
+										alert("Finished populating the table");
 										 
 										 //Present CR job details
 										 Q("#dialog2").dialog("open");
@@ -1505,6 +1519,13 @@
 			<th style="width: 8%;text-align:center">step_name</th>
 			<th style="width: 8%;text-align:center">on_fail_action</th>
 			<th style="width: 8%;text-align:center">Action</th>
+		</tbody>
+	</table>
+	<table id="CRjobinfoTable" style="width=100%;" class="table table-bordered table-striped table-condensed hoverable-table-in-dialog">
+		<tbody>
+			<th style="width: 8%;text-align:center">start_step_id</th>
+			<th style="width: 8%;text-align:center">date_modified</th>
+			<th style="width: 8%;text-align:center">last_run_date</th>
 		</tbody>
 	</table>
 	</div>
