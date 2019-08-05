@@ -610,7 +610,7 @@
 								
 								//Retrieve CR job steps
 								var response2 = "";
-								EnvDashViewProxy.getCRjobStepsSQLquery(CRjob,Q("#clientAcronym").val(),Q("#environment").val(),"db_name", function(t) {
+								EnvDashViewProxy.getCRjobStepsSQLquery(CRjob,Q("#clientAcronym").val(),Q("#environment").val(), function(t) {
 									 response2 = t.responseObject();
 									 
 									

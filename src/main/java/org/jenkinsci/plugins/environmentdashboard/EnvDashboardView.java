@@ -845,11 +845,13 @@ public class EnvDashboardView extends View {
 	
 	
 	@JavaScriptMethod
-	public String getCRjobStepsSQLquery(String job, String customer, String env, String property) 
+	public String getCRjobStepsSQLquery(String job, String customer, String env) 
 	{
 	
 	   String returnString = null;
 	   String error = new String();
+	   String activeDB = null;
+	   String activeServer = null;
 		
 	   System.out.println(getCurentDateTime() + ": At getCRjobStepsSQLquery function");
 	   System.out.println(getCurentDateTime() + ": Here is the change request job passed to getCRjobStepsSQLquery function:");
@@ -857,7 +859,15 @@ public class EnvDashboardView extends View {
 	   
 		
 	   //identify the active database
-	   String returnValue = getActiveClientDatabase(customer, env, property);
+	   String SQL = "select c.acronym as 'client_acronym', d.name as 'db_name', p.name as 'prov_name' from dbo.[database] d inner join dbo.client c on d.client_id = c.client_id\n" +
+			"										  inner join dbo.provisioning_environment p on d.provisioning_environment_id = p.provisioning_environment_id\n" +
+			"										  inner join dbo.environment e on e.environment_id = p.environment_id\n" +
+			"										  inner join dbo.type t on t.type_id = d.type_id\n" +
+			"										  inner join dbo.db_instance_database dbi on dbi.database_id = d.database_id\n" +
+			"										  inner join dbo.status s on s.status_id = dbi.status_id\n" +
+			"where c.acronym = '" + customer + "' and e.name = '" + env + "' and t.name = 'WAREHOUSE' and s.name = 'Active';";
+
+	   String returnValue = getRequestedInfo(customer, env, SQL, "db_name");
 	   if(returnValue.contains("failed"))
 	   {
 			System.out.println(returnValue);
@@ -866,12 +876,36 @@ public class EnvDashboardView extends View {
 	   }
 	   else
 	   {
-			String activeDB = returnValue;
+			activeDB = returnValue;
 			//System.out.println(activeDB);
 			
 	   }
 	  
-	  	String activeServer = "TESTSQLTST04";
+	  
+	   //identify the active server
+	   SQL = "select name from dbo.db_instance where db_instance_id in\n" +
+		"(\n" +
+		"select dbinst.db_instance_id from dbo.[database] db inner join dbo.db_instance_database dbinst on db.database_id = dbinst.database_id\n" +
+		"where db.name = '" + activeDB + "' and dbinst.status_id = (select status_id from dbo.status where name = 'Active')\n" +
+		")";
+
+	   returnValue = getRequestedInfo(customer, env, SQL, "name");
+	   if(returnValue.contains("failed"))
+	   {
+			System.out.println(returnValue);
+			returnString = returnValue;
+			return returnString;
+	   }
+	   else
+	   {
+			activeServer = returnValue;
+			//System.out.println(activeServer);
+			
+	   }
+	  
+	  
+	  	//String activeServer = "TESTSQLTST04";
+		
 	   
 	   //Check if server is reachable
 	   if (!testServerConnection(activeServer))
@@ -897,7 +931,7 @@ public class EnvDashboardView extends View {
 	   //String SQL = "select age_range_id, age_range from dbo.age_range where age_range_id = 1;";
 	   
 	   conn = CustomDBConnection.getConnection(activeServer, "1433", "msdb", getdbUser(), getdbPassword(), getSQLauth());
-	   String SQL = "EXEC dbo.sp_help_job @job_name = N'" + job + "',  @job_aspect = N'steps';";
+	   SQL = "EXEC dbo.sp_help_job @job_name = N'" + job + "',  @job_aspect = N'steps';";
 	   
 	   //conn = CustomDBConnection.getConnection("mydbserver1", "1433", "tutorialdb", getdbUser(), getdbPassword(), getSQLauth());
 	   //String SQL = "select customerid, name from customers where name = 'orlando';";
@@ -955,10 +989,10 @@ public class EnvDashboardView extends View {
        } 
 	   catch (Exception e) 
 	   {
-		    System.out.println(getCurentDateTime() + ": Something failed at getTestDataFromLocalSQLserver function"); 
+		    System.out.println(getCurentDateTime() + ": Something failed at getCRjobStepsSQLquery function"); 
 			System.out.println(e.toString());			
-            e.printStackTrace();  
-			returnString = "Something failed at checkIfUserIsInJenkinsPRDgroup function: " + e.getMessage();
+            //e.printStackTrace();  
+			returnString = "Something failed at getCRjobStepsSQLquery function: " + e.getMessage();
        } 
 	   finally 
 	   { 
@@ -1079,7 +1113,7 @@ public class EnvDashboardView extends View {
 		{
             System.out.println(getCurentDateTime() + ": Something failed at checkIfUserIsInJenkinsPRDgroup function"); 
 			System.out.println(e.toString());			
-            e.printStackTrace();  
+            //e.printStackTrace();  
 			returnString = "Something failed at checkIfUserIsInJenkinsPRDgroup function: " + e.getMessage();	
 			
         }
@@ -1123,32 +1157,38 @@ public class EnvDashboardView extends View {
     }
 	
 	@JavaScriptMethod
-	public String getActiveClientDatabase(String customer, String env, String property) {
+	public String getRequestedInfo(String customer, String env, String SQL, String property) {
 	
-	   System.out.println(getCurentDateTime() + ": At getActiveClientDatabase function");
+	   System.out.println(getCurentDateTime() + ": At getRequestedInfo function");
 	   System.out.println(customer);
 	   System.out.println(env);
+	   System.out.println(SQL);
 	   System.out.println(property);
 		
 	   String returnString = null;
-       Connection conn = null;
-       Statement stat = null;
+	   String error = new String();
 	   	  	   
+	   String opsdbServer = getOpsDBinstance();
+		//Check if server is reachable
+		if (!testServerConnection(opsdbServer))
+		{
+			error = "failed " + opsdbServer + " is not reachable";
+			System.out.println(getCurentDateTime() + ": " + error);
+			returnString = error;
+			return returnString;
+		}
 	   
-	   conn = CustomDBConnection.getConnection(getOpsDBinstance(), getOpsDBinstancePort(), getOpsDB(), getdbUser(), getdbPassword(), getSQLauth());	   
-	   String SQL = "select c.acronym as 'client_acronym', d.name as 'db_name', p.name as 'prov_name' from dbo.[database] d inner join dbo.client c on d.client_id = c.client_id\n" +
-				"										  inner join dbo.provisioning_environment p on d.provisioning_environment_id = p.provisioning_environment_id\n" +
-				"										  inner join dbo.environment e on e.environment_id = p.environment_id\n" +
-				"										  inner join dbo.type t on t.type_id = d.type_id\n" +
-				"										  inner join dbo.db_instance_database dbi on dbi.database_id = d.database_id\n" +
-				"										  inner join dbo.status s on s.status_id = dbi.status_id\n" +
-				"where c.acronym = '" + customer + "' and e.name = '" + env + "' and t.name = 'WAREHOUSE' and s.name = 'Active';";
+	   
+	   Connection conn = null;
+       Statement stat = null;
+
+	   conn = CustomDBConnection.getConnection(opsdbServer, getOpsDBinstancePort(), getOpsDB(), getdbUser(), getdbPassword(), getSQLauth());	   
 
 	   
        try {
            assert conn != null;
            stat = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
-       } catch (SQLException e) {
+       } catch (Exception e) {
            System.out.println("E13" + " failed " + e.getMessage());
 		   returnString = "E13" + " failed " + e.getMessage();
 		   return returnString;
@@ -1184,10 +1224,10 @@ public class EnvDashboardView extends View {
            }
 		   
        } catch (Exception e) {
-            System.out.println(getCurentDateTime() + ": Something failed at getActiveClientDatabase function"); 
+            System.out.println(getCurentDateTime() + ": Something failed at getRequestedInfo function"); 
 			System.out.println(e.toString());			
-            e.printStackTrace();  
-			returnString = "Something failed at getActiveClientDatabase function.\n" + e.getMessage();			
+            //e.printStackTrace();  
+			returnString = "Something failed at getRequestedInfo function.\n" + e.getMessage();			
        } finally { 
            CustomDBConnection.closeConnection(conn);
 		   	if(returnString == null)

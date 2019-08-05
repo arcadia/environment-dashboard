@@ -51,7 +51,7 @@ public class CustomDBConnection {
 		} catch (ClassNotFoundException e) {
 			System.err.println("WARN: Could not acquire Class com.microsoft.sqlserver.jdbc.SQLServerDriver.");
 		} catch (SQLException e){
-			System.err.println("WARN: Could not acquire connection to SQL Server at " + server);
+			System.err.println("WARN: Could not acquire connection to SQL Server at " + server + ". " + e.getMessage());
 		}
 		
 		return con;
