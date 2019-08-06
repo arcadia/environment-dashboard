@@ -455,7 +455,8 @@
 								draggable: true,
 								resizable: false,
 								autoResize: true,
-								width: 900,
+								width: 1000,
+								//height: 600,
 								dialogClass: "no-close"
 							}).prev(".ui-dialog-titlebar").css("background","#81BEF7");
 														
@@ -599,9 +600,19 @@
 							});
 							
 							
-							//Q("#parse").click(function(){
-							//	LoginParseValidate();
-							//});
+							Q("#edit").click(function(){
+								LoginParseValidate();
+							});
+							
+							
+							Q("#ok").click(function(){
+								//save the changes;
+							});
+							
+							
+							Q("#cancel2").click(function(){
+								Q("#dialog2").dialog("close");
+							});
 							
 							
 							Q("#properties").click(function(){
@@ -616,55 +627,68 @@
 									
 									 if (response2.indexOf("failed") == -1)
 									 {
+										/*
 										Q("#dialog3").dialog("option","title","Debug");
 										Q("#dialog3text").text(response2);
 										Q("#dialog3").dialog("open");
-										
+										*/
 										
 										 var stepsjobject = JSON.parse(response2);
-										 alert(stepsjobject);
+										 //alert(stepsjobject);
 										 
 										 
 										 //alert(response2);
-										 alert("About to populate the table...");
+										 //alert("About to populate the table...");
 										 
 										 
+										 Q.each(stepsjobject.info, function(index, element){
+											//alert(element.start_step_id); 
+											//alert(element.date_modified); 
+											//alert(element.last_run_date); 
+											//alert(element.last_run_time); 
+											//alert(element.last_run_outcome); 
+											//alert(element.current_execution_status); 
+											//alert(element.current_execution_step); 
+											
+											 Q("#CRjobinfoTable tbody").append('<tr>');
+											 Q("#CRjobinfoTable tbody").append('<td style="width: 8%;text-align:center">' + element.start_step_id + '</td>');
+											 Q("#CRjobinfoTable tbody").append('<td style="width: 8%;text-align:center">' + element.date_modified + '</td>');
+											 Q("#CRjobinfoTable tbody").append('<td style="width: 8%;text-align:center">' + element.last_run_date + '</td>');
+											 Q("#CRjobinfoTable tbody").append('<td style="width: 8%;text-align:center">' + element.last_run_time + '</td>');
+											 Q("#CRjobinfoTable tbody").append('<td style="width: 8%;text-align:center">' + element.last_run_outcome + '</td>');
+											 Q("#CRjobinfoTable tbody").append('<td style="width: 8%;text-align:center">' + element.current_execution_status + '</td>');
+											 Q("#CRjobinfoTable tbody").append('<td style="width: 8%;text-align:center">' + element.current_execution_step + '</td>');
+											 Q("#CRjobinfoTable tbody").append('</tr>');
+											 
+										 });
 										 
 										 Q.each(stepsjobject.steps, function(index, element){
-											alert(element.step_id); 
-											alert(element.step_name); 
-											alert(element.on_fail_action); 
+											//alert(element.step_id); 
+											//alert(element.step_name); 
+											//alert(element.on_fail_action); 
 											
 											 Q("#CRjobstepsTable tbody").append('<tr>');
 											 Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center">' + element.step_id + '</td>');
 											 Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center">' + element.step_name + '</td>');
 											 Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center">' + element.on_fail_action + '</td>');
+											 Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center"><input type="radio" name="CRjobsteps" id="' + element.step_name + '"></input></td>');
+											 
 											 //Q("#CRjobstepsTable tbody").append('<td>EditButton</td>');
-											 Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center"><input type="button" id="edit" value="edit"></input></td>');
+											 //Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center"><input type="button" id="edit" value="edit"></input></td>');
 											 Q("#CRjobstepsTable tbody").append('</tr>');
 											 
 										 });
 										 
 										 
 										 
-										 Q.each(stepsjobject.info, function(index, element){
-											alert(element.start_step_id); 
-											alert(element.date_modified); 
-											alert(element.last_run_date); 
-											
-											 Q("#CRjobinfoTable tbody").append('<tr>');
-											 Q("#CRjobinfoTable tbody").append('<td style="width: 8%;text-align:center">' + element.start_step_id + '</td>');
-											 Q("#CRjobinfoTable tbody").append('<td style="width: 8%;text-align:center">' + element.date_modified + '</td>');
-											 Q("#CRjobinfoTable tbody").append('<td style="width: 8%;text-align:center">' + element.last_run_date + '</td>');
-											 Q("#CRjobinfoTable tbody").append('</tr>');
-											 
-										 });
+
 										 
-										alert("Finished populating the table");
+										//alert("Finished populating the table");
 										 
 										 //Present CR job details
 										 Q("#dialog2").dialog("open");
-										 Q("#CRjobsteps").show();
+										 //Q("#CRjobsteps").show();
+										 Q("#CRjobinfoTable, #CRjobstepsTable").show();
 										
 										
 									 }
@@ -890,9 +914,12 @@
 								 {
 									authorizedForPRDactions = response;
 									//alert(authorizedForPRDactions);
+									
+									/*
 									Q("#dialog3").dialog("option","title","Debug");
 									Q("#dialog3text").text(authorizedForPRDactions);
 									Q("#dialog3").dialog("open");
+									*/
 								 }
 								 else
 								 {
@@ -1461,7 +1488,8 @@
 		<label for="startcrjob"> Start change request job upon successful deployment</label><br></br>
 		
 		<div id="prd-env-cr-job" style="text-align: left">
-			<label id="CRjobPrompt">  Please provide details for </label><label id="cr-job-dep">Placeholder for CR Job Dep Name</label><label id="CRjobPrompt2"> by clicking Properties button</label><div class="divider"/><input type="button" id="properties" value="Properties"></input>	
+			<label id="CRjobPrompt">  Please provide details for </label><label id="cr-job-dep">Placeholder for CR Job Dep Name</label><label id="CRjobPrompt2"> by clicking Properties button</label><div class="divider"/><input type="button" id="properties" value="Properties"></input>
+			<br></br><br></br>	
 		</div>
 		
 		<input type="checkbox" id="startnj"></input>
@@ -1510,24 +1538,52 @@
 	
 </form>
 <form id="dialog2" title="cr-job-title" style="display:none;" autocomplete="off">
-	<div id="CRjobsteps" style="display: none; height:200px; overflow: auto;">
-	<label id="requestforStep">Please edit the step in question     </label>
-	<span id="customErrorPlacement2" style="color:red; font-weight:bold"></span><br></br>
-	<table id="CRjobstepsTable" style="width=100%;" class="table table-bordered table-striped table-condensed hoverable-table-in-dialog">
-		<tbody>
-			<th style="width: 8%;text-align:center">step_id</th>
-			<th style="width: 8%;text-align:center">step_name</th>
-			<th style="width: 8%;text-align:center">on_fail_action</th>
-			<th style="width: 8%;text-align:center">Action</th>
-		</tbody>
-	</table>
-	<table id="CRjobinfoTable" style="width=100%;" class="table table-bordered table-striped table-condensed hoverable-table-in-dialog">
-		<tbody>
-			<th style="width: 8%;text-align:center">start_step_id</th>
-			<th style="width: 8%;text-align:center">date_modified</th>
-			<th style="width: 8%;text-align:center">last_run_date</th>
-		</tbody>
-	</table>
+	<!--<div id="CRjobsteps" style="display: none; height:200px; overflow: auto;">-->
+	
+		<!--<span id="customErrorPlacement2" style="color:red; font-weight:bold"></span><br></br>-->
+
+		<div id="CRjobinfoTable" style="display: none; height:70px; overflow: auto;">
+			<table style="width=100%;" class="table table-bordered table-striped table-condensed hoverable-table-in-dialog">
+				<tbody>
+					<th style="width: 8%;text-align:center">start_step_id</th>
+					<th style="width: 8%;text-align:center">date_modified</th>
+					<th style="width: 8%;text-align:center">last_run_date</th>
+					<th style="width: 8%;text-align:center">last_run_time</th>
+					<th style="width: 8%;text-align:center">last_run_outcome</th>
+					<th style="width: 8%;text-align:center">current_execution_status</th>
+					<th style="width: 8%;text-align:center">current_execution_step</th>
+					
+				</tbody>
+			</table>
+		</div>
+		
+		<br></br>
+		
+		<div id="CRjobstepsTable" style="display: none; height:150px; overflow: auto;">
+			<label id="requestforStep">Please edit the step in question or add a new step  </label>
+			<table style="width=100%;" class="table table-bordered table-striped table-condensed hoverable-table-in-dialog">
+				<tbody>
+					<th style="width: 8%;text-align:center">step_id</th>
+					<th style="width: 8%;text-align:center">step_name</th>
+					<th style="width: 8%;text-align:center">on_fail_action</th>
+					<th style="width: 8%;text-align:center">choose</th>
+				</tbody>
+			</table>
+		</div>
+	
+	<!--</div>-->
+	
+	<br></br>
+	
+	<div id="buttons2" style="text-align: left">
+		<input type="button" id="new" value="New"></input><div class="divider"/>
+		<input type="button" id="insert" value="Insert"></input><div class="divider"/>
+        <input type="button" id="edit" value="Edit"></input><div class="divider"/>
+		<input type="button" id="delete" value="Delete"></input><div class="divider"/>
+	</div>
+	<br></br>
+	<div id="buttons3" style="text-align: right">
+		<input type="submit" id="ok" value="OK"/><div class="divider"/><span id="cancel2">Cancel</span>
 	</div>
 </form>
 <div id="dialog3" title="Title place holder">

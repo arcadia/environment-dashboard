@@ -968,8 +968,12 @@ public class EnvDashboardView extends View {
 		   JsonArrayBuilder jarr = Json.createArrayBuilder();
 		   
            while (rs.next()) {
-                System.out.println(rs.getString("step_id") + " " + rs.getString("step_name") + " " + rs.getString("on_fail_action"));
-				CRjobSteps += rs.getString("step_id") + " " + rs.getString("step_name") + " " + rs.getString("on_fail_action") + "\n";
+				
+				String failAction = rs.getString("on_fail_action");
+				String cleanedUpFailAction = failAction.substring(failAction.indexOf("(")+1,failAction.indexOf(")"));
+				
+                System.out.println(rs.getString("step_id") + " " + rs.getString("step_name") + " " + cleanedUpFailAction);
+				//CRjobSteps += rs.getString("step_id") + " " + rs.getString("step_name") + " " + cleanedUpFailAction + "\n";
 				
 				//System.out.println(rs.getString("age_range_id") + " " + rs.getString("age_range"));
 				//CRjobSteps = rs.getString("age_range_id") + " " + rs.getString("age_range");
@@ -980,7 +984,7 @@ public class EnvDashboardView extends View {
 				jarr.add(Json.createObjectBuilder()
 					  .add("step_id", rs.getString("step_id"))
 					  .add("step_name", rs.getString("step_name"))
-					  .add("on_fail_action", rs.getString("on_fail_action"))
+					  .add("on_fail_action", cleanedUpFailAction)
 				  .build());
            }
 		   
@@ -995,8 +999,53 @@ public class EnvDashboardView extends View {
             rs = stat.executeQuery(SQL);
 			
 			while (rs.next()) {
-                System.out.println(rs.getString("start_step_id") + " " + rs.getString("date_modified") + " " + rs.getString("last_run_date"));
-				CRjobInfo += rs.getString("start_step_id") + " " + rs.getString("date_modified") + " " + rs.getString("last_run_date") + "\n";
+			
+				String mappedLastRunOutcome = null;
+				switch (rs.getInt("last_run_outcome")) {
+				  case 0:
+					mappedLastRunOutcome = "Failed";
+					break;
+				  case 1:
+					mappedLastRunOutcome = "Succeeded";
+					break;
+				  case 3:
+					mappedLastRunOutcome = "Canceled";
+					break;
+				  case 5:
+					mappedLastRunOutcome = "Unknown";
+					break;
+				  default:
+					mappedLastRunOutcome = "Undetermined";	
+				}
+				
+				
+			    String mappedCurrentExecutionStatus = null;
+				switch (rs.getInt("current_execution_status")) {
+				  case 1:
+					mappedCurrentExecutionStatus = "Executing";
+					break;
+				  case 2:
+					mappedCurrentExecutionStatus = "Waiting for thread";
+					break;
+				  case 3:
+					mappedCurrentExecutionStatus = "Between retries";
+					break;
+				  case 4:
+					mappedCurrentExecutionStatus = "Idle";
+					break;
+				  case 5:
+					mappedCurrentExecutionStatus = "Suspended";
+					break;
+		          case 7:
+					mappedCurrentExecutionStatus = "Performing completion actions";
+					break;
+				  default:
+					mappedCurrentExecutionStatus = "Undetermined";	
+				}
+				
+			
+                System.out.println(rs.getString("start_step_id") + " " + rs.getString("date_modified") + " " + rs.getString("last_run_date") + " " + rs.getString("last_run_time") + " " + mappedLastRunOutcome + " " + mappedCurrentExecutionStatus + " " + rs.getString("current_execution_step"));
+				//CRjobInfo += rs.getString("start_step_id") + " " + rs.getString("date_modified") + " " + rs.getString("last_run_date") + "\n";
 				
 				//System.out.println(rs.getString("age_range_id") + " " + rs.getString("age_range"));
 				//CRjobInfo = rs.getString("age_range_id") + " " + rs.getString("age_range");
@@ -1008,6 +1057,10 @@ public class EnvDashboardView extends View {
 					  .add("start_step_id", rs.getString("start_step_id"))
 					  .add("date_modified", rs.getString("date_modified"))
 					  .add("last_run_date", rs.getString("last_run_date"))
+					  .add("last_run_time", rs.getString("last_run_time"))
+					  .add("last_run_outcome", mappedLastRunOutcome)
+					  .add("current_execution_status", mappedCurrentExecutionStatus)
+					  .add("current_execution_step", rs.getString("current_execution_step"))
 				  .build());
            }
 		   
