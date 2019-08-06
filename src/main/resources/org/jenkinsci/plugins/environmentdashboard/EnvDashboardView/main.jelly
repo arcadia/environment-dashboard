@@ -459,6 +459,18 @@
 								//height: 600,
 								dialogClass: "no-close"
 							}).prev(".ui-dialog-titlebar").css("background","#81BEF7");
+							
+							
+							Q("#dialog4").dialog({
+								autoOpen: false, 
+								modal: true,
+								draggable: true,
+								resizable: false,
+								autoResize: true,
+								width: 1000,
+								//height: 600,
+								dialogClass: "no-close"
+							}).prev(".ui-dialog-titlebar").css("background","#81BEF7");
 														
 							Q.validator.addMethod("dateTime", function(value, element) {
 								var futureDateTime = new Date(value);
@@ -601,7 +613,8 @@
 							
 							
 							Q("#edit").click(function(){
-								LoginParseValidate();
+								Q("#dialog4").dialog("open");
+								//LoginParseValidate();
 							});
 							
 							
@@ -1542,7 +1555,8 @@
 	
 		<!--<span id="customErrorPlacement2" style="color:red; font-weight:bold"></span><br></br>-->
 
-		<div id="CRjobinfoTable" style="display: none; height:70px; overflow: auto;">
+		<div id="CRjobinfoTable" style="display: none; height:105px; overflow: auto;">
+			<label id="CRjobstatusInfo">CR job status info</label>
 			<table style="width=100%;" class="table table-bordered table-striped table-condensed hoverable-table-in-dialog">
 				<tbody>
 					<th style="width: 8%;text-align:center">start_step_id</th>
@@ -1559,8 +1573,8 @@
 		
 		<br></br>
 		
-		<div id="CRjobstepsTable" style="display: none; height:150px; overflow: auto;">
-			<label id="requestforStep">Please edit the step in question or add a new step  </label>
+		<div id="CRjobstepsTable" style="display: none; height:125px; overflow: auto;">
+			<label id="CRjobstepsInfo">CR job steps</label>
 			<table style="width=100%;" class="table table-bordered table-striped table-condensed hoverable-table-in-dialog">
 				<tbody>
 					<th style="width: 8%;text-align:center">step_id</th>
@@ -1576,6 +1590,8 @@
 	<br></br>
 	
 	<div id="buttons2" style="text-align: left">
+		<label id="CRjobstepActions">CR job step actions</label>
+		<br></br>
 		<input type="button" id="new" value="New"></input><div class="divider"/>
 		<input type="button" id="insert" value="Insert"></input><div class="divider"/>
         <input type="button" id="edit" value="Edit"></input><div class="divider"/>
@@ -1589,4 +1605,27 @@
 <div id="dialog3" title="Title place holder">
   <p id="dialog3text">Place holder for message</p>
 </div>
+<form id="dialog4" title="cr-job-step-title" style="display:none;" autocomplete="off">
+	
+	<div id="stepnameDefinition" style="text-align: left">
+		<label id="stepnameLabel">Step name:</label><div class="divider"/><input id="stepname" type="text"/><br></br>
+		<br></br>
+		<input type="button" id="parse" value="Parse"></input><div class="divider"/>
+		<textarea id="SQLscript" rows="20" cols="80" placeholder="Please enter SQL script..."></textarea>
+		<br></br>
+		<label id="OnFailureActionLabel">On failure action:</label><div class="divider"/>
+		<select id="OnFailureActionDecision" name="OnFailureActionDecision">
+			<option value="">Choose...</option>
+			<option value="quitWithFailure">Quit the job reporting failure</option>
+			<option value="continueOnFailure">Go to the next step</option>
+			<option value="quitWithSuccess">Quit the job reporting success</option>
+		</select>
+	</div>
+
+	<div id="buttons4" style="text-align: right">
+		<input type="button" id="ok2" value="OK"></input><div class="divider"/>
+		<input type="button" id="cancel3" value="Cancel"></input><div class="divider"/>
+	</div>
+	
+</form>
 </j:jelly>

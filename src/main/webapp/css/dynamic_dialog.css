@@ -1,4 +1,4 @@
-#submit, #cancel, #reset, #parse, #ok, #cancel2{
+#submit, #cancel, #reset, #ok, #cancel2{
 	background-image: -moz-linear-gradient(top , #f1f1f1, #8F8F8F); 
 	background-image: -webkit-linear-gradient(top , #f1f1f1, #8F8F8F);
 	background-image: -ms-linear-gradient(top , #f1f1f1, #8F8F8F);
@@ -18,19 +18,15 @@
     box-shadow: inset -2px -2px 3px rgba(255, 255, 255, .6),
                 inset 2px 2px 3px rgba(0, 0, 0, .6);
 }
-#parse:active {
-    box-shadow: inset -2px -2px 3px rgba(255, 255, 255, .6),
-                inset 2px 2px 3px rgba(0, 0, 0, .6);
-}
-#edit:active {
-    box-shadow: inset -2px -2px 3px rgba(255, 255, 255, .6),
-                inset 2px 2px 3px rgba(0, 0, 0, .6);
-}
 #ok:active {
     box-shadow: inset -2px -2px 3px rgba(255, 255, 255, .6),
                 inset 2px 2px 3px rgba(0, 0, 0, .6);
 }
 #cancel:active {
+    box-shadow: inset -2px -2px 3px rgba(255, 255, 255, .6),
+                inset 2px 2px 3px rgba(0, 0, 0, .6);
+}
+#cancel2:active {
     box-shadow: inset -2px -2px 3px rgba(255, 255, 255, .6),
                 inset 2px 2px 3px rgba(0, 0, 0, .6);
 }
