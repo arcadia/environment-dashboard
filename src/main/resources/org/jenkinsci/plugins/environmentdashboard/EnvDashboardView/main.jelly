@@ -629,15 +629,31 @@
 							
 							Q("#parse").click(function(){
 								
-								alert(Q("#SQLscript").val());
-								alert(Q("#activeServer").val());
+								//alert(Q("#SQLscript").val());
+								//alert(Q("#activeServer").val());
 								
 								
 								//Connecting directly to SQL server by passing SQL query to parse
 								var response3 = "";
 								EnvDashViewProxy.parseSQLquery(Q("#SQLscript").val(),Q("#activeServer").val(),function(t) {
 									 response3 = t.responseObject();
-									 alert(response3);
+									 if (response3.indexOf("failed") == -1)
+									 {
+										//parsing succeeded
+									 	Q("#dialog3").dialog("option","title","Success");
+										Q("#dialog3text").text(response3);
+										Q("#dialog3").dialog("open");
+									 
+									 }
+									 else
+									 {
+									 
+									 	Q("#dialog3").dialog("option","title","Failure");
+										Q("#dialog3text").text(response3);
+										Q("#dialog3").dialog("open");
+									 
+									 }
+									 
 								});
 								
 								
@@ -1589,7 +1605,6 @@
 		<label id="CRjobstepActions">CR job step actions</label>
 		<br></br>
 		<input type="button" id="new" value="New"></input><div class="divider"/>
-		<input type="button" id="insert" value="Insert"></input><div class="divider"/>
         <input type="button" id="edit" value="Edit"></input><div class="divider"/>
 		<input type="button" id="delete" value="Delete"></input><div class="divider"/>
 	</div>
@@ -1610,22 +1625,15 @@
 	<div id="stepnameDefinition" style="text-align: left">
 		<label id="stepnameLabel">Step name:</label><div class="divider"/><input id="stepname" type="text"/><br></br>
 		<br></br>
-		<input type="button" id="parse" value="Parse"></input><div class="divider"/>
-		<textarea id="SQLscript" rows="20" cols="80" placeholder="Please enter SQL script..."></textarea>
+		<label id="commandLabel">Command:</label>
 		<br></br>
-		<label id="OnFailureActionLabel">On failure action:</label><div class="divider"/>
-		<select id="OnFailureActionDecision" name="OnFailureActionDecision">
-			<option value="">Choose...</option>
-			<option value="quitWithFailure">Quit the job reporting failure</option>
-			<option value="continueOnFailure">Go to the next step</option>
-			<option value="quitWithSuccess">Quit the job reporting success</option>
-		</select>
+		<input type="button" id="parse" value="Parse"></input><div class="divider"/><div class="divider"/><div class="divider"/>
+		<textarea id="SQLscript" rows="20" cols="80" placeholder="Please enter SQL script..."></textarea>
 	</div>
 
 	<div id="buttons4" style="text-align: right">
 		<input type="button" id="ok2" value="OK"></input><div class="divider"/>
 		<input type="button" id="cancel3" value="Cancel"></input><div class="divider"/>
 	</div>
-	
 </form>
 </j:jelly>

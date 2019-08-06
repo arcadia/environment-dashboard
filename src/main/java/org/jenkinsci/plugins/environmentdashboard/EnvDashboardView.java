@@ -794,7 +794,7 @@ public class EnvDashboardView extends View {
        Connection conn = null;
        Statement stat = null;
 	   
-	   String someString = new String();
+	   String returnString = null;
 	  	   
 	   System.out.println(getCurentDateTime() + ": Getting the user executing Jenkins...");
 	   String user = System.getProperty("user.name");
@@ -811,6 +811,14 @@ public class EnvDashboardView extends View {
 	   //String SQL = "select customerid, name from customers where name = 'orlando';";
 	   
 	   
+	   //Append the response format
+	   SQL = "SET FMTONLY ON;\n" +
+			 SQL + "\n" +
+			 "SET FMTONLY OFF;";
+	   
+	   
+	   System.out.println(SQL);
+	   
        try {
            assert conn != null;
            stat = conn.createStatement();
@@ -819,31 +827,29 @@ public class EnvDashboardView extends View {
        }
        try {
 	       System.out.println(getCurentDateTime() + ": About to execute SQL query...");
-           ResultSet rs = stat.executeQuery(SQL);
-		   //Iterate through the data in the result set and display it.
-           while (rs.next()) {
-                //System.out.println(rs.getString("PersonID") + " " + rs.getString("name"));
-				
-				//someString = rs.getString("PersonID") + " " + rs.getString("name");
-				//someString += rs.getString("PersonID") + " " + rs.getString("name") + "\n";
-				
-				System.out.println(rs.getString("age_range_id") + " " + rs.getString("age_range"));
-			    someString = rs.getString("age_range_id") + " " + rs.getString("age_range");
-				
-				//System.out.println(rs.getString("customerid") + " " + rs.getString("name"));
-				//someString = rs.getString("customerid") + " " + rs.getString("name");
-           }
-		   
-       } catch (SQLException e) {
-           System.out.println(getCurentDateTime() + ": Something failed at parseSQLquery function.\n" + e.getMessage());
-       } finally { 
-           CustomDBConnection.closeConnection(conn);
+		   stat.execute(SQL);
+		   System.out.println(getCurentDateTime() + ": The command was successfully parsed");
+		   returnString = "The command was successfully parsed";
        }
+	   catch (Exception e) 
+	   {
+		    System.out.println(getCurentDateTime() + ": Something failed at parseSQLquery function"); 
+			System.out.println(e.toString());			
+            //e.printStackTrace();  
+			returnString = "Something failed at parseSQLquery function: " + e.getMessage();
+       } 
+	   finally 
+	   { 
+           CustomDBConnection.closeConnection(conn);
+		   	if(returnString == null)
+			{
+				returnString = "failed";
+			}
+       }
+	  
+	  
+	   return returnString;
 	   
-	   
-       //return "success";
-	   
-	   return someString;
 	   
     }
 	
