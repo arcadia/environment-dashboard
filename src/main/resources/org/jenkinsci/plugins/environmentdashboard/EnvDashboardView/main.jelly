@@ -614,7 +614,6 @@
 							
 							Q("#edit").click(function(){
 								Q("#dialog4").dialog("open");
-								//LoginParseValidate();
 							});
 							
 							
@@ -625,6 +624,28 @@
 							
 							Q("#cancel2").click(function(){
 								Q("#dialog2").dialog("close");
+							});
+							
+							
+							Q("#parse").click(function(){
+								
+								alert(Q("#SQLscript").val());
+								alert(Q("#activeServer").val());
+								
+								
+								//Connecting directly to SQL server by passing SQL query to parse
+								var response3 = "";
+								EnvDashViewProxy.parseSQLquery(Q("#SQLscript").val(),Q("#activeServer").val(),function(t) {
+									 response3 = t.responseObject();
+									 alert(response3);
+								});
+								
+								
+								
+							});
+							
+							Q("#cancel3").click(function(){
+								Q("#dialog4").dialog("close");
 							});
 							
 							
@@ -672,6 +693,10 @@
 											 Q("#CRjobinfoTable tbody").append('<td style="width: 8%;text-align:center">' + element.current_execution_status + '</td>');
 											 Q("#CRjobinfoTable tbody").append('<td style="width: 8%;text-align:center">' + element.current_execution_step + '</td>');
 											 Q("#CRjobinfoTable tbody").append('</tr>');
+											 
+											 Q("#activeDB").val(element.activeDB);
+											 Q("#activeServer").val(element.activeServer);
+											 
 											 
 										 });
 										 
@@ -946,35 +971,6 @@
 							
 						});
 					
-						
-						function LoginParseValidate()
-						{
-						
-							alert("In LoginParseValidate function");
-							//alert(Q("#SQLscript").val());
-							
-							/*
-							//Connecting directly to SQL server
-							var response = "";
-							EnvDashViewProxy.getTestDataFromLocalSQLserver(function(t) {
-								 response = t.responseObject();
-								 alert(response);
-							});
-							*/
-							
-							/*
-							//Connecting directly to SQL server by passing SQL query to parse
-							var response2 = "";
-							EnvDashViewProxy.parseSQLquery(Q("#SQLscript").val(),function(t) {
-								 response2 = t.responseObject();
-								 alert(response2);
-							});
-							*/
-							
-
-							
-							
-						}
 						
 						function CloseResetDynamicDialog(typeOfAction)
 						{
@@ -1555,7 +1551,7 @@
 	
 		<!--<span id="customErrorPlacement2" style="color:red; font-weight:bold"></span><br></br>-->
 
-		<div id="CRjobinfoTable" style="display: none; height:105px; overflow: auto;">
+		<div id="CRjobinfoTable" style="display: none; height:110px; overflow: auto;">
 			<label id="CRjobstatusInfo">CR job status info</label>
 			<table style="width=100%;" class="table table-bordered table-striped table-condensed hoverable-table-in-dialog">
 				<tbody>
@@ -1601,6 +1597,10 @@
 	<div id="buttons3" style="text-align: right">
 		<input type="submit" id="ok" value="OK"/><div class="divider"/><span id="cancel2">Cancel</span>
 	</div>
+	
+	<input type="hidden" id="activeDB" value=""/>
+	<input type="hidden" id="activeServer" value=""/>
+	
 </form>
 <div id="dialog3" title="Title place holder">
   <p id="dialog3text">Place holder for message</p>

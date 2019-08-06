@@ -784,11 +784,12 @@ public class EnvDashboardView extends View {
 	
 	
 	@JavaScriptMethod
-	public String parseSQLquery(String SQL) {
+	public String parseSQLquery(String SQL, String server) {
 	
-	   System.out.println(getCurentDateTime() + ": At getTestDataFromLocalSQLserver function");
+	   System.out.println(getCurentDateTime() + ": At parseSQLquery function");
 	   System.out.println(getCurentDateTime() + ": Here is the SQl query passed to parseSQLquery function");
 	   System.out.println(SQL);
+	   System.out.println(server);
 	
        Connection conn = null;
        Statement stat = null;
@@ -799,11 +800,11 @@ public class EnvDashboardView extends View {
 	   String user = System.getProperty("user.name");
 	   System.out.println(user);
 	   
-	   conn = CustomDBConnection.getConnection("adoskara-pc2", "1433", "test", getdbUser(), getdbPassword(), getSQLauth());
+	   //conn = CustomDBConnection.getConnection("adoskara-pc2", "1433", "test", getdbUser(), getdbPassword(), getSQLauth());
 	   //String SQL = "select * from dbo.persons where name = 'john';";
 	   //String SQL = "select * from dbo.persons;";
 	   
-	   //conn = CustomDBConnection.getConnection("TESTSQLTST04", "1433", "test_warehouse_dev04", getdbUser(), getdbPassword(), getSQLauth());
+	   conn = CustomDBConnection.getConnection(server, "1433", "placeholderForDB", getdbUser(), getdbPassword(), getSQLauth());
 	   //String SQL = "select age_range_id, age_range from dbo.age_range where age_range_id = 1;";
 	   
 	   //conn = CustomDBConnection.getConnection("mydbserver1", "1433", "tutorialdb", getdbUser(), getdbPassword(), getSQLauth());
@@ -813,28 +814,28 @@ public class EnvDashboardView extends View {
        try {
            assert conn != null;
            stat = conn.createStatement();
-       } catch (SQLException e) {
-           System.out.println("E13" + e.getMessage());
+       } catch (Exception e) {
+           System.out.println("E13" + " failed " + e.getMessage());
        }
        try {
 	       System.out.println(getCurentDateTime() + ": About to execute SQL query...");
            ResultSet rs = stat.executeQuery(SQL);
 		   //Iterate through the data in the result set and display it.
            while (rs.next()) {
-                System.out.println(rs.getString("PersonID") + " " + rs.getString("name"));
+                //System.out.println(rs.getString("PersonID") + " " + rs.getString("name"));
 				
 				//someString = rs.getString("PersonID") + " " + rs.getString("name");
-				someString += rs.getString("PersonID") + " " + rs.getString("name") + "\n";
+				//someString += rs.getString("PersonID") + " " + rs.getString("name") + "\n";
 				
-				//System.out.println(rs.getString("age_range_id") + " " + rs.getString("age_range"));
-				//someString = rs.getString("age_range_id") + " " + rs.getString("age_range");
+				System.out.println(rs.getString("age_range_id") + " " + rs.getString("age_range"));
+			    someString = rs.getString("age_range_id") + " " + rs.getString("age_range");
 				
 				//System.out.println(rs.getString("customerid") + " " + rs.getString("name"));
 				//someString = rs.getString("customerid") + " " + rs.getString("name");
            }
 		   
        } catch (SQLException e) {
-           System.out.println(getCurentDateTime() + ": Something went wrong in getTestDataFromLocalSQLserver function.\n" + e.getMessage());
+           System.out.println(getCurentDateTime() + ": Something failed at parseSQLquery function.\n" + e.getMessage());
        } finally { 
            CustomDBConnection.closeConnection(conn);
        }
@@ -862,7 +863,8 @@ public class EnvDashboardView extends View {
 	   
 		
 	   //identify the active database
-	   String SQL = "select c.acronym as 'client_acronym', d.name as 'db_name', p.name as 'prov_name' from dbo.[database] d inner join dbo.client c on d.client_id = c.client_id\n" +
+	   String SQL = "use " + getOpsDB() + ";\n" +
+			"select c.acronym as 'client_acronym', d.name as 'db_name', p.name as 'prov_name' from dbo.[database] d inner join dbo.client c on d.client_id = c.client_id\n" +
 			"										  inner join dbo.provisioning_environment p on d.provisioning_environment_id = p.provisioning_environment_id\n" +
 			"										  inner join dbo.environment e on e.environment_id = p.environment_id\n" +
 			"										  inner join dbo.type t on t.type_id = d.type_id\n" +
@@ -886,11 +888,12 @@ public class EnvDashboardView extends View {
 	  
 	  
 	   //identify the active server
-	   SQL = "select name from dbo.db_instance where db_instance_id in\n" +
+	   SQL = "use " + getOpsDB() + ";\n" +
+		"select name from dbo.db_instance where db_instance_id in\n" +
 		"(\n" +
 		"select dbinst.db_instance_id from dbo.[database] db inner join dbo.db_instance_database dbinst on db.database_id = dbinst.database_id\n" +
 		"where db.name = '" + activeDB + "' and dbinst.status_id = (select status_id from dbo.status where name = 'Active')\n" +
-		")";
+		");";
 
 	   returnValue = getRequestedInfo(customer, env, SQL, "name");
 	   if(returnValue.contains("failed"))
@@ -934,8 +937,9 @@ public class EnvDashboardView extends View {
 	   //conn = CustomDBConnection.getConnection("TESTSQLTST04", "1433", "test_warehouse_dev04", getdbUser(), getdbPassword(), getSQLauth());
 	   //String SQL = "select age_range_id, age_range from dbo.age_range where age_range_id = 1;";
 	   
-	   conn = CustomDBConnection.getConnection(activeServer, "1433", "msdb", getdbUser(), getdbPassword(), getSQLauth());
-	   SQL = "EXEC dbo.sp_help_job @job_name = N'" + job + "',  @job_aspect = N'steps';";
+	   conn = CustomDBConnection.getConnection(activeServer, "1433", "placeholderForDB", getdbUser(), getdbPassword(), getSQLauth());
+	   //SQL = "EXEC dbo.sp_help_job @job_name = N'" + job + "',  @job_aspect = N'steps';";
+	   SQL = "use msdb; EXEC dbo.sp_help_job @job_name = N'" + job + "',  @job_aspect = N'steps';";
 	   
 	   //conn = CustomDBConnection.getConnection("mydbserver1", "1433", "tutorialdb", getdbUser(), getdbPassword(), getSQLauth());
 	   //String SQL = "select customerid, name from customers where name = 'orlando';";
@@ -994,7 +998,8 @@ public class EnvDashboardView extends View {
 			
 			
 			//Let's append job info itself
-			SQL = "EXEC dbo.sp_help_job @job_name = N'" + job + "',  @job_aspect = N'job';";
+			//SQL = "EXEC dbo.sp_help_job @job_name = N'" + job + "',  @job_aspect = N'job';";
+			SQL = "use msdb; EXEC dbo.sp_help_job @job_name = N'" + job + "',  @job_aspect = N'job';";
 			System.out.println(getCurentDateTime() + ": About to execute SQL query for retriving CR job status info...");
             rs = stat.executeQuery(SQL);
 			
@@ -1061,6 +1066,8 @@ public class EnvDashboardView extends View {
 					  .add("last_run_outcome", mappedLastRunOutcome)
 					  .add("current_execution_status", mappedCurrentExecutionStatus)
 					  .add("current_execution_step", rs.getString("current_execution_step"))
+					  .add("activeDB", activeDB)
+					  .add("activeServer", activeServer)
 				  .build());
            }
 		   
@@ -1281,7 +1288,7 @@ public class EnvDashboardView extends View {
 	   Connection conn = null;
        Statement stat = null;
 
-	   conn = CustomDBConnection.getConnection(opsdbServer, getOpsDBinstancePort(), getOpsDB(), getdbUser(), getdbPassword(), getSQLauth());	   
+	   conn = CustomDBConnection.getConnection(opsdbServer, getOpsDBinstancePort(), "placeholderForDB", getdbUser(), getdbPassword(), getSQLauth());	   
 
 	   
        try {
