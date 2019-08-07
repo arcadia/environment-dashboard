@@ -433,6 +433,10 @@
 						
 						//Create a proxy for EnvDashView Java object on a server side so it can later be used during AJAX calls
 						var EnvDashViewProxy = <st:bind value="${it}"/>
+						
+						Q("#dialog3").dialog("option","title","Debug");
+						Q("#dialog3text").text(EnvDashViewProxy);
+						Q("#dialog3").dialog("open");
 
 						var authorizedForPRDactions = "TBD";
 						
@@ -613,6 +617,13 @@
 							
 							
 							Q("#edit").click(function(){
+							
+							
+								var id = Q("input[name=CRjobsteps]").filter(":checked").prop('id');
+								
+								Q("#stepname").val(Q('.' + id + "_for_step_name_retrieval").text());
+								Q("#SQLscript").val(Q('.' + id + "_for_command_retrieval").text());
+							
 								Q("#dialog4").dialog("open");
 							});
 							
@@ -665,6 +676,12 @@
 							});
 							
 							
+							Q("#ok2").click(function(){
+							
+								//nothing yet
+								
+							});
+							
 							Q("#properties").click(function(){
 								
 								//alert("properties button was clicked");
@@ -692,6 +709,10 @@
 										 
 										 //alert(response2);
 										 //alert("About to populate the table...");
+										 
+										 //Initialize
+										 Q("#CRjobinfoTable td").remove();
+										 Q("#CRjobstepsTable td").remove();
 										 
 										 
 										 Q.each(stepsjobject.info, function(index, element){
@@ -726,9 +747,10 @@
 											
 											 Q("#CRjobstepsTable tbody").append('<tr>');
 											 Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center">' + element.step_id + '</td>');
-											 Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center">' + element.step_name + '</td>');
+											 Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center" class="' + element.step_id + '_for_step_name_retrieval">' + element.step_name + '</td>');
 											 Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center">' + element.subsystem + '</td>');
 											 Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center">' + element.command.substring(0, 14) + '...</td>');
+											 //Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center;visibility:hidden"><textarea class="' + element.step_id + '_for_command_retrieval">' + element.command + '</textarea></td>');	 
 											 Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center">' + element.on_success_action + '</td>');
 											 Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center">' + element.on_fail_action + '</td>');
 											 Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center"><input type="radio" name="CRjobsteps" id="' + element.step_id + '"></input></td>');
@@ -736,6 +758,8 @@
 											 //Q("#CRjobstepsTable tbody").append('<td>EditButton</td>');
 											 //Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center"><input type="button" id="edit" value="edit"></input></td>');
 											 Q("#CRjobstepsTable tbody").append('</tr>');
+											 
+											 Q("#CRjobstepsTable").append('<textarea style="display:none;" class="' + element.step_id + '_for_command_retrieval">' + element.command + '</textarea>');	 
 											 
 										 });
 										 
@@ -1575,7 +1599,7 @@
 
 		<div id="CRjobinfoTable" style="display: none; height:110px; overflow: auto;">
 			<label id="CRjobstatusInfo">CR job status info</label>
-			<table style="width=100%;" class="table table-bordered table-striped table-condensed hoverable-table-in-dialog">
+			<table id="actualCRjobinfoTable" style="width=100%;" class="table table-bordered table-striped table-condensed hoverable-table-in-dialog">
 				<tbody>
 					<th style="width: 8%;text-align:center">start_step_id</th>
 					<th style="width: 8%;text-align:center">date_modified</th>
@@ -1593,7 +1617,7 @@
 		
 		<div id="CRjobstepsTable" style="display: none; height:125px; overflow: auto;">
 			<label id="CRjobstepsInfo">CR job steps</label>
-			<table style="width=100%;" class="table table-bordered table-striped table-condensed hoverable-table-in-dialog">
+			<table id="actualCRjobstepsTable" style="width=100%;" class="table table-bordered table-striped table-condensed hoverable-table-in-dialog">
 				<tbody>
 					<th style="width: 8%;text-align:center">step_id</th>
 					<th style="width: 8%;text-align:center">step_name</th>
