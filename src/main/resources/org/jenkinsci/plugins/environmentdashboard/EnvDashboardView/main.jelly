@@ -668,6 +668,9 @@
 							Q("#properties").click(function(){
 								
 								//alert("properties button was clicked");
+								Q("#dialog3").dialog("option","title","Debug");
+								Q("#dialog3text").text("properties button was clicked");
+								Q("#dialog3").dialog("open");
 								
 								//Retrieve CR job steps
 								var response2 = "";
@@ -724,8 +727,11 @@
 											 Q("#CRjobstepsTable tbody").append('<tr>');
 											 Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center">' + element.step_id + '</td>');
 											 Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center">' + element.step_name + '</td>');
+											 Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center">' + element.subsystem + '</td>');
+											 Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center">' + element.command.substring(0, 14) + '...</td>');
+											 Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center">' + element.on_success_action + '</td>');
 											 Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center">' + element.on_fail_action + '</td>');
-											 Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center"><input type="radio" name="CRjobsteps" id="' + element.step_name + '"></input></td>');
+											 Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center"><input type="radio" name="CRjobsteps" id="' + element.step_id + '"></input></td>');
 											 
 											 //Q("#CRjobstepsTable tbody").append('<td>EditButton</td>');
 											 //Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center"><input type="button" id="edit" value="edit"></input></td>');
@@ -1591,6 +1597,9 @@
 				<tbody>
 					<th style="width: 8%;text-align:center">step_id</th>
 					<th style="width: 8%;text-align:center">step_name</th>
+					<th style="width: 8%;text-align:center">subsystem</th>
+					<th style="width: 8%;text-align:center">command</th>
+					<th style="width: 8%;text-align:center">on_success_action</th>
 					<th style="width: 8%;text-align:center">on_fail_action</th>
 					<th style="width: 8%;text-align:center">choose</th>
 				</tbody>

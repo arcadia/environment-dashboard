@@ -982,7 +982,10 @@ public class EnvDashboardView extends View {
 				String failAction = rs.getString("on_fail_action");
 				String cleanedUpFailAction = failAction.substring(failAction.indexOf("(")+1,failAction.indexOf(")"));
 				
-                System.out.println(rs.getString("step_id") + " " + rs.getString("step_name") + " " + cleanedUpFailAction);
+				String successAction = rs.getString("on_success_action");
+				String cleanedUpSuccessAction = successAction.substring(successAction.indexOf("(")+1,successAction.indexOf(")"));
+				
+                System.out.println(rs.getString("step_id") + " " + rs.getString("step_name") + " " + cleanedUpSuccessAction + " " + cleanedUpFailAction);
 				//CRjobSteps += rs.getString("step_id") + " " + rs.getString("step_name") + " " + cleanedUpFailAction + "\n";
 				
 				//System.out.println(rs.getString("age_range_id") + " " + rs.getString("age_range"));
@@ -994,6 +997,9 @@ public class EnvDashboardView extends View {
 				jarr.add(Json.createObjectBuilder()
 					  .add("step_id", rs.getString("step_id"))
 					  .add("step_name", rs.getString("step_name"))
+					  .add("subsystem", rs.getString("subsystem"))
+					  .add("command", rs.getString("command"))
+					  .add("on_success_action", cleanedUpSuccessAction)
 					  .add("on_fail_action", cleanedUpFailAction)
 				  .build());
            }
