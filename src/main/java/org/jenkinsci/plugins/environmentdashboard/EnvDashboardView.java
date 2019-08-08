@@ -965,6 +965,17 @@ public class EnvDashboardView extends View {
 	   
     }
 	
+	
+	@JavaScriptMethod
+	public String maintainConnectivityToProxy() {
+	
+	   //System.out.println(getCurentDateTime() + ": At DummyFunction function");
+	   String returnString = "success";
+	   return returnString;
+	   
+    }
+	
+	
 	@JavaScriptMethod
 	public String getCRjobStepsSQLquery(String job, String customer, String env) 
 	{

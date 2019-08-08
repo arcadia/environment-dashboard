@@ -441,6 +441,36 @@
 						Q(document).ready(function(){
 						
 							EnvDashViewProxy = <st:bind value="${it}"/>;
+							
+							//continue calling the below function to see if 404 error can be avoided
+							var response5;
+							var date2;
+							setInterval(function() {
+								EnvDashViewProxy.maintainConnectivityToProxy(function(t) {
+									 response5 = t.responseObject();
+									 if (response5.indexOf("failed") == -1)
+									 {
+										//parsing succeeded
+										//Q("#dialog3").dialog("option","title","Success");
+										//Q("#dialog3text").text(response5);
+										//Q("#dialog3").dialog("open");
+										//date2 = new Date().toLocaleString();
+										//console.log(date2);
+									 
+									 }
+									 else
+									 {
+									 
+										//Q("#dialog3").dialog("option","title","Failure");
+										//Q("#dialog3text").text(response5);
+										//Q("#dialog3").dialog("open");
+									 
+									 }
+									 
+								});
+							}, 60 * 1000); // 60 * 1000 milsec
+							
+							
 													
 						
 							Q("#overlay, #dialog, #dialog2, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection, #envSection, #prd-env-cr-job").hide();
@@ -832,8 +862,8 @@
 							
 							Q("#properties").click(function(){
 								
-								//re-bind to see if 404 error gets fixed
-								EnvDashViewProxy = <st:bind value="${it}"/>;
+								
+								
 								
 								//alert("properties button was clicked");
 								//Q("#dialog3").dialog("option","title","Debug");
@@ -864,7 +894,7 @@
 										 //Initialize
 										 Q("#CRjobinfoTable td").remove();
 										 Q("#CRjobstepsTable td").remove();
-										 
+										 Q("#CRjobstepsTable textarea").remove();
 										 
 										 Q.each(stepsjobject.info, function(index, element){
 											//alert(element.start_step_id); 
