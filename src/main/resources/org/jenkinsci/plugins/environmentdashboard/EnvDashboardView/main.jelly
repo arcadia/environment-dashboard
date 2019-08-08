@@ -426,22 +426,22 @@
 					<script language="javascript">
 											
 						var validationObj;
+						var validationObj2;
 						var refreshIntervalId;
 						var prevBuildForFoundSHA;
 						var typeofDeployment;
 						var CRjob;
 						
 						//Create a proxy for EnvDashView Java object on a server side so it can later be used during AJAX calls
-						var EnvDashViewProxy = <st:bind value="${it}"/>
+						var EnvDashViewProxy;
 						
-						Q("#dialog3").dialog("option","title","Debug");
-						Q("#dialog3text").text(EnvDashViewProxy);
-						Q("#dialog3").dialog("open");
-
 						var authorizedForPRDactions = "TBD";
 						
 						//Hide the dynamic dialog initially after the page loads					
 						Q(document).ready(function(){
+						
+							EnvDashViewProxy = <st:bind value="${it}"/>;
+													
 						
 							Q("#overlay, #dialog, #dialog2, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection, #envSection, #prd-env-cr-job").hide();
 							Q("#dialog").draggable();
@@ -453,6 +453,12 @@
 								dialogClass: "titlebar"
 							});
 							
+							
+							//Q("#dialog3").dialog("option","title","Debug");
+							//Q("#dialog3text").text(EnvDashViewProxy);
+							//Q("#dialog3").dialog("open");
+							
+							
 							Q("#dialog2").dialog({
 								autoOpen: false, 
 								modal: true,
@@ -461,20 +467,112 @@
 								autoResize: true,
 								width: 1000,
 								//height: 600,
-								dialogClass: "no-close"
+								dialogClass: "no-close",
+								buttons: {
+								OK: function (e) {
+										//Q(this).submit();
+										// Stop form from submitting normally
+										e.preventDefault();
+										
+										//Save CR job step
+										//alert(Q("#SQLscript").val());
+										//alert(Q("#activeServer").val());
+										
+										//Loop through CRjob steps and update all of the steps
+										var response4;
+										var i = 1;
+										var step_id;
+										var step_name;
+										var subsystem;
+										var command;
+										
+										 Q( "#CRjobstepsTable td" ).each(function( index ) {
+										 
+										 
+											 //var Qtd = Q(this);
+											 //Qth = Qtd.closest('tbody').find('th').eq(Qtd.index());
+											 //console.log(Qth.text());
+											 
+											 //var Qtd = Q(this);
+											 //var tdIndex = Qtd.index() + 1;
+											 //var Qth = Q('#CRjobstepsTable tr').find('th:nth-child(' + tdIndex + ')');
+											 //console.log(Qth.text());
+											 
+											 
+
+											console.log('Processing row number ' + i);
+											console.log( index + ": " + Q( this ).attr("id") );
+											console.log( index + ": " + Q( this ).text() );
+											//alert( index + ": " + Q( this ).text() );
+										 
+											  
+											  
+											  if (Q( this ).attr("id") == "step_id") 
+											  {
+												step_id = Q( this ).text();
+												command = Q('.' + Q( this ).text() + "_for_command_retrieval").text();
+											  }
+											  else if (Q( this ).attr("id") == "step_name") 
+											  {
+												step_name = Q( this ).text();
+											  }
+											  else if (Q( this ).attr("id") == "subsystem") 
+											  {
+												subsystem = Q( this ).text();
+											  }
+											  else if (Q( this ).attr("id") == "radioButton")  
+											  {
+												
+												response4 = "";
+												
+												alert("about to pass the following values for row number " + i);
+												alert(Q("#activeServer").val());
+												alert(CRjob);
+												alert(step_id);
+												alert(step_name);
+												alert(subsystem);
+												alert(command);
+												
+												EnvDashViewProxy.UpdateCRjobStep(Q("#activeServer").val(),CRjob,step_id,step_name,subsystem,command,function(t) {
+													 response4 = t.responseObject();
+													 if (response4.indexOf("failed") == -1)
+													 {
+														//parsing succeeded
+														Q("#dialog3").dialog("option","title","Success");
+														Q("#dialog3text").text(response4);
+														Q("#dialog3").dialog("open");
+													 
+													 }
+													 else
+													 {
+													 
+														Q("#dialog3").dialog("option","title","Failure");
+														Q("#dialog3text").text(response4);
+														Q("#dialog3").dialog("open");
+													 
+													 }
+													 
+												});
+												
+												i = i + 1;
+											  }
+											  
+										});
+																				
+										
+										Q(this).dialog("close");
+					
+										
+									},
+									Cancel: function () {
+										Q(this).trigger("reset");
+										Q(this).dialog("close");
+									}
+								}
 							}).prev(".ui-dialog-titlebar").css("background","#81BEF7");
 							
 							
-							Q("#dialog4").dialog({
-								autoOpen: false, 
-								modal: true,
-								draggable: true,
-								resizable: false,
-								autoResize: true,
-								width: 1000,
-								//height: 600,
-								dialogClass: "no-close"
-							}).prev(".ui-dialog-titlebar").css("background","#81BEF7");
+							
 														
 							Q.validator.addMethod("dateTime", function(value, element) {
 								var futureDateTime = new Date(value);
@@ -553,6 +651,71 @@
 							});
 							
 							
+							validationObj2 = Q("#dialog4").validate({ // initialize the plugin
+								/*
+							    submitHandler: function(form) {
+									doAjaxPost();
+								},*/
+								rules: {
+									stepname: {
+										required: true,
+										normalizer: function(value) {
+											return Q.trim(value);
+										}
+									},
+									SQLscript: {
+										required: true
+									}
+								},
+								messages: {
+									stepname: "step name is required",
+									SQLscript: "command is required"
+								},
+								errorPlacement: function(error, element) {
+										error.insertAfter(element);	
+								}
+							});
+							
+							
+							
+							Q("#dialog4").dialog({
+								autoOpen: false, 
+								modal: true,
+								draggable: true,
+								resizable: false,
+								autoResize: true,
+								width: 1000,
+								//height: 600,
+								dialogClass: "no-close",
+								buttons: {
+									OK: function (e) {
+										//Q(this).submit();
+										if(!validationObj2.form())
+										{  
+										  e.preventDefault(); 
+										}
+										else
+										{
+											// Stop form from submitting normally
+											e.preventDefault();
+										    //store the changes temporarily;
+											Q('.' + Q("input[name=CRjobsteps]").filter(":checked").prop('id') + "_for_step_name_retrieval").text(Q("#stepname").val());
+											Q('.' + Q("input[name=CRjobsteps]").filter(":checked").prop('id') + "_for_command_retrieval").text(Q("#SQLscript").val());
+											Q('.' + Q("input[name=CRjobsteps]").filter(":checked").prop('id') + "_for_short_command_retrieval").text(Q("#SQLscript").val().substring(0, 14));
+											Q('.' + Q("input[name=CRjobsteps]").filter(":checked").prop('id') + "_for_subsystem_retrieval").text("TSQL");
+											Q(this).dialog("close");
+					
+										}
+									},
+									Cancel: function () {
+										Q(this).trigger("reset");
+										validationObj2.resetForm();
+										Q(this).dialog("close");
+									}
+								}
+							}).prev(".ui-dialog-titlebar").css("background","#81BEF7");
+							
+							
 							Q("#dialog").submit(function(e){ 
 								if(!validationObj.form())
 								{  
@@ -605,8 +768,6 @@
 							});
 							
 							
-							
-							
 							Q("#reset").click(function(){
 								CloseResetDynamicDialog("reset");
 							});
@@ -618,24 +779,19 @@
 							
 							Q("#edit").click(function(){
 							
-							
-								var id = Q("input[name=CRjobsteps]").filter(":checked").prop('id');
 								
-								Q("#stepname").val(Q('.' + id + "_for_step_name_retrieval").text());
-								Q("#SQLscript").val(Q('.' + id + "_for_command_retrieval").text());
-							
+								//var id = Q("input[name=CRjobsteps]").filter(":checked").prop('id');
+								
+								Q("#stepname").val(Q('.' + Q("input[name=CRjobsteps]").filter(":checked").prop('id') + "_for_step_name_retrieval").text());
+								Q("#SQLscript").val(Q('.' + Q("input[name=CRjobsteps]").filter(":checked").prop('id') + "_for_command_retrieval").text());
+								
+								Q("#dialog4").dialog("option","title",Q('.' + Q("input[name=CRjobsteps]").filter(":checked").prop('id') + "_for_step_name_retrieval").text());
+								
 								Q("#dialog4").dialog("open");
 							});
 							
 							
-							Q("#ok").click(function(){
-								//save the changes;
-							});
-							
-							
-							Q("#cancel2").click(function(){
-								Q("#dialog2").dialog("close");
-							});
+
 							
 							
 							Q("#parse").click(function(){
@@ -671,23 +827,18 @@
 								
 							});
 							
-							Q("#cancel3").click(function(){
-								Q("#dialog4").dialog("close");
-							});
 							
 							
-							Q("#ok2").click(function(){
-							
-								//nothing yet
-								
-							});
 							
 							Q("#properties").click(function(){
 								
+								//re-bind to see if 404 error gets fixed
+								EnvDashViewProxy = <st:bind value="${it}"/>;
+								
 								//alert("properties button was clicked");
-								Q("#dialog3").dialog("option","title","Debug");
-								Q("#dialog3text").text("properties button was clicked");
-								Q("#dialog3").dialog("open");
+								//Q("#dialog3").dialog("option","title","Debug");
+								//Q("#dialog3text").text("properties button was clicked");
+								//Q("#dialog3").dialog("open");
 								
 								//Retrieve CR job steps
 								var response2 = "";
@@ -746,14 +897,14 @@
 											//alert(element.on_fail_action); 
 											
 											 Q("#CRjobstepsTable tbody").append('<tr>');
-											 Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center">' + element.step_id + '</td>');
-											 Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center" class="' + element.step_id + '_for_step_name_retrieval">' + element.step_name + '</td>');
-											 Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center">' + element.subsystem + '</td>');
-											 Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center">' + element.command.substring(0, 14) + '...</td>');
+											 Q("#CRjobstepsTable tbody").append('<td id="step_id" style="width: 8%;text-align:center">' + element.step_id + '</td>');
+											 Q("#CRjobstepsTable tbody").append('<td id="step_name" style="width: 8%;text-align:center" class="' + element.step_id + '_for_step_name_retrieval">' + element.step_name + '</td>');
+											 Q("#CRjobstepsTable tbody").append('<td id="subsystem" style="width: 8%;text-align:center" class="' + element.step_id + '_for_subsystem_retrieval">' + element.subsystem + '</td>');
+											 Q("#CRjobstepsTable tbody").append('<td id="command_substring" style="width: 8%;text-align:center" class="' + element.step_id + '_for_short_command_retrieval">' + element.command.substring(0, 14) + '...</td>');
 											 //Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center;visibility:hidden"><textarea class="' + element.step_id + '_for_command_retrieval">' + element.command + '</textarea></td>');	 
-											 Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center">' + element.on_success_action + '</td>');
-											 Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center">' + element.on_fail_action + '</td>');
-											 Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center"><input type="radio" name="CRjobsteps" id="' + element.step_id + '"></input></td>');
+											 Q("#CRjobstepsTable tbody").append('<td id="on_success_action" style="width: 8%;text-align:center">' + element.on_success_action + '</td>');
+											 Q("#CRjobstepsTable tbody").append('<td id="on_fail_action" style="width: 8%;text-align:center">' + element.on_fail_action + '</td>');
+											 Q("#CRjobstepsTable tbody").append('<td id="radioButton" style="width: 8%;text-align:center"><input type="radio" name="CRjobsteps" id="' + element.step_id + '"></input></td>');
 											 
 											 //Q("#CRjobstepsTable tbody").append('<td>EditButton</td>');
 											 //Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center"><input type="button" id="edit" value="edit"></input></td>');
@@ -1642,9 +1793,7 @@
 		<input type="button" id="delete" value="Delete"></input><div class="divider"/>
 	</div>
 	<br></br>
-	<div id="buttons3" style="text-align: right">
-		<input type="submit" id="ok" value="OK"/><div class="divider"/><span id="cancel2">Cancel</span>
-	</div>
+	
 	
 	<input type="hidden" id="activeDB" value=""/>
 	<input type="hidden" id="activeServer" value=""/>
@@ -1654,19 +1803,13 @@
   <p id="dialog3text">Place holder for message</p>
 </div>
 <form id="dialog4" title="cr-job-step-title" style="display:none;" autocomplete="off">
-	
 	<div id="stepnameDefinition" style="text-align: left">
-		<label id="stepnameLabel">Step name:</label><div class="divider"/><input id="stepname" type="text"/><br></br>
+		<label id="stepnameLabel">Step name:</label><div class="divider"/><input id="stepname" name="stepname" type="text"/><br></br>
 		<br></br>
 		<label id="commandLabel">Command:</label>
 		<br></br>
 		<input type="button" id="parse" value="Parse"></input><div class="divider"/><div class="divider"/><div class="divider"/>
-		<textarea id="SQLscript" rows="20" cols="80" placeholder="Please enter SQL script..."></textarea>
-	</div>
-
-	<div id="buttons4" style="text-align: right">
-		<input type="button" id="ok2" value="OK"></input><div class="divider"/>
-		<input type="button" id="cancel3" value="Cancel"></input><div class="divider"/>
+		<textarea id="SQLscript" name="SQLscript" rows="20" cols="80" placeholder="Please enter SQL script..."></textarea>
 	</div>
 </form>
 </j:jelly>

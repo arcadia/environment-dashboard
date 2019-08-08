@@ -800,6 +800,34 @@ public class EnvDashboardView extends View {
 	   String user = System.getProperty("user.name");
 	   System.out.println(user);
 	   
+	   
+	   System.out.println(getCurentDateTime() + ": Getting the SQL version used by " + server + "...");
+	   String returnValue = getSQLserverVersion(server, "version");
+	   if(returnValue.contains("failed"))
+	   {
+			System.out.println(returnValue);
+			returnString = returnValue;
+			return returnString;
+	   }
+	   else if(returnValue.contains("Microsoft SQL Server 2008"))
+	   {
+		   //Append the response format
+		   SQL = "SET FMTONLY ON;\n" +
+		   SQL + "\n" +
+		   "SET FMTONLY OFF;";
+	   }
+	   else
+	   {
+		   //Append the response format
+		   SQL = SQL.replace("'","''");
+		   SQL = "sp_describe_first_result_set @tsql = N'" + SQL + "'";
+		  
+	   }
+	   
+	   System.out.println(SQL);
+	   
+	   
+	   
 	   //conn = CustomDBConnection.getConnection("adoskara-pc2", "1433", "test", getdbUser(), getdbPassword(), getSQLauth());
 	   //String SQL = "select * from dbo.persons where name = 'john';";
 	   //String SQL = "select * from dbo.persons;";
@@ -811,13 +839,7 @@ public class EnvDashboardView extends View {
 	   //String SQL = "select customerid, name from customers where name = 'orlando';";
 	   
 	   
-	   //Append the response format
-	   SQL = "SET FMTONLY ON;\n" +
-			 SQL + "\n" +
-			 "SET FMTONLY OFF;";
-	   
-	   
-	   System.out.println(SQL);
+	  
 	   
        try {
            assert conn != null;
@@ -853,6 +875,95 @@ public class EnvDashboardView extends View {
 	   
     }
 	
+	
+	@JavaScriptMethod
+	public String UpdateCRjobStep(String server, String job_name, int step_id, String step_name, String subsystem, String command) {
+	
+	   System.out.println(getCurentDateTime() + ": At UpdateCRjobStep function");
+	   System.out.println(getCurentDateTime() + ": Here are the arguments passed:");
+	   System.out.println(server);
+	   System.out.println(job_name);
+	   System.out.println(step_id);
+	   System.out.println(step_name);
+	   System.out.println(subsystem);
+	   System.out.println(command);
+
+       Connection conn = null;
+       Statement stat = null;
+	   String error = new String();
+	   String returnString = null;
+	   
+
+	   //Prepare SQL statement
+	   step_name = step_name.replace("'","''");
+	   command = command.replace("'","''");
+	   
+	   
+	   String SQL = "USE msdb;\n" +
+			"EXEC dbo.sp_update_jobstep  \n" +
+			"    @job_name = N'" + job_name + "',  \n" +
+			"    @step_id = " + step_id + ",  \n" +
+			"    @step_name = N'" + step_name + "', \n" +
+			"	@subsystem = N'" + subsystem + "', \n" +
+			"	@command = N'" + command + "';";
+	   
+	   
+	   System.out.println(SQL);
+	   
+	   //conn = CustomDBConnection.getConnection("adoskara-pc2", "1433", "test", getdbUser(), getdbPassword(), getSQLauth());
+	   //String SQL = "select * from dbo.persons where name = 'john';";
+	   //String SQL = "select * from dbo.persons;";
+	   
+	   conn = CustomDBConnection.getConnection(server, "1433", "placeholderForDB", getdbUser(), getdbPassword(), getSQLauth());
+	   //String SQL = "select age_range_id, age_range from dbo.age_range where age_range_id = 1;";
+	   
+	   //conn = CustomDBConnection.getConnection("mydbserver1", "1433", "tutorialdb", getdbUser(), getdbPassword(), getSQLauth());
+	   //String SQL = "select customerid, name from customers where name = 'orlando';";
+	   
+	   
+	   //Check if server is reachable
+	   if (!testServerConnection(server))
+	   {
+			error = "failed " + server + " is not reachable";
+			System.out.println(getCurentDateTime() + ": " + error);
+			returnString = error;
+			return returnString;
+	   }
+	  
+	   
+       try {
+           assert conn != null;
+           stat = conn.createStatement();
+       } catch (Exception e) {
+           System.out.println("E13" + " failed " + e.getMessage());
+       }
+       try {
+	       System.out.println(getCurentDateTime() + ": About to execute SQL query...");
+		   stat.execute(SQL);
+		   System.out.println(getCurentDateTime() + ": The SQL query was successfully executed");
+		   returnString = "The SQL query was successfully executed";
+       }
+	   catch (Exception e) 
+	   {
+		    System.out.println(getCurentDateTime() + ": Something failed at UpdateCRjobStep function"); 
+			System.out.println(e.toString());			
+            //e.printStackTrace();  
+			returnString = "Something failed at UpdateCRjobStep function: " + e.getMessage();
+       } 
+	   finally 
+	   { 
+           CustomDBConnection.closeConnection(conn);
+		   	if(returnString == null)
+			{
+				returnString = "failed";
+			}
+       }
+	  
+	  
+	   return returnString;
+	   
+	   
+    }
 	
 	@JavaScriptMethod
 	public String getCRjobStepsSQLquery(String job, String customer, String env) 
@@ -1359,6 +1470,89 @@ public class EnvDashboardView extends View {
 	   
     }
 	
+	
+	@JavaScriptMethod
+	public String getSQLserverVersion(String server, String property) {
+	
+	   System.out.println(getCurentDateTime() + ": At getSQLserverVersion function");
+	   System.out.println(server);
+	   System.out.println(property);
+
+		
+	   String returnString = null;
+	   String error = new String();
+	   	  	   
+		//Check if server is reachable
+		if (!testServerConnection(server))
+		{
+			error = "failed " + server + " is not reachable";
+			System.out.println(getCurentDateTime() + ": " + error);
+			returnString = error;
+			return returnString;
+		}
+	   
+	   
+	   Connection conn = null;
+       Statement stat = null;
+
+	   conn = CustomDBConnection.getConnection(server, "1433", "placeholderForDB", getdbUser(), getdbPassword(), getSQLauth());	   
+
+	   
+       try {
+           assert conn != null;
+           stat = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
+       } catch (Exception e) {
+           System.out.println("E13" + " failed " + e.getMessage());
+		   returnString = "E13" + " failed " + e.getMessage();
+		   return returnString;
+       }
+	   
+	   
+       try {
+	       System.out.println(getCurentDateTime() + ": About to execute SQL query...");
+           ResultSet rs = stat.executeQuery("select @@version as 'version'");
+		   
+		    int size = 0;
+			if (rs != null) 
+			{
+			  rs.last();    // moves cursor to the last row
+			  size = rs.getRow(); // get row id 
+			  if (size > 1)
+			  {
+				throw new Exception("Only one row is expected to be returned but there was more than one.");
+			  }
+			}
+			else
+			{
+				throw new Exception("No rows were returned.");
+			
+			}
+		   
+		   //Iterate through the data in the result set and display it.
+		   rs.beforeFirst();    // moves cursor to the beginning
+           while (rs.next()) {
+                System.out.println(rs.getString(property));
+				returnString = rs.getString(property);
+				
+           }
+		   
+       } catch (Exception e) {
+            System.out.println(getCurentDateTime() + ": Something failed at getSQLserverVersion function"); 
+			System.out.println(e.toString());			
+            //e.printStackTrace();  
+			returnString = "Something failed at getSQLserverVersion function.\n" + e.getMessage();			
+       } finally { 
+           CustomDBConnection.closeConnection(conn);
+		   	if(returnString == null)
+			{
+				returnString = "failed";
+			}
+       }
+	   
+	 
+	   return returnString;
+	   
+    }
 	
 	@JavaScriptMethod
 	public boolean testServerConnection(String hostname) {
