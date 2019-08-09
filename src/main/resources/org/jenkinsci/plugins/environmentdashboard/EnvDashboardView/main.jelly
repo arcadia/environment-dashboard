@@ -431,6 +431,7 @@
 						var prevBuildForFoundSHA;
 						var typeofDeployment;
 						var CRjob;
+						var CRjobstepActionType;
 						
 						//Create a proxy for EnvDashView Java object on a server side so it can later be used during AJAX calls
 						var EnvDashViewProxy;
@@ -442,7 +443,7 @@
 						
 							EnvDashViewProxy = <st:bind value="${it}"/>;
 							
-							//continue calling the below function to see if 404 error can be avoided
+							//Make dummy calls to server side using proxy so 404 error can be avoided
 							var response5;
 							var date2;
 							setInterval(function() {
@@ -468,7 +469,7 @@
 									 }
 									 
 								});
-							}, 60 * 1000); // 60 * 1000 milsec
+							}, 300 * 1000); // 5 minutes
 							
 							
 													
@@ -530,9 +531,9 @@
 											 
 											 
 
-											console.log('Processing row number ' + i);
-											console.log( index + ": " + Q( this ).attr("id") );
-											console.log( index + ": " + Q( this ).text() );
+											//console.log('Processing row number ' + i);
+											//console.log( index + ": " + Q( this ).attr("id") );
+											//console.log( index + ": " + Q( this ).text() );
 											//alert( index + ": " + Q( this ).text() );
 										 
 											  
@@ -555,13 +556,13 @@
 												
 												response4 = "";
 												
-												alert("about to pass the following values for row number " + i);
-												alert(Q("#activeServer").val());
-												alert(CRjob);
-												alert(step_id);
-												alert(step_name);
-												alert(subsystem);
-												alert(command);
+												//alert("about to pass the following values for row number " + i);
+												//alert(Q("#activeServer").val());
+												//alert(CRjob);
+												//alert(step_id);
+												//alert(step_name);
+												//alert(subsystem);
+												//alert(command);
 												
 												EnvDashViewProxy.UpdateCRjobStep(Q("#activeServer").val(),CRjob,step_id,step_name,subsystem,command,function(t) {
 													 response4 = t.responseObject();
@@ -728,11 +729,49 @@
 										{
 											// Stop form from submitting normally
 											e.preventDefault();
+											
 										    //store the changes temporarily;
-											Q('.' + Q("input[name=CRjobsteps]").filter(":checked").prop('id') + "_for_step_name_retrieval").text(Q("#stepname").val());
-											Q('.' + Q("input[name=CRjobsteps]").filter(":checked").prop('id') + "_for_command_retrieval").text(Q("#SQLscript").val());
-											Q('.' + Q("input[name=CRjobsteps]").filter(":checked").prop('id') + "_for_short_command_retrieval").text(Q("#SQLscript").val().substring(0, 14));
-											Q('.' + Q("input[name=CRjobsteps]").filter(":checked").prop('id') + "_for_subsystem_retrieval").text("TSQL");
+											if (CRjobstepActionType == "edit")
+											{
+												Q('.' + Q("input[name=CRjobsteps]").filter(":checked").prop('id') + "_for_step_name_retrieval").text(Q("#stepname").val());
+												Q('.' + Q("input[name=CRjobsteps]").filter(":checked").prop('id') + "_for_command_retrieval").text(Q("#SQLscript").val());
+												Q('.' + Q("input[name=CRjobsteps]").filter(":checked").prop('id') + "_for_short_command_retrieval").text(Q("#SQLscript").val().substring(0, 14));
+												Q('.' + Q("input[name=CRjobsteps]").filter(":checked").prop('id') + "_for_subsystem_retrieval").text("TSQL");
+											}
+											else if (CRjobstepActionType == "new")
+											{
+												
+												//Loop through CRjob steps and find the max step_id
+												var step_ids = [];
+												var next_step_id;
+												Q( "#CRjobstepsTable td" ).each(function( index ) {
+
+												  if (Q( this ).attr("id") == "step_id") 
+												  {
+													step_ids.push(Q( this ).text());
+												  }
+													
+												});
+												next_step_id = Math.max.apply(Math, step_ids) + 1;
+												
+												Q("#CRjobstepsTable tbody").append('<tr>');
+												Q("#CRjobstepsTable tbody").append('<td id="step_id" style="width: 8%;text-align:center">' + next_step_id + '</td>');
+												Q("#CRjobstepsTable tbody").append('<td id="step_name" style="width: 8%;text-align:center" class="' + next_step_id + '_for_step_name_retrieval">' + Q("#stepname").val() + '</td>');
+												Q("#CRjobstepsTable tbody").append('<td id="subsystem" style="width: 8%;text-align:center" class="' + next_step_id + '_for_subsystem_retrieval">' + "TSQL" + '</td>');
+												Q("#CRjobstepsTable tbody").append('<td id="command_substring" style="width: 8%;text-align:center" class="' + next_step_id + '_for_short_command_retrieval">' + Q("#SQLscript").val().substring(0, 14) + '...</td>');
+												//Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center;visibility:hidden"><textarea class="' + next_step_id + '_for_command_retrieval">' + element.command + '</textarea></td>');	 
+												Q("#CRjobstepsTable tbody").append('<td id="on_success_action" style="width: 8%;text-align:center">' + "quit with success" + '</td>');
+												Q("#CRjobstepsTable tbody").append('<td id="on_fail_action" style="width: 8%;text-align:center">' + "quit with failure" + '</td>');
+												Q("#CRjobstepsTable tbody").append('<td id="radioButton" style="width: 8%;text-align:center"><input type="radio" name="CRjobsteps" id="' + next_step_id + '"></input></td>');
+
+												//Q("#CRjobstepsTable tbody").append('<td>EditButton</td>');
+												//Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center"><input type="button" id="edit" value="edit"></input></td>');
+												Q("#CRjobstepsTable tbody").append('</tr>');
+
+												Q("#CRjobstepsTable").append('<textarea style="display:none;" class="' + next_step_id + '_for_command_retrieval">' + Q("#SQLscript").val() + '</textarea>');	
+																							
+											}
+											
 											Q(this).dialog("close");
 					
 										}
@@ -809,18 +848,35 @@
 							
 							Q("#edit").click(function(){
 							
+								if (Q("input:radio[name=CRjobsteps]").is(":checked"))
+								{
+									CRjobstepActionType = "edit";
+									var id = Q("input[name=CRjobsteps]").filter(":checked").prop('id');
+									
+									Q("#stepname").val(Q('.' + Q("input[name=CRjobsteps]").filter(":checked").prop('id') + "_for_step_name_retrieval").text());
+									Q("#SQLscript").val(Q('.' + Q("input[name=CRjobsteps]").filter(":checked").prop('id') + "_for_command_retrieval").text());
+									
+									Q("#dialog4").dialog("option","title",Q('.' + Q("input[name=CRjobsteps]").filter(":checked").prop('id') + "_for_step_name_retrieval").text());
+									
+									Q("#dialog4").dialog("open");
+								}
+								else
+								{
 								
-								//var id = Q("input[name=CRjobsteps]").filter(":checked").prop('id');
+									Q("#dialog3").dialog("option","title","Failure");
+									Q("#dialog3text").text("Please choose the step to edit first.");
+									Q("#dialog3").dialog("open");
 								
-								Q("#stepname").val(Q('.' + Q("input[name=CRjobsteps]").filter(":checked").prop('id') + "_for_step_name_retrieval").text());
-								Q("#SQLscript").val(Q('.' + Q("input[name=CRjobsteps]").filter(":checked").prop('id') + "_for_command_retrieval").text());
+								}
 								
-								Q("#dialog4").dialog("option","title",Q('.' + Q("input[name=CRjobsteps]").filter(":checked").prop('id') + "_for_step_name_retrieval").text());
-								
-								Q("#dialog4").dialog("open");
 							});
 							
 							
+							Q("#new").click(function(){
+								
+								CRjobstepActionType = "new";
+								Q("#dialog4").dialog("open");
+							});
 
 							
 							
@@ -1839,7 +1895,7 @@
 		<label id="commandLabel">Command:</label>
 		<br></br>
 		<input type="button" id="parse" value="Parse"></input><div class="divider"/><div class="divider"/><div class="divider"/>
-		<textarea id="SQLscript" name="SQLscript" rows="20" cols="80" placeholder="Please enter SQL script..."></textarea>
+		<textarea id="SQLscript" name="SQLscript" rows="20" cols="80" placeholder="Please enter SQL script and make sure to specify name(s) of the database(s) in the query..."></textarea>
 	</div>
 </form>
 </j:jelly>

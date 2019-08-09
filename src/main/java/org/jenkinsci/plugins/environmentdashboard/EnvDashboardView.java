@@ -940,8 +940,8 @@ public class EnvDashboardView extends View {
        try {
 	       System.out.println(getCurentDateTime() + ": About to execute SQL query...");
 		   stat.execute(SQL);
-		   System.out.println(getCurentDateTime() + ": The SQL query was successfully executed");
-		   returnString = "The SQL query was successfully executed";
+		   System.out.println(getCurentDateTime() + ": CR job was successfully updated");
+		   returnString = "CR job was successfully updated";
        }
 	   catch (Exception e) 
 	   {
