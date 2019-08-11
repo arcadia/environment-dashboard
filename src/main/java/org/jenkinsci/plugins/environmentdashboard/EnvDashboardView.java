@@ -33,6 +33,7 @@ import javax.json.JsonArray;
 
 import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
+import net.sf.json.JSONArray;
 import javax.json.JsonObjectBuilder;
 
 import org.apache.commons.lang.StringUtils;
@@ -877,38 +878,24 @@ public class EnvDashboardView extends View {
 	
 	
 	@JavaScriptMethod
-	public String UpdateCRjobStep(String server, String job_name, int step_id, String step_name, String subsystem, String command) {
+	  public String AddCRjobSteps(String server, JSONObject CRjobData) {
 	
-	   System.out.println(getCurentDateTime() + ": At UpdateCRjobStep function");
+	   System.out.println(getCurentDateTime() + ": At AddCRjobSteps function");
 	   System.out.println(getCurentDateTime() + ": Here are the arguments passed:");
 	   System.out.println(server);
-	   System.out.println(job_name);
-	   System.out.println(step_id);
-	   System.out.println(step_name);
-	   System.out.println(subsystem);
-	   System.out.println(command);
-
+	   
+	   JSONArray array = CRjobData.getJSONArray("CRjobsteps");
+		
+		String job_name = null;
+		String step_name = null;
+		String subsystem = null;
+		String command = null;
+		int on_success_action = 0;
+	  
        Connection conn = null;
        Statement stat = null;
 	   String error = new String();
 	   String returnString = null;
-	   
-
-	   //Prepare SQL statement
-	   step_name = step_name.replace("'","''");
-	   command = command.replace("'","''");
-	   
-	   
-	   String SQL = "USE msdb;\n" +
-			"EXEC dbo.sp_update_jobstep  \n" +
-			"    @job_name = N'" + job_name + "',  \n" +
-			"    @step_id = " + step_id + ",  \n" +
-			"    @step_name = N'" + step_name + "', \n" +
-			"	@subsystem = N'" + subsystem + "', \n" +
-			"	@command = N'" + command + "';";
-	   
-	   
-	   System.out.println(SQL);
 	   
 	   //conn = CustomDBConnection.getConnection("adoskara-pc2", "1433", "test", getdbUser(), getdbPassword(), getSQLauth());
 	   //String SQL = "select * from dbo.persons where name = 'john';";
@@ -938,17 +925,54 @@ public class EnvDashboardView extends View {
            System.out.println("E13" + " failed " + e.getMessage());
        }
        try {
-	       System.out.println(getCurentDateTime() + ": About to execute SQL query...");
-		   stat.execute(SQL);
+	   
+	   	   for(int i = 0 ; i < array.size(); i++)
+		   {
+		   
+				//System.out.println(array.getJSONObject(i).getString("job_name"));  
+				//System.out.println(array.getJSONObject(i).getString("step_name")); 
+				//System.out.println(array.getJSONObject(i).getString("subsystem")); 
+				//System.out.println(array.getJSONObject(i).getString("command")); 
+				//System.out.println(array.getJSONObject(i).getString("on_success_action")); 
+				
+				job_name = array.getJSONObject(i).getString("job_name");
+				step_name = array.getJSONObject(i).getString("step_name");
+				subsystem = array.getJSONObject(i).getString("subsystem");
+				command = array.getJSONObject(i).getString("command");
+				on_success_action = Integer.parseInt(array.getJSONObject(i).getString("on_success_action"));
+		   
+			   //Prepare SQL statement
+			   step_name = step_name.replace("'","''");
+			   command = command.replace("'","''");
+			   
+			   
+			   String SQL = "USE msdb;\n" +
+					"EXEC dbo.sp_add_jobstep  \n" +
+					"    @job_name = N'" + job_name + "',  \n" +
+					"    @step_name = N'" + step_name + "', \n" +
+					"	@subsystem = N'" + subsystem + "', \n" +
+					"	@command = N'" + command + "', \n" +
+					"	@on_success_action = " + on_success_action + ";";
+			   
+			   
+				System.out.println(getCurentDateTime() + ": About to execute SQL query...");
+				System.out.println(SQL);
+				
+				stat.execute(SQL);
+				
+				
+				
+		   }
+	   
 		   System.out.println(getCurentDateTime() + ": CR job was successfully updated");
 		   returnString = "CR job was successfully updated";
        }
 	   catch (Exception e) 
 	   {
-		    System.out.println(getCurentDateTime() + ": Something failed at UpdateCRjobStep function"); 
+		    System.out.println(getCurentDateTime() + ": Something failed at AddCRjobSteps function"); 
 			System.out.println(e.toString());			
             //e.printStackTrace();  
-			returnString = "Something failed at UpdateCRjobStep function: " + e.getMessage();
+			returnString = "Something failed at AddCRjobSteps function: " + e.getMessage();
        } 
 	   finally 
 	   { 
@@ -964,6 +988,93 @@ public class EnvDashboardView extends View {
 	   
 	   
     }
+	
+	
+	@JavaScriptMethod
+	public String DeleteCRjobStepsAndReset(String server, String job_name) {
+	
+	   System.out.println(getCurentDateTime() + ": At DeleteCRjobStepsAndReset function");
+	   System.out.println(getCurentDateTime() + ": Here are the arguments passed:");
+	   System.out.println(server);
+	   System.out.println(job_name);
+
+       Connection conn = null;
+       Statement stat = null;
+	   String error = new String();
+	   String returnString = null;
+	   
+
+	   //Prepare SQL statements
+	   
+	   String SQLdelete = "USE msdb;\n" +
+			"EXEC dbo.sp_delete_jobstep  \n" +
+			"    @job_name = N'" + job_name + "',  \n" +
+			"    @step_id = 0;";
+	   
+	   String SQLreset = "USE msdb;\n" +
+			"EXEC dbo.sp_update_job  \n" +
+			"    @job_name = N'" + job_name + "',  \n" +
+			"    @start_step_id = 1;";
+	   
+	   System.out.println(SQLdelete);
+	   System.out.println(SQLreset);
+	   
+	   //conn = CustomDBConnection.getConnection("adoskara-pc2", "1433", "test", getdbUser(), getdbPassword(), getSQLauth());
+	   //String SQL = "select * from dbo.persons where name = 'john';";
+	   //String SQL = "select * from dbo.persons;";
+	   
+	   conn = CustomDBConnection.getConnection(server, "1433", "placeholderForDB", getdbUser(), getdbPassword(), getSQLauth());
+	   //String SQL = "select age_range_id, age_range from dbo.age_range where age_range_id = 1;";
+	   
+	   //conn = CustomDBConnection.getConnection("mydbserver1", "1433", "tutorialdb", getdbUser(), getdbPassword(), getSQLauth());
+	   //String SQL = "select customerid, name from customers where name = 'orlando';";
+	   
+	   
+	   //Check if server is reachable
+	   if (!testServerConnection(server))
+	   {
+			error = "failed " + server + " is not reachable";
+			System.out.println(getCurentDateTime() + ": " + error);
+			returnString = error;
+			return returnString;
+	   }
+	  
+	   
+       try {
+           assert conn != null;
+           stat = conn.createStatement();
+       } catch (Exception e) {
+           System.out.println("E13" + " failed " + e.getMessage());
+       }
+       try {
+	       System.out.println(getCurentDateTime() + ": About to execute SQL queries...");
+		   stat.execute(SQLdelete);
+		   stat.execute(SQLreset);
+		   System.out.println(getCurentDateTime() + ": Successfully deleted CR job steps and performed a reset");
+		   returnString = "Successfully deleted CR job steps and performed a reset";
+       }
+	   catch (Exception e) 
+	   {
+		    System.out.println(getCurentDateTime() + ": Something failed at DeleteCRjobStepsAndReset function"); 
+			System.out.println(e.toString());			
+            //e.printStackTrace();  
+			returnString = "Something failed at DeleteCRjobStepsAndReset function: " + e.getMessage();
+       } 
+	   finally 
+	   { 
+           CustomDBConnection.closeConnection(conn);
+		   	if(returnString == null)
+			{
+				returnString = "failed";
+			}
+       }
+	  
+	  
+	   return returnString;
+	   
+	   
+    }
+
 	
 	
 	@JavaScriptMethod

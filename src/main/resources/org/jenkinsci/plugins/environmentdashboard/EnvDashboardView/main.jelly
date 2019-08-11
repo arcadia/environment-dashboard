@@ -505,70 +505,131 @@
 										// Stop form from submitting normally
 										e.preventDefault();
 										
-										//Save CR job step
-										//alert(Q("#SQLscript").val());
-										//alert(Q("#activeServer").val());
+										var response6;
 										
-										//Loop through CRjob steps and update all of the steps
-										var response4;
-										var i = 1;
-										var step_id;
-										var step_name;
-										var subsystem;
-										var command;
-										
-										 Q( "#CRjobstepsTable td" ).each(function( index ) {
-										 
-										 
-											 //var Qtd = Q(this);
-											 //Qth = Qtd.closest('tbody').find('th').eq(Qtd.index());
-											 //console.log(Qth.text());
-											 
-											 //var Qtd = Q(this);
-											 //var tdIndex = Qtd.index() + 1;
-											 //var Qth = Q('#CRjobstepsTable tr').find('th:nth-child(' + tdIndex + ')');
-											 //console.log(Qth.text());
-											 
-											 
-
-											//console.log('Processing row number ' + i);
-											//console.log( index + ": " + Q( this ).attr("id") );
-											//console.log( index + ": " + Q( this ).text() );
-											//alert( index + ": " + Q( this ).text() );
-										 
-											  
-											  
-											  if (Q( this ).attr("id") == "step_id") 
-											  {
-												step_id = Q( this ).text();
-												command = Q('.' + Q( this ).text() + "_for_command_retrieval").text();
-											  }
-											  else if (Q( this ).attr("id") == "step_name") 
-											  {
-												step_name = Q( this ).text();
-											  }
-											  else if (Q( this ).attr("id") == "subsystem") 
-											  {
-												subsystem = Q( this ).text();
-											  }
-											  else if (Q( this ).attr("id") == "radioButton")  
-											  {
+									    EnvDashViewProxy.DeleteCRjobStepsAndReset(Q("#activeServer").val(),CRjob,function(t) {
+											 response6 = t.responseObject();
+											 if (response6.indexOf("failed") == -1)
+											 {
+												//Deletion and resetting succeeded
+												Q("#dialog3").dialog("option","title","Success");
+												Q("#dialog3text").text(response6);
+												Q("#dialog3").dialog("open");
 												
-												response4 = "";
 												
-												//alert("about to pass the following values for row number " + i);
+												//Save CR job step
+												//alert(Q("#SQLscript").val());
 												//alert(Q("#activeServer").val());
-												//alert(CRjob);
-												//alert(step_id);
-												//alert(step_name);
-												//alert(subsystem);
-												//alert(command);
 												
-												EnvDashViewProxy.UpdateCRjobStep(Q("#activeServer").val(),CRjob,step_id,step_name,subsystem,command,function(t) {
+												
+											    //Loop through CRjob steps and find the max step_id
+												var step_ids = [];
+												var last_step_id;
+												
+												Q( "#CRjobstepsTable td" ).each(function( index ) {
+
+												  if (Q( this ).attr("id") == "step_id") 
+												  {
+													step_ids.push(Q( this ).text());
+												  }
+													
+												});
+												last_step_id = Math.max.apply(Math, step_ids);
+												
+												
+												//Loop through CRjob steps and update all of the steps
+												var response4;
+												var i = 1;
+												var step_id;
+												var step_name;
+												var subsystem;
+												var command;
+												var on_success_action;
+												
+												var CRjobStepsJSONobj = {
+														CRjobsteps: []
+													};
+												var JSONObjToSend;
+												
+												 Q( "#CRjobstepsTable td" ).each(function( index ) {
+												 
+												 
+													 //var Qtd = Q(this);
+													 //Qth = Qtd.closest('tbody').find('th').eq(Qtd.index());
+													 //console.log(Qth.text());
+													 
+													 //var Qtd = Q(this);
+													 //var tdIndex = Qtd.index() + 1;
+													 //var Qth = Q('#CRjobstepsTable tr').find('th:nth-child(' + tdIndex + ')');
+													 //console.log(Qth.text());
+													 
+													 
+
+													//console.log('Processing row number ' + i);
+													//console.log( index + ": " + Q( this ).attr("id") );
+													//console.log( index + ": " + Q( this ).text() );
+													//alert( index + ": " + Q( this ).text() );
+												 
+													  
+													  
+													  if (Q( this ).attr("id") == "step_id") 
+													  {
+														step_id = Q( this ).text();
+														command = Q('.' + Q( this ).text() + "_for_command_retrieval").text();
+														
+														if (step_id == last_step_id)
+														{
+															on_success_action = 1;
+														}
+														else
+														{
+															on_success_action = 3;
+														}
+														
+													  }
+													  else if (Q( this ).attr("id") == "step_name") 
+													  {
+														step_name = Q( this ).text();
+													  }
+													  else if (Q( this ).attr("id") == "subsystem") 
+													  {
+														subsystem = Q( this ).text();
+													  }
+													  else if (Q( this ).attr("id") == "radioButton")  
+													  {
+														
+														response4 = "";
+														
+														//alert("about to pass the following values for row number " + i);
+														//alert(Q("#activeServer").val());
+														//alert(CRjob);
+														//alert(step_id);
+														//alert(step_name);
+														//alert(subsystem);
+														//alert(command);
+														
+													    CRjobStepsJSONobj.CRjobsteps.push({ 
+															"job_name" : CRjob,
+															"step_name" : step_name,
+															"subsystem" : subsystem,
+															"command" : command,
+															"on_success_action" : on_success_action
+															
+														});
+														
+														i = i + 1;
+													  }
+													  
+												});
+														
+												
+												//alert(CRjobStepsJSONobj);
+
+                                                 EnvDashViewProxy.AddCRjobSteps(Q("#activeServer").val(),CRjobStepsJSONobj,function(t) {
 													 response4 = t.responseObject();
 													 if (response4.indexOf("failed") == -1)
 													 {
-														//parsing succeeded
+														//Processing CRjob steps succeeded
 														Q("#dialog3").dialog("option","title","Success");
 														Q("#dialog3text").text(response4);
 														Q("#dialog3").dialog("open");
@@ -584,14 +645,22 @@
 													 }
 													 
 												});
+														
 												
-												i = i + 1;
-											  }
-											  
+												Q("#dialog2").dialog("close");
+												
+											 
+											 }
+											 else
+											 {
+											 
+												Q("#dialog3").dialog("option","title","Failure");
+												Q("#dialog3text").text(response6);
+												Q("#dialog3").dialog("open");
+											 
+											 }
+											 
 										});
-																				
-										
-										Q(this).dialog("close");
 					
 										
 									},
@@ -744,6 +813,8 @@
 												//Loop through CRjob steps and find the max step_id
 												var step_ids = [];
 												var next_step_id;
+												var last_step_id;
+												
 												Q( "#CRjobstepsTable td" ).each(function( index ) {
 
 												  if (Q( this ).attr("id") == "step_id") 
@@ -752,7 +823,8 @@
 												  }
 													
 												});
-												next_step_id = Math.max.apply(Math, step_ids) + 1;
+												last_step_id = Math.max.apply(Math, step_ids);
+												next_step_id = last_step_id + 1;
 												
 												Q("#CRjobstepsTable tbody").append('<tr>');
 												Q("#CRjobstepsTable tbody").append('<td id="step_id" style="width: 8%;text-align:center">' + next_step_id + '</td>');
@@ -760,6 +832,8 @@
 												Q("#CRjobstepsTable tbody").append('<td id="subsystem" style="width: 8%;text-align:center" class="' + next_step_id + '_for_subsystem_retrieval">' + "TSQL" + '</td>');
 												Q("#CRjobstepsTable tbody").append('<td id="command_substring" style="width: 8%;text-align:center" class="' + next_step_id + '_for_short_command_retrieval">' + Q("#SQLscript").val().substring(0, 14) + '...</td>');
 												//Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center;visibility:hidden"><textarea class="' + next_step_id + '_for_command_retrieval">' + element.command + '</textarea></td>');	 
+												
+												Q('.' + last_step_id + "_for_on_success_action_retrieval").text("goto next step");
 												Q("#CRjobstepsTable tbody").append('<td id="on_success_action" style="width: 8%;text-align:center">' + "quit with success" + '</td>');
 												Q("#CRjobstepsTable tbody").append('<td id="on_fail_action" style="width: 8%;text-align:center">' + "quit with failure" + '</td>');
 												Q("#CRjobstepsTable tbody").append('<td id="radioButton" style="width: 8%;text-align:center"><input type="radio" name="CRjobsteps" id="' + next_step_id + '"></input></td>');
@@ -875,6 +949,8 @@
 							Q("#new").click(function(){
 								
 								CRjobstepActionType = "new";
+								Q("#stepname").val("");
+								Q("#SQLscript").val("");
 								Q("#dialog4").dialog("open");
 							});
 
@@ -988,8 +1064,8 @@
 											 Q("#CRjobstepsTable tbody").append('<td id="subsystem" style="width: 8%;text-align:center" class="' + element.step_id + '_for_subsystem_retrieval">' + element.subsystem + '</td>');
 											 Q("#CRjobstepsTable tbody").append('<td id="command_substring" style="width: 8%;text-align:center" class="' + element.step_id + '_for_short_command_retrieval">' + element.command.substring(0, 14) + '...</td>');
 											 //Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center;visibility:hidden"><textarea class="' + element.step_id + '_for_command_retrieval">' + element.command + '</textarea></td>');	 
-											 Q("#CRjobstepsTable tbody").append('<td id="on_success_action" style="width: 8%;text-align:center">' + element.on_success_action + '</td>');
-											 Q("#CRjobstepsTable tbody").append('<td id="on_fail_action" style="width: 8%;text-align:center">' + element.on_fail_action + '</td>');
+											 Q("#CRjobstepsTable tbody").append('<td id="on_success_action" style="width: 8%;text-align:center" class="' + element.step_id + '_for_on_success_action_retrieval">' + element.on_success_action + '</td>');
+											 Q("#CRjobstepsTable tbody").append('<td id="on_fail_action" style="width: 8%;text-align:center" class="' + element.step_id + '_for_on_fail_action_retrieval">' + element.on_fail_action + '</td>');
 											 Q("#CRjobstepsTable tbody").append('<td id="radioButton" style="width: 8%;text-align:center"><input type="radio" name="CRjobsteps" id="' + element.step_id + '"></input></td>');
 											 
 											 //Q("#CRjobstepsTable tbody").append('<td>EditButton</td>');
