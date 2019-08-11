@@ -946,6 +946,90 @@
 							});
 							
 							
+							
+							Q("#delete").click(function(){
+							
+								if (Q("input:radio[name=CRjobsteps]").is(":checked"))
+								{
+									CRjobstepActionType = "delete";
+									var id = Q("input[name=CRjobsteps]").filter(":checked").prop('id');
+									
+									console.log(id);
+
+									var step_id;
+									Q( "#CRjobstepsTable td" ).each(function( index ) {
+
+										  if (Q( this ).attr("id") == "step_id") 
+										  {
+											step_id = Q( this ).text();
+											
+											if (step_id == id)
+											{
+												Q( this ).remove();
+												Q('.' + Q( this ).text() + "_for_command_retrieval").remove();
+												
+											}
+
+											
+										  }
+										  else if (Q( this ).attr("id") == "step_name") 
+										  {
+											if (step_id == id)
+											{
+												Q( this ).remove();
+											}
+										  }
+										  else if (Q( this ).attr("id") == "subsystem") 
+										  {
+											if (step_id == id)
+											{
+												Q( this ).remove();
+											}
+										  }
+										  else if (Q( this ).attr("id") == "command_substring") 
+										  {
+											if (step_id == id)
+											{
+												Q( this ).remove();
+											}
+										  }
+										  else if (Q( this ).attr("id") == "on_success_action") 
+										  {
+											if (step_id == id)
+											{
+												Q( this ).remove();
+											}
+										  }
+										  else if (Q( this ).attr("id") == "on_fail_action") 
+										  {
+											if (step_id == id)
+											{
+												Q( this ).remove();
+											}
+										  }
+										  else if (Q( this ).attr("id") == "radioButton")  
+										  {
+
+											if (step_id == id)
+											{
+												Q( this ).remove();
+											}
+										  }
+									});
+									
+								}
+								else
+								{
+								
+									Q("#dialog3").dialog("option","title","Failure");
+									Q("#dialog3text").text("Please choose the step to delete first.");
+									Q("#dialog3").dialog("open");
+								
+								}
+								
+							});
+							
+							
 							Q("#new").click(function(){
 								
 								CRjobstepActionType = "new";
