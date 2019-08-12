@@ -775,70 +775,151 @@
 											// Stop form from submitting normally
 											e.preventDefault();
 											
+											var i;
+											var proceed;
+											var id;
+											var skip;
+											
 										    //store the changes temporarily;
 											if (CRjobstepActionType == "edit")
 											{
-												Q('.' + Q("input[name=CRjobsteps]").filter(":checked").prop('id') + "_for_step_name_retrieval").text(Q("#stepname").val());
-												Q('.' + Q("input[name=CRjobsteps]").filter(":checked").prop('id') + "_for_command_retrieval").text(Q("#SQLscript").val());
-												Q('.' + Q("input[name=CRjobsteps]").filter(":checked").prop('id') + "_for_short_command_retrieval").text(Q("#SQLscript").val().substring(0, 14));
-												Q('.' + Q("input[name=CRjobsteps]").filter(":checked").prop('id') + "_for_subsystem_retrieval").text("TSQL");
+											
+												i = 1;
+												proceed = true;
+												id = Q("input[name=CRjobsteps]").filter(":checked").prop('id');
+												
+												Q( "#CRjobstepsTable td" ).each(function( index ) {
+												
+												  if (Q( this ).attr("id") == "step_id") 
+											      {
+												    step_id = Q( this ).text();
+													
+													if (step_id == id)
+													{
+														skip = true;
+													}
+													else
+													{
+														skip = false;
+													}
+													
+												  }
+												  else if (Q( this ).attr("id") == "step_name") 
+												  {
+													if(!skip)
+													{
+														if (Q( this ).text() == Q("#stepname").val())
+														{
+															Q("#dialog3").dialog("option","title","Error");
+															Q("#dialog3text").text(Q("#stepname").val() + " step already exists");
+															Q("#dialog3").dialog("open");
+															proceed = false;
+															return false;
+														}
+													}
+												  }
+												  else if (Q( this ).attr("id") == "radioButton")  
+												  {
+													
+													i = i + 1;
+												  }
+													  
+												});
+												
+												if (proceed)
+												{
+													Q('.' + Q("input[name=CRjobsteps]").filter(":checked").prop('id') + "_for_step_name_retrieval").text(Q("#stepname").val());
+													Q('.' + Q("input[name=CRjobsteps]").filter(":checked").prop('id') + "_for_command_retrieval").text(Q("#SQLscript").val());
+													Q('.' + Q("input[name=CRjobsteps]").filter(":checked").prop('id') + "_for_short_command_retrieval").text(Q("#SQLscript").val().substring(0, 14));
+													Q('.' + Q("input[name=CRjobsteps]").filter(":checked").prop('id') + "_for_subsystem_retrieval").text("TSQL");
+													
+													Q(this).dialog("close");
+												}
 											}
 											else if (CRjobstepActionType == "new")
 											{
-												
-												//Loop through CRjob steps and find the max step_id
-												var step_ids = [];
-												var next_step_id;
-												var last_step_id;
-												
-												var empty = true;
+											
+											
+												i = 1;
+												proceed = true;
 												Q( "#CRjobstepsTable td" ).each(function( index ) {
 
-												  if (Q( this ).attr("id") == "step_id") 
+												  if (Q( this ).attr("id") == "step_name") 
 												  {
-													empty = false;
-													step_ids.push(Q( this ).text());
+													if (Q( this ).text() == Q("#stepname").val())
+													{
+														Q("#dialog3").dialog("option","title","Error");
+														Q("#dialog3text").text(Q("#stepname").val() + " step already exists");
+														Q("#dialog3").dialog("open");
+														proceed = false;
+														return false;
+													}
 												  }
+												  else if (Q( this ).attr("id") == "radioButton")  
+												  {
 													
+													i = i + 1;
+												  }
+													  
 												});
 												
-												if (empty)
+												if (proceed)
 												{
-													next_step_id = 1;
-												}
-												else
-												{
-													last_step_id = Math.max.apply(Math, step_ids);
-													next_step_id = last_step_id + 1;
-													Q('.' + last_step_id + "_for_on_success_action_retrieval").text("goto next step");
-												}
-												
-												
-												//console.log(last_step_id);
-												//console.log(next_step_id);
-												
-												
-												Q("#CRjobstepsTable tbody").append('<tr>');
-												Q("#CRjobstepsTable tbody").append('<td id="step_id" style="width: 8%;text-align:center">' + next_step_id + '</td>');
-												Q("#CRjobstepsTable tbody").append('<td id="step_name" style="width: 8%;text-align:center" class="' + next_step_id + '_for_step_name_retrieval">' + Q("#stepname").val() + '</td>');
-												Q("#CRjobstepsTable tbody").append('<td id="subsystem" style="width: 8%;text-align:center" class="' + next_step_id + '_for_subsystem_retrieval">' + "TSQL" + '</td>');
-												Q("#CRjobstepsTable tbody").append('<td id="command_substring" style="width: 8%;text-align:center" class="' + next_step_id + '_for_short_command_retrieval">' + Q("#SQLscript").val().substring(0, 14) + '...</td>');
-												//Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center;visibility:hidden"><textarea class="' + next_step_id + '_for_command_retrieval">' + element.command + '</textarea></td>');	 
-												
-												
-												Q("#CRjobstepsTable tbody").append('<td id="on_success_action" style="width: 8%;text-align:center" class="' + next_step_id + '_for_on_success_action_retrieval">' + "quit with success" + '</td>');
-												Q("#CRjobstepsTable tbody").append('<td id="on_fail_action" style="width: 8%;text-align:center" class="' + next_step_id + '_for_on_fail_action_retrieval">' + "quit with failure" + '</td>');
-												Q("#CRjobstepsTable tbody").append('<td id="radioButton" style="width: 8%;text-align:center"><input type="radio" name="CRjobsteps" id="' + next_step_id + '"></input></td>');
+													//Loop through CRjob steps and find the max step_id
+													var step_ids = [];
+													var next_step_id;
+													var last_step_id;
+													
+													var empty = true;
+													Q( "#CRjobstepsTable td" ).each(function( index ) {
 
-												//Q("#CRjobstepsTable tbody").append('<td>EditButton</td>');
-												//Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center"><input type="button" id="edit" value="edit"></input></td>');
-												Q("#CRjobstepsTable tbody").append('</tr>');
+													  if (Q( this ).attr("id") == "step_id") 
+													  {
+														empty = false;
+														step_ids.push(Q( this ).text());
+													  }
+														
+													});
+													
+													if (empty)
+													{
+														next_step_id = 1;
+													}
+													else
+													{
+														last_step_id = Math.max.apply(Math, step_ids);
+														next_step_id = last_step_id + 1;
+														Q('.' + last_step_id + "_for_on_success_action_retrieval").text("goto next step");
+													}
+													
+													
+													//console.log(last_step_id);
+													//console.log(next_step_id);
+													
+													
+													Q("#CRjobstepsTable tbody").append('<tr>');
+													Q("#CRjobstepsTable tbody").append('<td id="step_id" style="width: 8%;text-align:center">' + next_step_id + '</td>');
+													Q("#CRjobstepsTable tbody").append('<td id="step_name" style="width: 8%;text-align:center" class="' + next_step_id + '_for_step_name_retrieval">' + Q("#stepname").val() + '</td>');
+													Q("#CRjobstepsTable tbody").append('<td id="subsystem" style="width: 8%;text-align:center" class="' + next_step_id + '_for_subsystem_retrieval">' + "TSQL" + '</td>');
+													Q("#CRjobstepsTable tbody").append('<td id="command_substring" style="width: 8%;text-align:center" class="' + next_step_id + '_for_short_command_retrieval">' + Q("#SQLscript").val().substring(0, 14) + '...</td>');
+													//Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center;visibility:hidden"><textarea class="' + next_step_id + '_for_command_retrieval">' + element.command + '</textarea></td>');	 
+													
+													
+													Q("#CRjobstepsTable tbody").append('<td id="on_success_action" style="width: 8%;text-align:center" class="' + next_step_id + '_for_on_success_action_retrieval">' + "quit with success" + '</td>');
+													Q("#CRjobstepsTable tbody").append('<td id="on_fail_action" style="width: 8%;text-align:center" class="' + next_step_id + '_for_on_fail_action_retrieval">' + "quit with failure" + '</td>');
+													Q("#CRjobstepsTable tbody").append('<td id="radioButton" style="width: 8%;text-align:center"><input type="radio" name="CRjobsteps" id="' + next_step_id + '"></input></td>');
 
-												Q("#CRjobstepsTable").append('<textarea style="display:none;" class="' + next_step_id + '_for_command_retrieval">' + Q("#SQLscript").val() + '</textarea>');	
-																							
+													//Q("#CRjobstepsTable tbody").append('<td>EditButton</td>');
+													//Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center"><input type="button" id="edit" value="edit"></input></td>');
+													Q("#CRjobstepsTable tbody").append('</tr>');
+
+													Q("#CRjobstepsTable").append('<textarea style="display:none;" class="' + next_step_id + '_for_command_retrieval">' + Q("#SQLscript").val() + '</textarea>');	
+													
+													Q(this).dialog("close");
+												}										
 											}
 											
-											Q(this).dialog("close");
+											
 					
 										}
 									},
