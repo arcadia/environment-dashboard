@@ -808,7 +808,7 @@
 												  {
 													if(!skip)
 													{
-														if (Q( this ).text() == Q("#stepname").val())
+														if (Q( this ).text().trim() == Q("#stepname").val().trim())
 														{
 															Q("#dialog3").dialog("option","title","Error");
 															Q("#dialog3text").text(Q("#stepname").val() + " step already exists");
@@ -828,7 +828,7 @@
 												
 												if (proceed)
 												{
-													Q('.' + Q("input[name=CRjobsteps]").filter(":checked").prop('id') + "_for_step_name_retrieval").text(Q("#stepname").val());
+													Q('.' + Q("input[name=CRjobsteps]").filter(":checked").prop('id') + "_for_step_name_retrieval").text(Q("#stepname").val().trim());
 													Q('.' + Q("input[name=CRjobsteps]").filter(":checked").prop('id') + "_for_command_retrieval").text(Q("#SQLscript").val());
 													Q('.' + Q("input[name=CRjobsteps]").filter(":checked").prop('id') + "_for_short_command_retrieval").text(Q("#SQLscript").val().substring(0, 14));
 													Q('.' + Q("input[name=CRjobsteps]").filter(":checked").prop('id') + "_for_subsystem_retrieval").text("TSQL");
@@ -846,10 +846,10 @@
 
 												  if (Q( this ).attr("id") == "step_name") 
 												  {
-													if (Q( this ).text() == Q("#stepname").val())
+													if (Q( this ).text().trim() == Q("#stepname").val().trim())
 													{
 														Q("#dialog3").dialog("option","title","Error");
-														Q("#dialog3text").text(Q("#stepname").val() + " step already exists");
+														Q("#dialog3text").text(Q("#stepname").val().trim() + " step already exists");
 														Q("#dialog3").dialog("open");
 														proceed = false;
 														return false;
@@ -899,7 +899,7 @@
 													
 													Q("#CRjobstepsTable tbody").append('<tr>');
 													Q("#CRjobstepsTable tbody").append('<td id="step_id" style="width: 8%;text-align:center">' + next_step_id + '</td>');
-													Q("#CRjobstepsTable tbody").append('<td id="step_name" style="width: 8%;text-align:center" class="' + next_step_id + '_for_step_name_retrieval">' + Q("#stepname").val() + '</td>');
+													Q("#CRjobstepsTable tbody").append('<td id="step_name" style="width: 8%;text-align:center" class="' + next_step_id + '_for_step_name_retrieval">' + Q("#stepname").val().trim() + '</td>');
 													Q("#CRjobstepsTable tbody").append('<td id="subsystem" style="width: 8%;text-align:center" class="' + next_step_id + '_for_subsystem_retrieval">' + "TSQL" + '</td>');
 													Q("#CRjobstepsTable tbody").append('<td id="command_substring" style="width: 8%;text-align:center" class="' + next_step_id + '_for_short_command_retrieval">' + Q("#SQLscript").val().substring(0, 14) + '...</td>');
 													//Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center;visibility:hidden"><textarea class="' + next_step_id + '_for_command_retrieval">' + element.command + '</textarea></td>');	 
