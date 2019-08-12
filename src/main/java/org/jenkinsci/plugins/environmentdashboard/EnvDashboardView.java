@@ -878,15 +878,27 @@ public class EnvDashboardView extends View {
 	
 	
 	@JavaScriptMethod
-	  public String AddCRjobSteps(String server, JSONObject CRjobData) {
+	  public String AddCRjobSteps(String server, String job_name, JSONObject CRjobData) {
 	
 	   System.out.println(getCurentDateTime() + ": At AddCRjobSteps function");
 	   System.out.println(getCurentDateTime() + ": Here are the arguments passed:");
 	   System.out.println(server);
+	   System.out.println(job_name);
+	   
+	   //Prepare SQL statements
+	   String SQLdelete = "USE msdb;\n" +
+			"EXEC dbo.sp_delete_jobstep  \n" +
+			"    @job_name = N'" + job_name + "',  \n" +
+			"    @step_id = 0;";
+	   
+	   String SQLreset = "USE msdb;\n" +
+			"EXEC dbo.sp_update_job  \n" +
+			"    @job_name = N'" + job_name + "',  \n" +
+			"    @start_step_id = 1;";
 	   
 	   JSONArray array = CRjobData.getJSONArray("CRjobsteps");
 		
-		String job_name = null;
+		job_name = null;
 		String step_name = null;
 		String subsystem = null;
 		String command = null;
@@ -896,6 +908,11 @@ public class EnvDashboardView extends View {
        Statement stat = null;
 	   String error = new String();
 	   String returnString = null;
+	   
+	   
+	   
+	   
+	   
 	   
 	   //conn = CustomDBConnection.getConnection("adoskara-pc2", "1433", "test", getdbUser(), getdbPassword(), getSQLauth());
 	   //String SQL = "select * from dbo.persons where name = 'john';";
@@ -925,6 +942,13 @@ public class EnvDashboardView extends View {
            System.out.println("E13" + " failed " + e.getMessage());
        }
        try {
+	   
+	   	   	System.out.println(getCurentDateTime() + ": About to execute SQL queries...");
+		    System.out.println(SQLdelete);
+			System.out.println(SQLreset);
+			stat.execute(SQLdelete);
+			stat.execute(SQLreset);
+			System.out.println(getCurentDateTime() + ": Successfully deleted CR job steps and performed a reset");
 	   
 	   	   for(int i = 0 ; i < array.size(); i++)
 		   {
@@ -957,7 +981,6 @@ public class EnvDashboardView extends View {
 			   
 				System.out.println(getCurentDateTime() + ": About to execute SQL query...");
 				System.out.println(SQL);
-				
 				stat.execute(SQL);
 				
 				
@@ -988,93 +1011,6 @@ public class EnvDashboardView extends View {
 	   
 	   
     }
-	
-	
-	@JavaScriptMethod
-	public String DeleteCRjobStepsAndReset(String server, String job_name) {
-	
-	   System.out.println(getCurentDateTime() + ": At DeleteCRjobStepsAndReset function");
-	   System.out.println(getCurentDateTime() + ": Here are the arguments passed:");
-	   System.out.println(server);
-	   System.out.println(job_name);
-
-       Connection conn = null;
-       Statement stat = null;
-	   String error = new String();
-	   String returnString = null;
-	   
-
-	   //Prepare SQL statements
-	   
-	   String SQLdelete = "USE msdb;\n" +
-			"EXEC dbo.sp_delete_jobstep  \n" +
-			"    @job_name = N'" + job_name + "',  \n" +
-			"    @step_id = 0;";
-	   
-	   String SQLreset = "USE msdb;\n" +
-			"EXEC dbo.sp_update_job  \n" +
-			"    @job_name = N'" + job_name + "',  \n" +
-			"    @start_step_id = 1;";
-	   
-	   System.out.println(SQLdelete);
-	   System.out.println(SQLreset);
-	   
-	   //conn = CustomDBConnection.getConnection("adoskara-pc2", "1433", "test", getdbUser(), getdbPassword(), getSQLauth());
-	   //String SQL = "select * from dbo.persons where name = 'john';";
-	   //String SQL = "select * from dbo.persons;";
-	   
-	   conn = CustomDBConnection.getConnection(server, "1433", "placeholderForDB", getdbUser(), getdbPassword(), getSQLauth());
-	   //String SQL = "select age_range_id, age_range from dbo.age_range where age_range_id = 1;";
-	   
-	   //conn = CustomDBConnection.getConnection("mydbserver1", "1433", "tutorialdb", getdbUser(), getdbPassword(), getSQLauth());
-	   //String SQL = "select customerid, name from customers where name = 'orlando';";
-	   
-	   
-	   //Check if server is reachable
-	   if (!testServerConnection(server))
-	   {
-			error = "failed " + server + " is not reachable";
-			System.out.println(getCurentDateTime() + ": " + error);
-			returnString = error;
-			return returnString;
-	   }
-	  
-	   
-       try {
-           assert conn != null;
-           stat = conn.createStatement();
-       } catch (Exception e) {
-           System.out.println("E13" + " failed " + e.getMessage());
-       }
-       try {
-	       System.out.println(getCurentDateTime() + ": About to execute SQL queries...");
-		   stat.execute(SQLdelete);
-		   stat.execute(SQLreset);
-		   System.out.println(getCurentDateTime() + ": Successfully deleted CR job steps and performed a reset");
-		   returnString = "Successfully deleted CR job steps and performed a reset";
-       }
-	   catch (Exception e) 
-	   {
-		    System.out.println(getCurentDateTime() + ": Something failed at DeleteCRjobStepsAndReset function"); 
-			System.out.println(e.toString());			
-            //e.printStackTrace();  
-			returnString = "Something failed at DeleteCRjobStepsAndReset function: " + e.getMessage();
-       } 
-	   finally 
-	   { 
-           CustomDBConnection.closeConnection(conn);
-		   	if(returnString == null)
-			{
-				returnString = "failed";
-			}
-       }
-	  
-	  
-	   return returnString;
-	   
-	   
-    }
-
 	
 	
 	@JavaScriptMethod
