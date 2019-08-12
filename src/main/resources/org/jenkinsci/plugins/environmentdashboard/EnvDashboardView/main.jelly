@@ -1011,14 +1011,12 @@
 									
 									
 									//Re-sequence
-									
 									var i = 1;
 									Q( "#CRjobstepsTable td" ).each(function( index ) {
 
-										if (Q( this ).attr("id") == "step_id") 
+										  if (Q( this ).attr("id") == "step_id") 
 										  {
 											Q( this ).text(i);
-											
 										  }
 										  else if (Q( this ).attr("id") == "step_name") 
 										  {
@@ -1062,6 +1060,55 @@
 										Q( this ).attr("class", i + "_for_command_retrieval");
 										i = i + 1;
 										 
+									});
+									
+									
+									//Loop through CRjob steps and find the max step_id
+									var step_ids = [];
+									var last_step_id;
+
+									Q( "#CRjobstepsTable td" ).each(function( index ) {
+
+									  if (Q( this ).attr("id") == "step_id") 
+									  {
+										step_ids.push(Q( this ).text());
+									  }
+										
+									});
+									last_step_id = Math.max.apply(Math, step_ids);
+									
+									//console.log(last_step_id);
+									i = 1;
+									Q( "#CRjobstepsTable td" ).each(function( index ) {
+
+									  if (Q( this ).attr("id") == "step_id") 
+									  {
+										step_id = Q( this ).text();
+										//console.log(step_id);
+										
+									  }
+									  else if (Q( this ).attr("id") == "on_success_action") 
+									  {
+
+										//console.log('before setting the success action..');
+										//console.log(last_step_id);
+										//console.log(step_id);
+										
+										if (step_id == last_step_id)
+										{
+											Q( this ).text("quit with success");
+										}
+										else
+										{
+											Q( this ).text("goto next step");
+										}
+									  }
+									  else if (Q( this ).attr("id") == "radioButton")  
+									  {
+										
+										i = i + 1;
+									  }
+										  
 									});
 
 									
