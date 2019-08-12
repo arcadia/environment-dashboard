@@ -815,16 +815,26 @@
 												var next_step_id;
 												var last_step_id;
 												
+												var empty = true;
 												Q( "#CRjobstepsTable td" ).each(function( index ) {
 
 												  if (Q( this ).attr("id") == "step_id") 
 												  {
+													empty = false;
 													step_ids.push(Q( this ).text());
 												  }
 													
 												});
-												last_step_id = Math.max.apply(Math, step_ids);
-												next_step_id = last_step_id + 1;
+												
+												if (empty)
+												{
+													next_step_id = 1;
+												}
+												else
+												{
+													last_step_id = Math.max.apply(Math, step_ids);
+													next_step_id = last_step_id + 1;
+												}
 												
 												Q("#CRjobstepsTable tbody").append('<tr>');
 												Q("#CRjobstepsTable tbody").append('<td id="step_id" style="width: 8%;text-align:center">' + next_step_id + '</td>');
@@ -954,7 +964,7 @@
 									CRjobstepActionType = "delete";
 									var id = Q("input[name=CRjobsteps]").filter(":checked").prop('id');
 									
-									console.log(id);
+									//console.log(id);
 
 									var step_id;
 									Q( "#CRjobstepsTable td" ).each(function( index ) {
@@ -1016,6 +1026,62 @@
 											}
 										  }
 									});
+									
+									
+									//Re-sequence
+									
+									var i = 1;
+									Q( "#CRjobstepsTable td" ).each(function( index ) {
+
+										if (Q( this ).attr("id") == "step_id") 
+										  {
+											Q( this ).text(i);
+											
+										  }
+										  else if (Q( this ).attr("id") == "step_name") 
+										  {
+											Q( this ).attr("class", i + "_for_step_name_retrieval");
+										  }
+										  else if (Q( this ).attr("id") == "subsystem") 
+										  {
+											Q( this ).attr("class", i + "_for_subsystem_retrieval");
+										  }
+										  else if (Q( this ).attr("id") == "command_substring") 
+										  {
+											Q( this ).attr("class", i + "_for_short_command_retrieval");
+										  }
+										  else if (Q( this ).attr("id") == "on_success_action") 
+										  {
+											Q( this ).attr("class", i + "_for_on_success_action_retrieval");
+										  }
+										  else if (Q( this ).attr("id") == "on_fail_action") 
+										  {
+											Q( this ).attr("class", i + "_for_on_fail_action_retrieval");
+										  }
+										  else if (Q( this ).attr("id") == "radioButton")  
+										  {
+											
+											i = i + 1;
+										  }
+										  
+									});
+
+									i = 1;
+									Q( "#CRjobstepsTable input[type=radio]" ).each(function( index ) {
+
+										Q( this ).attr("id", i);
+										i = i + 1;
+										 
+									});
+
+									i = 1;
+									Q( "#CRjobstepsTable textarea" ).each(function( index ) {
+
+										Q( this ).attr("class", i + "_for_command_retrieval");
+										i = i + 1;
+										 
+									});
+
 									
 								}
 								else
