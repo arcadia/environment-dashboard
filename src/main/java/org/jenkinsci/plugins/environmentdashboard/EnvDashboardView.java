@@ -422,6 +422,7 @@ public class EnvDashboardView extends View {
                 while (rs.next()) {
                     if (orderOfComps != null) {
                         orderOfComps.add(rs.getString("compName"));
+						//System.out.println(rs.getString("compName"));
                     }
                 }
                 DBConnection.closeConnection(conn);
