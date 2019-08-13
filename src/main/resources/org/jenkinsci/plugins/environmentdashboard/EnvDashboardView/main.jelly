@@ -112,7 +112,10 @@
 														<th style="text-align:center">${column.substring(0, 1).toUpperCase() + column.substring(1)}</th>
 													</j:if>
 												</j:forEach>
-												<th style="width:8%;text-align:center">Action</th>
+												
+												<j:if test="${comp.indexOf('CRjob') == -1}"> 
+													<th style="width:8%;text-align:center">Action</th>
+												</j:if>
 												<th style="width:8%;text-align:center">Status</th>
 												<th style="text-align:center">Time</th>
 											</tbody>
@@ -134,12 +137,13 @@
 																</td>
 															</j:if>
 														</j:forEach>
+														<j:if test="${comp.indexOf('CRjob') == -1}"> 
 														<td>
 														  <code>
 															
 																<j:if test="${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1] != null}">
 	 
-																   <j:if test="${comp.indexOf('Backend') == -1}">
+																   <j:if test="${comp.indexOf('Backend') == -1 &amp;&amp; comp.indexOf('CRjob') == -1}">
 																		<j:switch on="${deployment.get('buildstatus')}">
 																			<j:case value="SUCCESS">
 																				<j:choose>
@@ -175,10 +179,13 @@
 																		
 																	</j:if> 
 																	
+
+																	
 																</j:if> 
 															 
 														 </code>
 														</td>
+														</j:if>
 														<td>
 															<j:switch on="${deployment.get('buildstatus')}">
 																<j:case value="SUCCESS">
@@ -329,7 +336,7 @@
 												<j:if test="${orderOfEnvs[orderOfEnvs.indexOf(env)+1] != null}">
 													<j:if test="${orderOfEnvs.indexOf(env) != 0}">
 											
-															<j:if test="${comps.indexOf('Backend') == -1}">
+															<j:if test="${comps.indexOf('Backend') == -1 &amp;&amp; comps.indexOf('CRjob') == -1}">
 															<j:switch on="${deployment.get('buildstatus')}">
 																<j:case value="SUCCESS">
 																	 <a title="Promote" href="javascript:showClientDepDynamicDialog('${comps}','${orderOfEnvs[orderOfEnvs.indexOf(env)+1]}','${deployment.get('buildNum')}');">Promote${it.envVars}</a>
@@ -400,7 +407,7 @@
 													</j:if>
 													
 													<!-- PROMOTE LINKS under 'Last Commit' column -->
-													<j:if test="${comps.indexOf('Backend') == -1}"> 
+													<j:if test="${comps.indexOf('Backend') == -1 &amp;&amp; comps.indexOf('CRjob') == -1}"> 
 														<div style="margin-right:30px; float:right;">
 															<j:switch on="${deployment.get('buildstatus')}">
 																<j:case value="SUCCESS">
@@ -413,6 +420,14 @@
 														</div>	
 														
 													  											
+													</j:if>
+													
+													
+													<!-- CRjob LINKS under 'Last Commit' column -->
+													<j:if test="${comps.indexOf('CRjob') != -1}"> 
+														<div style="margin-right:30px; float:right;">
+															<a href="javascript:javascript:showCRjobDynamicDialog('${comps}','${env_promote}');">Initiate at ${env_promote}</a>
+														</div>								
 													</j:if>
 												
 											</j:if>
@@ -474,7 +489,7 @@
 							
 													
 						
-							Q("#overlay, #dialog, #dialog2, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection, #envSection, #prd-env-cr-job").hide();
+							Q("#overlay, #dialog, #dialog2, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection, #envSection, #prd-env-cr-job, #kickoffDateTimeSection").hide();
 							Q("#dialog").draggable();
 							
 							Q("#dialog3").dialog({
@@ -1830,39 +1845,150 @@
 						function showClientDepDynamicDialog(comp, env, buildNum) 
 						{
 						
-							typeofDeployment = "client";
-
-							 Q("#overlay, #dialog").show();
-
-							 if (env == null)
-							 {
-							 
-								 Q("#envSection").show();
-								 Q("#dialogTitle").text("Deploying " + comp + " for " + buildNum);
+						
+							if (authorizedForPRDactions != "TBD")
+							{
+								var proceed = false;
+								if (authorizedForPRDactions == "authorized" &amp;&amp; env == "PRD")
+								{
+									proceed = true;
+								}								
+								else if (authorizedForPRDactions == "unauthorized" &amp;&amp; env == "PRD")
+								{
+									//alert('You are not authorized to access client PRD environments')
+									Q("#dialog3").dialog("option","title","Warning");
+									Q("#dialog3text").text("You are not authorized to access client PRD environments");
+									Q("#dialog3").dialog("open");
 								
+								}
+								else
+								{
+									proceed = true;
+								}
+								
+								
+								if (proceed)
+								{
+									//alert( "You are running jQuery version: " + Q.fn.jquery );
+									//alert(Q().jquery); //it is 1.7.2
+									
+									typeofDeployment = "client";
+
+									 Q("#overlay, #dialog").show();
+
+									 if (env == null)
+									 {
+									 
+										 Q("#envSection").show();
+										 Q("#dialogTitle").text("Deploying " + comp + " for " + buildNum);
+										
+									 }
+									 else
+									 {
+									 
+										if (env == "PRD")
+										{
+											Q("#PRDsection").show();
+										}
+										 
+										 //Set the html elements
+										 Q("#dialogTitle").text("Deploying " + comp + " to " + env + " for " + buildNum);
+										 Q("#environment").val(env);
+										
+									 }
+									 
+									 
+									  Q("#clientAcronym").val(comp);
+									  Q("#build_num").val(buildNum);
+									  
+									 CRjob = comp + "_Change_Request";
+									 Q("#cr-job-dep").text(CRjob);
+									 //Q("#dialog2Title").text(CRjob);
+									 Q("#dialog2").dialog("option","title",CRjob);
+									
+								}
+
+								 
 							 }
 							 else
 							 {
-							 
-							 	if (env == "PRD")
-								{
-									Q("#PRDsection").show();
-								}
-								 
-								 //Set the html elements
-								 Q("#dialogTitle").text("Deploying " + comp + " to " + env + " for " + buildNum);
-								 Q("#environment").val(env);
-								 
-							 
+								//alert('Cannot proceed due to failing to determine the user level of access')
+								Q("#dialog3").dialog("option","title","Warning");
+								Q("#dialog3text").text("Cannot proceed due to failing to determine user's level of access");
+								Q("#dialog3").dialog("open");
+								
 							 }
-							 
-							 
-							  Q("#clientAcronym").val(comp);
-							  Q("#build_num").val(buildNum);
-							 
 						
 						}
 						
+						
+						function showCRjobDynamicDialog(comp, env) 
+						{
+						
+							if (authorizedForPRDactions != "TBD")
+							{
+								var proceed = false;
+								if (authorizedForPRDactions == "authorized" &amp;&amp; env == "PRD")
+								{
+									proceed = true;
+								}								
+								else if (authorizedForPRDactions == "unauthorized" &amp;&amp; env == "PRD")
+								{
+									//alert('You are not authorized to access client PRD environments')
+									Q("#dialog3").dialog("option","title","Warning");
+									Q("#dialog3text").text("You are not authorized to access client PRD environments");
+									Q("#dialog3").dialog("open");
+								
+								}
+								else
+								{
+									proceed = true;
+								}
+								
+								
+								if (proceed)
+								{
+									//alert( "You are running jQuery version: " + Q.fn.jquery );
+									//alert(Q().jquery); //it is 1.7.2
+									
+									typeofDeployment = "CRjob";
+
+									 Q("#overlay, #dialog, #PRDsection").show();
+
+									if (env == "PRD")
+									{
+										Q("#kickoffDateTimeSection").show();
+										Q("#datetimepickerLabel").text("Change Request job kick off date and time");
+									}
+									 
+									 //Set the html elements
+									 var compSubstr = comp.substring(0, comp.indexOf(' '));
+									Q("#dialogTitle").text("Change request " + compSubstr + " to " + env);
+									Q("#clientAcronym").val(compSubstr);
+
+									CRjob = compSubstr + "_Change_Request";
+									Q("#cr-job-dep").text(CRjob);
+									//Q("#dialog2Title").text(CRjob);
+									Q("#dialog2").dialog("option","title",CRjob);
+									 
+									 
+									 Q("#environment").val(env);
+									
+								 }
+
+								 
+							 }
+							 else
+							 {
+								//alert('Cannot proceed due to failing to determine the user level of access')
+								Q("#dialog3").dialog("option","title","Warning");
+								Q("#dialog3text").text("Cannot proceed due to failing to determine user's level of access");
+								Q("#dialog3").dialog("open");
+								
+							 }
+
+						
+						}
 						
 						
 						function startDeployment(type, comp, env, version)
@@ -2139,7 +2265,10 @@
 		
 		<br></br>
 		
-		<label id="datetimepickerLabel">Deployment kick off date and time</label><div class="divider"/><input id="datetimepicker" name="datetimepicker" type="text"/>
+		<div id="kickoffDateTimeSection">
+		<label id="datetimepickerLabel">Placeholder for type of request</label><div class="divider"/><input id="datetimepicker" name="datetimepicker" type="text"/>
+		</div>
+		
 	</div>
 	
 	<input type="hidden" id="clientAcronym" value=""/>
