@@ -986,6 +986,12 @@
 										//Perform backend deployment		
 										startDeployment("backend",Q("#clientAcronym").val(),Q("#environment").val(),Q("#core_version").val());
 									}
+									else if (typeofDeployment == "CRjob")
+									{
+										//Initiate CR job
+										startDeployment("CRjob",Q("#clientAcronym").val(),Q("#environment").val(),"NA")
+
+									}
 									else
 									{
 										//alert("something went wrong");
@@ -2003,10 +2009,14 @@
 								baseUrl = "/job/Client_Deploy";
 								
 							}
-							else
+							else if (type == "backend")
 							{
 								baseUrl = "/job/Backend_Deploy";
-								
+							}
+							else
+							{
+								baseUrl = "/job/CR_Job";
+							
 							}
 							
 							var buildUrl = "";							
@@ -2025,7 +2035,6 @@
 							buildUrl = baseUrl + "/buildWithParameters?" +
 										"Client=" + comp + 
 										"&amp;Env=" + env + 
-										"&amp;NoRollback=" + DoNotPerformRollback +
 										"&amp;StartCRjob=" + StartCRjob +
 										"&amp;StartNJ=" + StartNJ +
 										"&amp;NJstartStep=" + nightly_job_start_step +
@@ -2035,15 +2044,18 @@
 							if (type == "client")
 							{
 								buildUrl = buildUrl + 
-										"&amp;SourceBuildID=" + version;
+										"&amp;SourceBuildID=" + version +
+										"&amp;NoRollback=" + DoNotPerformRollback;
 								
 							}
-							else
+							else if (type == "backend")
 							{
 								buildUrl = buildUrl +
 										"&amp;CoreVersion=" + version +
-										"&amp;ClientRevision=" + Q("#ClientRevision").val().trim();
+										"&amp;ClientRevision=" + Q("#ClientRevision").val().trim() +
+										"&amp;NoRollback=" + DoNotPerformRollback;
 							}
+
 							
 							
 							//debug the URL
