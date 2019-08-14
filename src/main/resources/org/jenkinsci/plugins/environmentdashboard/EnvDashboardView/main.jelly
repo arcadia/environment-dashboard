@@ -1622,14 +1622,14 @@
 							
 							if (typeOfAction == "close")
 							{
-								Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection, #envSection, #prd-env-cr-job").hide();
+								Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection, #envSection, #prd-env-cr-job, #kickoffDateTimeSection").hide();
 								Q("#buildNumber").val("");
 								Q("#core_version").val("");
 								Q("#build_num").val("");
 							}
 							else
 							{
-								Q("#ClientRevisionSection, #njstartstepSection, #prd-env, #prd-env-cr-job").hide();
+								Q("#ClientRevisionSection, #njstartstepSection, #prd-env, #prd-env-cr-job, #kickoffDateTimeSection").hide();
 								
 								if (typeofDeployment == "backend")
 								{
@@ -1765,14 +1765,19 @@
 									typeofDeployment = "backend";
 									
 									 Q("#overlay, #dialog").show();
+									 Q("#startCRjobSection, #noRollbackSection").show();	
+									 Q("#PRDsection").show();
+									 
+									 Q("#startnjlabel").text(" Start nightly job upon successful execution of deployment and/or change request job");
 									 
 									 if (env != "DEV")
 									 {
 										Q("#non-dev-env").show();
 										
-										if (env == "PRD" &amp;&amp; authorizedForPRDactions == "authorized") 
-										{
-											Q("#PRDsection").show();
+										if (env == "PRD") 
+										{		
+											Q("#kickoffDateTimeSection").show();
+											Q("#datetimepickerLabel").text("Deployment kick off date and time");
 										}
 
 									 }
@@ -1822,15 +1827,21 @@
 						
 						function CheckEnvDecision()
 						{
+							Q("#PRDsection").show(500);
+							Q("#startCRjobSection, #noRollbackSection").show();
+							
 							if (Q("#EnvDecision").val() == "PRD")
 							{
-								Q("#PRDsection").show(500);
+							   Q("#kickoffDateTimeSection").show();
+							   Q("#datetimepickerLabel").text("Deployment kick off date and time");	
 								
 							}
 							else
 							{
-								Q("#PRDsection").hide(500);
+								Q("#kickoffDateTimeSection").hide();
+							
 							}
+
 							
 							Q("#environment").val(Q("#EnvDecision").val());
 						}
@@ -1879,9 +1890,10 @@
 									//alert(Q().jquery); //it is 1.7.2
 									
 									typeofDeployment = "client";
+									Q("#overlay, #dialog").show();
 
-									 Q("#overlay, #dialog").show();
-
+									Q("#startnjlabel").text(" Start nightly job upon successful execution of deployment and/or change request job");
+									
 									 if (env == null)
 									 {
 									 
@@ -1892,14 +1904,19 @@
 									 else
 									 {
 									 
+										Q("#PRDsection").show();
+									    Q("#startCRjobSection, #noRollbackSection").show();
+										
 										if (env == "PRD")
 										{
-											Q("#PRDsection").show();
+											Q("#kickoffDateTimeSection").show();
+											Q("#datetimepickerLabel").text("Deployment kick off date and time");	
 										}
 										 
 										 //Set the html elements
 										 Q("#dialogTitle").text("Deploying " + comp + " to " + env + " for " + buildNum);
 										 Q("#environment").val(env);
+										 
 										
 									 }
 									 
@@ -1960,7 +1977,11 @@
 									typeofDeployment = "CRjob";
 
 									 Q("#overlay, #dialog, #PRDsection").show();
+									 Q("#startCRjobSection, #noRollbackSection").hide();
+									 Q("#prd-env-cr-job").show();
 
+									 Q("#startnjlabel").text(" Start nightly job upon successful execution of change request job");
+									 
 									if (env == "PRD")
 									{
 										Q("#kickoffDateTimeSection").show();
@@ -2035,7 +2056,6 @@
 							buildUrl = baseUrl + "/buildWithParameters?" +
 										"Client=" + comp + 
 										"&amp;Env=" + env + 
-										"&amp;StartCRjob=" + StartCRjob +
 										"&amp;StartNJ=" + StartNJ +
 										"&amp;NJstartStep=" + nightly_job_start_step +
 										"&amp;JiraTicket=" + Q("#jiraticket").val().trim().replace(/['"]+/g, '') +
@@ -2045,7 +2065,8 @@
 							{
 								buildUrl = buildUrl + 
 										"&amp;SourceBuildID=" + version +
-										"&amp;NoRollback=" + DoNotPerformRollback;
+										"&amp;NoRollback=" + DoNotPerformRollback +
+										"&amp;StartCRjob=" + StartCRjob;
 								
 							}
 							else if (type == "backend")
@@ -2053,7 +2074,8 @@
 								buildUrl = buildUrl +
 										"&amp;CoreVersion=" + version +
 										"&amp;ClientRevision=" + Q("#ClientRevision").val().trim() +
-										"&amp;NoRollback=" + DoNotPerformRollback;
+										"&amp;NoRollback=" + DoNotPerformRollback +
+										"&amp;StartCRjob=" + StartCRjob;
 							}
 
 							
@@ -2250,8 +2272,11 @@
 	<br></br>
 
 	<div id="PRDsection">
+	
+		<div id="startCRjobSection">
 		<input type="checkbox" id="startcrjob"></input>
 		<label for="startcrjob"> Start change request job upon successful deployment</label><br></br>
+		</div>
 		
 		<div id="prd-env-cr-job" style="text-align: left">
 			<label id="CRjobPrompt">  Please provide details for </label><label id="cr-job-dep">Placeholder for CR Job Dep Name</label><label id="CRjobPrompt2"> by clicking Properties button</label><div class="divider"/><input type="button" id="properties" value="Properties"></input>
@@ -2259,7 +2284,7 @@
 		</div>
 		
 		<input type="checkbox" id="startnj"></input>
-		<label for="startnj"> Start nightly job upon successful execution of deployment and/or change request job</label><br></br>
+		<label id="startnjlabel" for="startnj"> Placeholder for previous activities</label><br></br>
 		
 
 		<div id="prd-env" style="text-align: left">
@@ -2294,10 +2319,10 @@
 	<br></br>
 	<br></br>
 	
-	
+	<div id="noRollbackSection">
 	<input type="checkbox" id="norollback"></input>
 	<label for="norollback"> Do not perform auto-rollback upon failed deployment</label>
-	
+	</div>
 	
 	<br></br>
 	
