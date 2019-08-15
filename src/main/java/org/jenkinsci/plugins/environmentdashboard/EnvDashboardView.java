@@ -1141,138 +1141,179 @@ public class EnvDashboardView extends View {
 	   
        try 
 	   {
-	       System.out.println(getCurentDateTime() + ": About to execute SQL query for retrieving CR job steps...");
-           ResultSet rs = stat.executeQuery(SQL);
-		   
-		   //Iterate through the data in the result set and display it.
+	   
 		   JsonArrayBuilder jarr = Json.createArrayBuilder();
-		   
-           while (rs.next()) {
-				
-				String failAction = rs.getString("on_fail_action");
-				String cleanedUpFailAction = failAction.substring(failAction.indexOf("(")+1,failAction.indexOf(")"));
-				
-				String successAction = rs.getString("on_success_action");
-				String cleanedUpSuccessAction = successAction.substring(successAction.indexOf("(")+1,successAction.indexOf(")"));
-				
-                System.out.println(rs.getString("step_id") + " " + rs.getString("step_name") + " " + cleanedUpSuccessAction + " " + cleanedUpFailAction);
-				//CRjobSteps += rs.getString("step_id") + " " + rs.getString("step_name") + " " + cleanedUpFailAction + "\n";
-				
-				//System.out.println(rs.getString("age_range_id") + " " + rs.getString("age_range"));
-				//CRjobSteps = rs.getString("age_range_id") + " " + rs.getString("age_range");
-				
-				//System.out.println(rs.getString("customerid") + " " + rs.getString("name"));
-				//CRjobSteps = rs.getString("customerid") + " " + rs.getString("name");
-				
-				jarr.add(Json.createObjectBuilder()
-					  .add("step_id", rs.getString("step_id"))
-					  .add("step_name", rs.getString("step_name"))
-					  .add("subsystem", rs.getString("subsystem"))
-					  .add("command", rs.getString("command"))
-					  .add("on_success_action", cleanedUpSuccessAction)
-					  .add("on_fail_action", cleanedUpFailAction)
-				  .build());
-           }
-		   
-		   JsonArray arr = jarr.build();
-		   JsonObject joSteps = Json.createObjectBuilder().add("steps", arr).build();
-		   System.out.println(joSteps);
-			
-			
-			//Let's append job info itself
-			//SQL = "EXEC dbo.sp_help_job @job_name = N'" + job + "',  @job_aspect = N'job';";
-			SQL = "use msdb; EXEC dbo.sp_help_job @job_name = N'" + job + "',  @job_aspect = N'job';";
-			System.out.println(getCurentDateTime() + ": About to execute SQL query for retriving CR job status info...");
-            rs = stat.executeQuery(SQL);
-			
-			while (rs.next()) {
-			
-				String mappedLastRunOutcome = null;
-				switch (rs.getInt("last_run_outcome")) {
-				  case 0:
-					mappedLastRunOutcome = "Failed";
-					break;
-				  case 1:
-					mappedLastRunOutcome = "Succeeded";
-					break;
-				  case 3:
-					mappedLastRunOutcome = "Canceled";
-					break;
-				  case 5:
-					mappedLastRunOutcome = "Unknown";
-					break;
-				  default:
-					mappedLastRunOutcome = "Undetermined";	
-				}
-				
-				
-			    String mappedCurrentExecutionStatus = null;
-				switch (rs.getInt("current_execution_status")) {
-				  case 1:
-					mappedCurrentExecutionStatus = "Executing";
-					break;
-				  case 2:
-					mappedCurrentExecutionStatus = "Waiting for thread";
-					break;
-				  case 3:
-					mappedCurrentExecutionStatus = "Between retries";
-					break;
-				  case 4:
-					mappedCurrentExecutionStatus = "Idle";
-					break;
-				  case 5:
-					mappedCurrentExecutionStatus = "Suspended";
-					break;
-		          case 7:
-					mappedCurrentExecutionStatus = "Performing completion actions";
-					break;
-				  default:
-					mappedCurrentExecutionStatus = "Undetermined";	
-				}
-				
-			
-                System.out.println(rs.getString("start_step_id") + " " + rs.getString("date_modified") + " " + rs.getString("last_run_date") + " " + rs.getString("last_run_time") + " " + mappedLastRunOutcome + " " + mappedCurrentExecutionStatus + " " + rs.getString("current_execution_step"));
-				//CRjobInfo += rs.getString("start_step_id") + " " + rs.getString("date_modified") + " " + rs.getString("last_run_date") + "\n";
-				
-				//System.out.println(rs.getString("age_range_id") + " " + rs.getString("age_range"));
-				//CRjobInfo = rs.getString("age_range_id") + " " + rs.getString("age_range");
-				
-				//System.out.println(rs.getString("customerid") + " " + rs.getString("name"));
-				//CRjobInfo = rs.getString("customerid") + " " + rs.getString("name");
-				
-				jarr.add(Json.createObjectBuilder()
-					  .add("start_step_id", rs.getString("start_step_id"))
-					  .add("date_modified", rs.getString("date_modified"))
-					  .add("last_run_date", rs.getString("last_run_date"))
-					  .add("last_run_time", rs.getString("last_run_time"))
-					  .add("last_run_outcome", mappedLastRunOutcome)
-					  .add("current_execution_status", mappedCurrentExecutionStatus)
-					  .add("current_execution_step", rs.getString("current_execution_step"))
-					  .add("activeDB", activeDB)
-					  .add("activeServer", activeServer)
-				  .build());
-           }
-		   
-		   arr = jarr.build();
-		   JsonObject joInfo = Json.createObjectBuilder().add("info", arr).build();
-		   System.out.println(joInfo);
-			
-			//Combine two json objects
-		   JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
-
-			for (String key : joSteps.keySet()) {
-				jsonObjectBuilder.add(key, joSteps.get(key));
-			}
-			for (String key : joInfo.keySet()) {
-				jsonObjectBuilder.add(key, joInfo.get(key));
-			}
-			 
-			JsonObject combinedStepsAndInfo = jsonObjectBuilder.build();
-			System.out.println(combinedStepsAndInfo);
-			
-			
+		   JsonArray arr = null;
+		   JsonObject joSteps = null;
+		   JsonObject joInfo = null;
 		
-		    returnString = combinedStepsAndInfo.toString();
+		   String retrievedJob = null;
+
+			//Check if the NJ Start exists
+			System.out.println(getCurentDateTime() + ": Check if " + job + " exists...");
+			ResultSet rs = stat.executeQuery("use msdb; SELECT name FROM dbo.sysjobs WHERE name = '" + job + "'");
+			retrievedJob = null;
+			while (rs.next())
+			{
+				System.out.println(rs.getString("name"));
+				retrievedJob = rs.getString("name");
+			}
+
+			if (retrievedJob == null || retrievedJob.isEmpty())
+			{
+				System.out.println(getCurentDateTime() + ": " + job + " doesn't exist");
+				  jarr.add(Json.createObjectBuilder()
+						  .add("name", "doesnotexist")
+					  .build());
+					  
+				arr = jarr.build();
+			    joInfo = Json.createObjectBuilder().add("info", arr).build();
+			    System.out.println(joInfo);
+			   
+			    returnString = joInfo.toString();	
+			}
+			else
+			{
+				System.out.println(getCurentDateTime() + ": " + job + " exists");
+				
+				System.out.println(getCurentDateTime() + ": About to execute SQL query for retrieving CR job steps...");
+			   rs = stat.executeQuery(SQL);
+			   
+			   //Iterate through the data in the result set and display it.
+			   
+			   while (rs.next()) {
+					
+					String failAction = rs.getString("on_fail_action");
+					String cleanedUpFailAction = failAction.substring(failAction.indexOf("(")+1,failAction.indexOf(")"));
+					
+					String successAction = rs.getString("on_success_action");
+					String cleanedUpSuccessAction = successAction.substring(successAction.indexOf("(")+1,successAction.indexOf(")"));
+					
+					System.out.println(rs.getString("step_id") + " " + rs.getString("step_name") + " " + cleanedUpSuccessAction + " " + cleanedUpFailAction);
+					//CRjobSteps += rs.getString("step_id") + " " + rs.getString("step_name") + " " + cleanedUpFailAction + "\n";
+					
+					//System.out.println(rs.getString("age_range_id") + " " + rs.getString("age_range"));
+					//CRjobSteps = rs.getString("age_range_id") + " " + rs.getString("age_range");
+					
+					//System.out.println(rs.getString("customerid") + " " + rs.getString("name"));
+					//CRjobSteps = rs.getString("customerid") + " " + rs.getString("name");
+					
+					jarr.add(Json.createObjectBuilder()
+						  .add("step_id", rs.getString("step_id"))
+						  .add("step_name", rs.getString("step_name"))
+						  .add("subsystem", rs.getString("subsystem"))
+						  .add("command", rs.getString("command"))
+						  .add("on_success_action", cleanedUpSuccessAction)
+						  .add("on_fail_action", cleanedUpFailAction)
+					  .build());
+			   }
+			   
+			   arr = jarr.build();
+			   joSteps = Json.createObjectBuilder().add("steps", arr).build();
+			   //System.out.println(joSteps);
+				
+				
+				//Let's append job info itself
+				//SQL = "EXEC dbo.sp_help_job @job_name = N'" + job + "',  @job_aspect = N'job';";
+				SQL = "use msdb; EXEC dbo.sp_help_job @job_name = N'" + job + "',  @job_aspect = N'job';";
+				System.out.println(getCurentDateTime() + ": About to execute SQL query for retriving CR job status info...");
+				rs = stat.executeQuery(SQL);
+				
+				while (rs.next()) {
+				
+					String mappedLastRunOutcome = null;
+					switch (rs.getInt("last_run_outcome")) {
+					  case 0:
+						mappedLastRunOutcome = "Failed";
+						break;
+					  case 1:
+						mappedLastRunOutcome = "Succeeded";
+						break;
+					  case 3:
+						mappedLastRunOutcome = "Canceled";
+						break;
+					  case 5:
+						mappedLastRunOutcome = "Unknown";
+						break;
+					  default:
+						mappedLastRunOutcome = "Undetermined";	
+					}
+					
+					
+					String mappedCurrentExecutionStatus = null;
+					switch (rs.getInt("current_execution_status")) {
+					  case 1:
+						mappedCurrentExecutionStatus = "Executing";
+						break;
+					  case 2:
+						mappedCurrentExecutionStatus = "Waiting for thread";
+						break;
+					  case 3:
+						mappedCurrentExecutionStatus = "Between retries";
+						break;
+					  case 4:
+						mappedCurrentExecutionStatus = "Idle";
+						break;
+					  case 5:
+						mappedCurrentExecutionStatus = "Suspended";
+						break;
+					  case 7:
+						mappedCurrentExecutionStatus = "Performing completion actions";
+						break;
+					  default:
+						mappedCurrentExecutionStatus = "Undetermined";	
+					}
+					
+				
+					System.out.println(rs.getString("start_step_id") + " " + rs.getString("date_modified") + " " + rs.getString("last_run_date") + " " + rs.getString("last_run_time") + " " + mappedLastRunOutcome + " " + mappedCurrentExecutionStatus + " " + rs.getString("current_execution_step"));
+					//CRjobInfo += rs.getString("start_step_id") + " " + rs.getString("date_modified") + " " + rs.getString("last_run_date") + "\n";
+					
+					//System.out.println(rs.getString("age_range_id") + " " + rs.getString("age_range"));
+					//CRjobInfo = rs.getString("age_range_id") + " " + rs.getString("age_range");
+					
+					//System.out.println(rs.getString("customerid") + " " + rs.getString("name"));
+					//CRjobInfo = rs.getString("customerid") + " " + rs.getString("name");
+					
+					jarr.add(Json.createObjectBuilder()
+						  .add("name", "exists")
+						  .add("start_step_id", rs.getString("start_step_id"))
+						  .add("date_modified", rs.getString("date_modified"))
+						  .add("last_run_date", rs.getString("last_run_date"))
+						  .add("last_run_time", rs.getString("last_run_time"))
+						  .add("last_run_outcome", mappedLastRunOutcome)
+						  .add("current_execution_status", mappedCurrentExecutionStatus)
+						  .add("current_execution_step", rs.getString("current_execution_step"))
+						  .add("activeDB", activeDB)
+						  .add("activeServer", activeServer)
+					  .build());
+			   }
+			   
+			   arr = jarr.build();
+			   joInfo = Json.createObjectBuilder().add("info", arr).build();
+			   //System.out.println(joInfo);
+				
+				//Combine two json objects
+			   JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
+
+				for (String key : joSteps.keySet()) {
+					jsonObjectBuilder.add(key, joSteps.get(key));
+				}
+				for (String key : joInfo.keySet()) {
+					jsonObjectBuilder.add(key, joInfo.get(key));
+				}
+				 
+				JsonObject combinedStepsAndInfo = jsonObjectBuilder.build();
+				System.out.println(combinedStepsAndInfo);
+				
+				
+			
+				returnString = combinedStepsAndInfo.toString();
+				
+				
+				
+			}
+	   
+	   
 		   
        } 
 	   catch (Exception e) 

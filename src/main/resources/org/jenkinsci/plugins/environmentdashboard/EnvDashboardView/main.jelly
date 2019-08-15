@@ -452,7 +452,8 @@
 						var EnvDashViewProxy;
 						
 						var authorizedForPRDactions = "TBD";
-						var NJexistence = false;
+						
+
 						
 						//Hide the dynamic dialog initially after the page loads					
 						Q(document).ready(function(){
@@ -1308,65 +1309,107 @@
 										 Q("#CRjobstepsTable td").remove();
 										 Q("#CRjobstepsTable textarea").remove();
 										 
+										 
+										var CRjobExistence = false;
+										var CRjobIdleStatus = false;
+										 
 										 Q.each(stepsjobject.info, function(index, element){
-											//alert(element.start_step_id); 
-											//alert(element.date_modified); 
-											//alert(element.last_run_date); 
-											//alert(element.last_run_time); 
-											//alert(element.last_run_outcome); 
-											//alert(element.current_execution_status); 
-											//alert(element.current_execution_step); 
+										 
+										 
+											console.log(element.name);
+											if (element.name == "exists")
+											{
+												CRjobExistence = true;
+												
+												
+												//alert(element.start_step_id); 
+												//alert(element.date_modified); 
+												//alert(element.last_run_date); 
+												//alert(element.last_run_time); 
+												//alert(element.last_run_outcome); 
+												//alert(element.current_execution_status); 
+												//alert(element.current_execution_step); 
+												
+												console.log(element.current_execution_status);
+												if (element.current_execution_status == "Idle")
+												{
+													 CRjobIdleStatus = true;
+													 Q("#CRjobinfoTable tbody").append('<tr>');
+													 Q("#CRjobinfoTable tbody").append('<td style="width: 8%;text-align:center">' + element.start_step_id + '</td>');
+													 Q("#CRjobinfoTable tbody").append('<td style="width: 8%;text-align:center">' + element.date_modified + '</td>');
+													 Q("#CRjobinfoTable tbody").append('<td style="width: 8%;text-align:center">' + element.last_run_date + '</td>');
+													 Q("#CRjobinfoTable tbody").append('<td style="width: 8%;text-align:center">' + element.last_run_time + '</td>');
+													 Q("#CRjobinfoTable tbody").append('<td style="width: 8%;text-align:center">' + element.last_run_outcome + '</td>');
+													 Q("#CRjobinfoTable tbody").append('<td style="width: 8%;text-align:center">' + element.current_execution_status + '</td>');
+													 Q("#CRjobinfoTable tbody").append('<td style="width: 8%;text-align:center">' + element.current_execution_step + '</td>');
+													 Q("#CRjobinfoTable tbody").append('</tr>');
+													 
+													 Q("#activeDB").val(element.activeDB);
+													 Q("#activeServer").val(element.activeServer);
+												 }
+												 else
+												 {
+													
+												 	Q("#dialog3").dialog("option","title","Error");
+													Q("#dialog3text").text(CRjob + " is not idle at the moment");
+													Q("#dialog3").dialog("open");
+												 
+												 }
+
+
+											}
+											else
+											{
+												Q("#dialog3").dialog("option","title","Error");
+												Q("#dialog3text").text(CRjob + " does not exist");
+												Q("#dialog3").dialog("open");	
 											
-											 Q("#CRjobinfoTable tbody").append('<tr>');
-											 Q("#CRjobinfoTable tbody").append('<td style="width: 8%;text-align:center">' + element.start_step_id + '</td>');
-											 Q("#CRjobinfoTable tbody").append('<td style="width: 8%;text-align:center">' + element.date_modified + '</td>');
-											 Q("#CRjobinfoTable tbody").append('<td style="width: 8%;text-align:center">' + element.last_run_date + '</td>');
-											 Q("#CRjobinfoTable tbody").append('<td style="width: 8%;text-align:center">' + element.last_run_time + '</td>');
-											 Q("#CRjobinfoTable tbody").append('<td style="width: 8%;text-align:center">' + element.last_run_outcome + '</td>');
-											 Q("#CRjobinfoTable tbody").append('<td style="width: 8%;text-align:center">' + element.current_execution_status + '</td>');
-											 Q("#CRjobinfoTable tbody").append('<td style="width: 8%;text-align:center">' + element.current_execution_step + '</td>');
-											 Q("#CRjobinfoTable tbody").append('</tr>');
-											 
-											 Q("#activeDB").val(element.activeDB);
-											 Q("#activeServer").val(element.activeServer);
-											 
+											}
+											
+											
+											
 											 
 										 });
 										 
-										 Q.each(stepsjobject.steps, function(index, element){
-											//alert(element.step_id); 
-											//alert(element.step_name); 
-											//alert(element.on_fail_action); 
-											
-											 Q("#CRjobstepsTable tbody").append('<tr>');
-											 Q("#CRjobstepsTable tbody").append('<td id="step_id" style="width: 8%;text-align:center">' + element.step_id + '</td>');
-											 Q("#CRjobstepsTable tbody").append('<td id="step_name" style="width: 8%;text-align:center" class="' + element.step_id + '_for_step_name_retrieval">' + element.step_name + '</td>');
-											 Q("#CRjobstepsTable tbody").append('<td id="subsystem" style="width: 8%;text-align:center" class="' + element.step_id + '_for_subsystem_retrieval">' + element.subsystem + '</td>');
-											 Q("#CRjobstepsTable tbody").append('<td id="command_substring" style="width: 8%;text-align:center" class="' + element.step_id + '_for_short_command_retrieval">' + element.command.substring(0, 14) + '...</td>');
-											 //Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center;visibility:hidden"><textarea class="' + element.step_id + '_for_command_retrieval">' + element.command + '</textarea></td>');	 
-											 Q("#CRjobstepsTable tbody").append('<td id="on_success_action" style="width: 8%;text-align:center" class="' + element.step_id + '_for_on_success_action_retrieval">' + element.on_success_action + '</td>');
-											 Q("#CRjobstepsTable tbody").append('<td id="on_fail_action" style="width: 8%;text-align:center" class="' + element.step_id + '_for_on_fail_action_retrieval">' + element.on_fail_action + '</td>');
-											 Q("#CRjobstepsTable tbody").append('<td id="radioButton" style="width: 8%;text-align:center"><input type="radio" name="CRjobsteps" id="' + element.step_id + '"></input></td>');
-											 
-											 //Q("#CRjobstepsTable tbody").append('<td>EditButton</td>');
-											 //Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center"><input type="button" id="edit" value="edit"></input></td>');
-											 Q("#CRjobstepsTable tbody").append('</tr>');
-											 
-											 Q("#CRjobstepsTable").append('<textarea style="display:none;" class="' + element.step_id + '_for_command_retrieval">' + element.command + '</textarea>');	 
-											 
-										 });
 										 
-										 
-										 
+										 if (CRjobIdleStatus)
+										 {
+											 Q.each(stepsjobject.steps, function(index, element){
+												//alert(element.step_id); 
+												//alert(element.step_name); 
+												//alert(element.on_fail_action); 
+												
+												 Q("#CRjobstepsTable tbody").append('<tr>');
+												 Q("#CRjobstepsTable tbody").append('<td id="step_id" style="width: 8%;text-align:center">' + element.step_id + '</td>');
+												 Q("#CRjobstepsTable tbody").append('<td id="step_name" style="width: 8%;text-align:center" class="' + element.step_id + '_for_step_name_retrieval">' + element.step_name + '</td>');
+												 Q("#CRjobstepsTable tbody").append('<td id="subsystem" style="width: 8%;text-align:center" class="' + element.step_id + '_for_subsystem_retrieval">' + element.subsystem + '</td>');
+												 Q("#CRjobstepsTable tbody").append('<td id="command_substring" style="width: 8%;text-align:center" class="' + element.step_id + '_for_short_command_retrieval">' + element.command.substring(0, 14) + '...</td>');
+												 //Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center;visibility:hidden"><textarea class="' + element.step_id + '_for_command_retrieval">' + element.command + '</textarea></td>');	 
+												 Q("#CRjobstepsTable tbody").append('<td id="on_success_action" style="width: 8%;text-align:center" class="' + element.step_id + '_for_on_success_action_retrieval">' + element.on_success_action + '</td>');
+												 Q("#CRjobstepsTable tbody").append('<td id="on_fail_action" style="width: 8%;text-align:center" class="' + element.step_id + '_for_on_fail_action_retrieval">' + element.on_fail_action + '</td>');
+												 Q("#CRjobstepsTable tbody").append('<td id="radioButton" style="width: 8%;text-align:center"><input type="radio" name="CRjobsteps" id="' + element.step_id + '"></input></td>');
+												 
+												 //Q("#CRjobstepsTable tbody").append('<td>EditButton</td>');
+												 //Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center"><input type="button" id="edit" value="edit"></input></td>');
+												 Q("#CRjobstepsTable tbody").append('</tr>');
+												 
+												 Q("#CRjobstepsTable").append('<textarea style="display:none;" class="' + element.step_id + '_for_command_retrieval">' + element.command + '</textarea>');	 
+												 
+											 });
+											 
+											 
+											//alert("Finished populating the table");
+											 
+											 //Present CR job details
+											 Q("#dialog2").dialog("open");
+											 //Q("#CRjobsteps").show();
+											 Q("#CRjobinfoTable, #CRjobstepsTable").show();
+											 
+
+										 }
 
 										 
-										//alert("Finished populating the table");
 										 
-										 //Present CR job details
-										 Q("#dialog2").dialog("open");
-										 //Q("#CRjobsteps").show();
-										 Q("#CRjobinfoTable, #CRjobstepsTable").show();
-										
 										
 									 }
 									 else
@@ -1422,14 +1465,17 @@
 							
 							
 
-							
+							/*
 							Q("#njstartstep").focus(function (){
-								if (NJexistence)
+								if (NJexistence == true)
 								{
 									Q("#njstartstep").autocomplete( "search", "" );
+									//re-initialize;
+									NJexistence = false;
 								}
 							});
-
+							*/
+							
 							
 							Q("input[name=clientBuilds]").change(function(){
 								
@@ -1974,6 +2020,7 @@
 									 
 									 //Get information on the nightly job
 									 
+									 var NJexistence = false;
 								     Q.each(stepsjobject2.info, function(index, element){
 									 
 										console.log(element.name);
@@ -2032,6 +2079,10 @@
 										  minLength: 0
 										}); 
 										
+										
+										Q("#njstartstep").focus(function (){
+										  Q("#njstartstep").autocomplete( "search", "" );
+										});
 										
 										 
 										 //Get information on the nightly job
