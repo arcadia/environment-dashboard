@@ -452,6 +452,7 @@
 						var EnvDashViewProxy;
 						
 						var authorizedForPRDactions = "TBD";
+						var NJexistence = false;
 						
 						//Hide the dynamic dialog initially after the page loads					
 						Q(document).ready(function(){
@@ -1423,7 +1424,10 @@
 
 							
 							Q("#njstartstep").focus(function (){
-								Q("#njstartstep").autocomplete( "search", "" );
+								if (NJexistence)
+								{
+									Q("#njstartstep").autocomplete( "search", "" );
+								}
 							});
 
 							
@@ -1962,64 +1966,20 @@
 									Q("#dialog3text").text(response6);
 									Q("#dialog3").dialog("open");
 									*/
-									
+									 
 									 var stepsjobject2 = JSON.parse(response6);
 									 //console.log(stepsjobject2);
 									 
 									 
-									 //console.log(response6);
-									 //console.log("About to populate the array...");
-									 
-									 //Initialize
-									 Q("#njstartstep").val("");
-									 var availableNJsteps = [];
-									 
-									 Q.each(stepsjobject2.steps, function(index, element){
-										//console.log(element.step_id); 
-										//console.log(element.step_name); 
-									 
-										 availableNJsteps.push(element.step_name);
-										 
-									 });
-									 
-									//console.log("Finished populating the array");
-									//console.log(availableNJsteps);
-									 
-									Q("#njstartstep").autocomplete({
-									  source: availableNJsteps,
-									  minLength: 0
-									}); 
-									
-									
-									//Get information on the nightly job
-								     Q.each(stepsjobject2.info, function(index, element){
-										console.log(element.job); 
-										console.log(element.next_run_schedule_id); 
-										console.log(element.next_run_date); 
-									    console.log(element.next_run_time);
-										
-										/*
-										 element.next_run_schedule_id
-										 element.next_run_date
-										 element.next_run_time
-										 element.enabledStatus
-										 element.current_execution_status
-										 element.job
-										 element.activeDB
-										 element.activeServer
-										 */
-										 
-										 
-										 
-									 });
-									 
 									 
 									 //Get information on the nightly job
-								     Q.each(stepsjobject2.infoStart, function(index, element){
+									 
+								     Q.each(stepsjobject2.info, function(index, element){
 									 
 										console.log(element.name);
 									    if (element.name == "exists")
 										{
+											NJexistence = true;
 											console.log(element.job); 
 											console.log(element.next_run_schedule_id); 
 											console.log(element.next_run_date); 
@@ -2028,6 +1988,8 @@
 										
 										
 										
+									 
+										
 										/*
 										 element.next_run_schedule_id
 										 element.next_run_date
@@ -2042,6 +2004,65 @@
 										 
 										 
 									 });
+									 
+									 
+									 if (NJexistence)
+									 {	 
+										 
+										 //console.log(response6);
+										 //console.log("About to populate the array...");
+										 
+										 //Initialize
+										 Q("#njstartstep").val("");
+										 var availableNJsteps = [];
+										 
+										 Q.each(stepsjobject2.steps, function(index, element){
+											//console.log(element.step_id); 
+											//console.log(element.step_name); 
+										 
+											 availableNJsteps.push(element.step_name);
+											 
+										 });
+										 
+										//console.log("Finished populating the array");
+										//console.log(availableNJsteps);
+										 
+										Q("#njstartstep").autocomplete({
+										  source: availableNJsteps,
+										  minLength: 0
+										}); 
+										
+										
+										 
+										 //Get information on the nightly job
+										 Q.each(stepsjobject2.infoStart, function(index, element){
+										 
+											console.log(element.name);
+											if (element.name == "exists")
+											{
+												console.log(element.job); 
+												console.log(element.next_run_schedule_id); 
+												console.log(element.next_run_date); 
+												console.log(element.next_run_time);
+											}
+											
+											
+											
+											/*
+											 element.next_run_schedule_id
+											 element.next_run_date
+											 element.next_run_time
+											 element.enabledStatus
+											 element.current_execution_status
+											 element.job
+											 element.activeDB
+											 element.activeServer
+											 */
+											 
+											 
+											 
+										 });
+									  }
 									
 								 }
 								 else
