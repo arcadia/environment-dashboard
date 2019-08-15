@@ -979,7 +979,7 @@
 									if (Q("#build_num").val().length != 0 &amp;&amp; Q("#core_version").val().length == 0 &amp;&amp; typeofDeployment == "client")
 									{
 										//Perform client deployment
-										startDeployment("client",Q("#clientAcronym").val(),Q("#environment").val(),Q("#build_num").val())
+										startDeployment("client",Q("#clientAcronym").val(),Q("#environment").val(),Q("#build_num").val());
 									}
 									else if (Q("#core_version").val().length != 0 &amp;&amp; Q("#build_num").val().length == 0 &amp;&amp; typeofDeployment == "backend")
 									{
@@ -989,7 +989,7 @@
 									else if (typeofDeployment == "CRjob")
 									{
 										//Initiate CR job
-										startDeployment("CRjob",Q("#clientAcronym").val(),Q("#environment").val(),"NA")
+										startDeployment("CRjob",Q("#clientAcronym").val(),Q("#environment").val(),"NA");
 
 									}
 									else
@@ -1276,8 +1276,6 @@
 							Q("#properties").click(function(){
 								
 								
-								
-								
 								//alert("properties button was clicked");
 								//Q("#dialog3").dialog("option","title","Debug");
 								//Q("#dialog3text").text("properties button was clicked");
@@ -1421,97 +1419,8 @@
 								step: 30
 							});
 							
-							//Pre-populate the NJ steps
-							var availableNJsteps = [
-								"Check if Previous Job Failed on Cut off Check",
-								"Set Currently Processing To One",
-								"Auto Reprocess",
-								"Staging Load With SSIS",
-								"Send Mail on SSIS Staging Load Failure",
-								"Informatica Load",
-								"Send Mail on Informatica Failure",
-								"Update Staging DB Stats",
-								"Patient Scrub",
-								"Patient Load",
-								"Scrub",
-								"DW Plan Load",
-								"Load SSIS Plan Cache",
-								"Load Plan_Claim_Header",
-								"Load Plan_Claim_Line",
-								"Load Plan_Claim_Diagnosis",
-								"DW Plan 2 Load",
-								"Delete Inactive Patients",
-								"MPI",
-								"Update Patient Freeze/Destroy Indicator",
-								"Destroy Patient/Clinical Information",
-								"Load SSIS Clinical Cache",
-								"Load Encounter",
-								"Drop indexed view indexes",
-								"DW Clinical Load",
-								"DW Provider Organization Hierarchy Load",
-								"Load MedicationList",
-								"Load Prescription",
-								"Load Order",
-								"Load Result",
-								"Load Maintenance",
-								"Load Charge",
-								"Load ProgressNote",
-								"Load UnstructuredText",
-								"Post Load Updates",
-								"Load RAPS File",
-								"Check Cutoff Time",
-								"Populate Top Plan Claim Line",
-								"Load plan_member_month",
-								"Load Person Demographic",
-								"Populate Provider Person",
-								"Populate MedRx, MedDispense, RXCUI tables",
-								"Recreate indexes for indexed views",
-								"Populate POS Location Table",
-								"Delete Events",
-								"Update PersonID In Events",
-								"Update PersonID In RAPSDetail",
-								"Update Location In Events",
-								"Update Provider In Events",
-								"Load Event",
-								"Load EdEvent table",
-								"Populate Attribution",
-								"Populate Fills Report",
-								"Populate Medical Expense",
-								"Populate Dx Hierarchy",
-								"Update Common Report Fields",
-								"Populate Complete Member Product",
-								"Risk Score Calculation And Common Report Fields Post Update",
-								"Populate Interaction and Appointment Sorted",
-								"Populate Comorbidity",
-								"Immunizations Details",
-								"Populate Care Gaps",
-								"Populate PersonLastPCPVisit",
-								"Populate PersonNextPCPAppointment",
-								"Cost Management Fact",
-								"Admission Events",
-								"Update Provider/Location in ImmDetails",
-								"Calculate Measure Enrollment",
-								"Update Warehouse DB Stats and create periods",
-								"Measure Processing",
-								"Populate MeasureSubjectCombined",
-								"Geocode",
-								"Remove Deleted Patients From Measures",
-								"Populate Pre Visit Data",
-								"Populate Member Roster",
-								"Trigger to Populate System Lists",
-								"Run System List Procedure",
-								"Set Currently Processing To Zero and Update Measure Stats",
-								"Update Stats Web DB",
-								"Maintenance Timing Errors",
-								"StartClientBackupJob",
-								"Report job errors"
-							];
 							
-							Q("#njstartstep").autocomplete({
-							  source: availableNJsteps,
-							  minLength: 0
-							});
-							
+
 							
 							Q("#njstartstep").focus(function (){
 								Q("#njstartstep").autocomplete( "search", "" );
@@ -1793,6 +1702,8 @@
 									 Q("#cr-job-dep").text(CRjob);
 									 //Q("#dialog2Title").text(CRjob);
 									 Q("#dialog2").dialog("option","title",CRjob);
+									 
+									 getNightlyjobSteps();
 								 }
 
 								 
@@ -1830,20 +1741,31 @@
 							Q("#PRDsection").show(500);
 							Q("#startCRjobSection, #noRollbackSection").show();
 							
-							if (Q("#EnvDecision").val() == "PRD")
+							if (Q("#EnvDecision").val() != "")
 							{
-							   Q("#kickoffDateTimeSection").show();
-							   Q("#datetimepickerLabel").text("Deployment kick off date and time");	
+								if (Q("#EnvDecision").val() == "PRD")
+								{
+									Q("#kickoffDateTimeSection").show();
+									Q("#datetimepickerLabel").text("Deployment kick off date and time");	
+							    }
+							    else
+							    {
+									Q("#kickoffDateTimeSection").hide();
+							    }
+							   
+							   
+							   Q("#environment").val(Q("#EnvDecision").val());
+							   getNightlyjobSteps();
 								
 							}
 							else
 							{
+								Q("#PRDsection").hide(500);
+								Q("#startCRjobSection, #noRollbackSection").hide();
 								Q("#kickoffDateTimeSection").hide();
 							
 							}
-
 							
-							Q("#environment").val(Q("#EnvDecision").val());
 						}
 						
 						function ChecknjStartStepDecision()
@@ -1917,7 +1839,7 @@
 										 Q("#dialogTitle").text("Deploying " + comp + " to " + env + " for " + buildNum);
 										 Q("#environment").val(env);
 										 
-										
+										 getNightlyjobSteps();
 									 }
 									 
 									 
@@ -1928,6 +1850,8 @@
 									 Q("#cr-job-dep").text(CRjob);
 									 //Q("#dialog2Title").text(CRjob);
 									 Q("#dialog2").dialog("option","title",CRjob);
+									 
+									 
 									
 								}
 
@@ -2000,6 +1924,9 @@
 									 
 									 
 									 Q("#environment").val(env);
+									 
+									 
+									 getNightlyjobSteps();
 									
 								 }
 
@@ -2014,6 +1941,67 @@
 								
 							 }
 
+						
+						}
+						
+						
+						
+						function getNightlyjobSteps()
+						{
+						
+							//Get the steps
+							var response6 = "";
+							EnvDashViewProxy.getNightlyjobStepsSQLquery(Q("#clientAcronym").val(),Q("#environment").val(), function(t) {
+								 response6 = t.responseObject();
+								 
+								
+								 if (response6.indexOf("failed") == -1)
+								 {
+									/*
+									Q("#dialog3").dialog("option","title","Debug");
+									Q("#dialog3text").text(response6);
+									Q("#dialog3").dialog("open");
+									*/
+									
+									 var stepsjobject2 = JSON.parse(response6);
+									 //console.log(stepsjobject2);
+									 
+									 
+									 //console.log(response6);
+									 //console.log("About to populate the array...");
+									 
+									 //Initialize
+									 Q("#njstartstep").val("");
+									 var availableNJsteps = [];
+									 
+									 Q.each(stepsjobject2.steps, function(index, element){
+										//console.log(element.step_id); 
+										//console.log(element.step_name); 
+									 
+										 availableNJsteps.push(element.step_name);
+										 
+									 });
+									 
+									 
+									//console.log("Finished populating the array");
+									//console.log(availableNJsteps);
+									 
+									Q("#njstartstep").autocomplete({
+									  source: availableNJsteps,
+									  minLength: 0
+									}); 
+									
+								 }
+								 else
+								 {
+									Q("#dialog3").dialog("option","title","Error");
+									Q("#dialog3text").text(response6);
+									Q("#dialog3").dialog("open");
+								 }
+								 
+								 
+							});
+	
 						
 						}
 						
@@ -2090,7 +2078,7 @@
 							  parsedBuildUrl += item + '\n';
 							});
 
-							alert(parsedBuildUrl);
+							console.log(parsedBuildUrl);
 							*/
 							
 							

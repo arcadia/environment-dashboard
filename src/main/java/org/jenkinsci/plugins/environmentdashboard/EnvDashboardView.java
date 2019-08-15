@@ -1296,6 +1296,196 @@ public class EnvDashboardView extends View {
     }
 	
 	
+	
+	@JavaScriptMethod
+	public String getNightlyjobStepsSQLquery(String customer, String env) 
+	{
+	
+	   String returnString = null;
+	   String error = new String();
+	   String activeDB = null;
+	   String provEnv = null;
+	   String activeServer = null;
+		
+	   System.out.println(getCurentDateTime() + ": At getNightlyjobStepsSQLquery function");
+	   
+	   
+	   
+	   //identify the active database
+	   String SQL = "use " + getOpsDB() + ";\n" +
+			"select c.acronym as 'client_acronym', d.name as 'db_name', p.name as 'prov_name' from dbo.[database] d inner join dbo.client c on d.client_id = c.client_id\n" +
+			"										  inner join dbo.provisioning_environment p on d.provisioning_environment_id = p.provisioning_environment_id\n" +
+			"										  inner join dbo.environment e on e.environment_id = p.environment_id\n" +
+			"										  inner join dbo.type t on t.type_id = d.type_id\n" +
+			"										  inner join dbo.db_instance_database dbi on dbi.database_id = d.database_id\n" +
+			"										  inner join dbo.status s on s.status_id = dbi.status_id\n" +
+			"where c.acronym = '" + customer + "' and e.name = '" + env + "' and t.name = 'WAREHOUSE' and s.name = 'Active';";
+
+	   String returnValue = getRequestedInfo(customer, env, SQL, "db_name");
+	   if(returnValue.contains("failed"))
+	   {
+			System.out.println(returnValue);
+			returnString = returnValue;
+			return returnString;
+	   }
+	   else
+	   {
+			activeDB = returnValue;
+			//System.out.println(activeDB);
+			
+	   }
+	  
+	  
+	   returnValue = getRequestedInfo(customer, env, SQL, "prov_name");
+	   if(returnValue.contains("failed"))
+	   {
+			System.out.println(returnValue);
+			returnString = returnValue;
+			return returnString;
+	   }
+	   else
+	   {
+			provEnv = returnValue;
+			//System.out.println(provEnv);
+			
+	   }
+	  
+	  
+	   String job = customer + " Nightly Job " + provEnv;
+	   System.out.println(getCurentDateTime() + ": Here is the nightly job generated:");
+	   System.out.println(job);
+	  
+	   //identify the active server
+	   SQL = "use " + getOpsDB() + ";\n" +
+		"select name from dbo.db_instance where db_instance_id in\n" +
+		"(\n" +
+		"select dbinst.db_instance_id from dbo.[database] db inner join dbo.db_instance_database dbinst on db.database_id = dbinst.database_id\n" +
+		"where db.name = '" + activeDB + "' and dbinst.status_id = (select status_id from dbo.status where name = 'Active')\n" +
+		");";
+
+	   returnValue = getRequestedInfo(customer, env, SQL, "name");
+	   if(returnValue.contains("failed"))
+	   {
+			System.out.println(returnValue);
+			returnString = returnValue;
+			return returnString;
+	   }
+	   else
+	   {
+			activeServer = returnValue;
+			//System.out.println(activeServer);
+			
+	   }
+	  
+	  
+	  	//String activeServer = "TESTSQLTST04";
+		
+	   
+	   //Check if server is reachable
+	   if (!testServerConnection(activeServer))
+	   {
+			error = "failed " + activeServer + " is not reachable";
+			System.out.println(getCurentDateTime() + ": " + error);
+			returnString = error;
+			return returnString;
+	   }
+	  
+       Connection conn = null;
+       Statement stat = null;
+	   
+	   String NightlyJobSteps = new String();
+	   String NightlyJobInfo = new String();
+	   
+	   
+	   //conn = CustomDBConnection.getConnection("adoskara-pc2", "1433", "msdb", getdbUser(), getdbPassword(), getSQLauth());
+	   //String SQL = "EXEC dbo.sp_help_job @job_name = N'" + job + "',  @job_aspect = N'steps';";
+	   //System.out.println(getCurentDateTime() + ": Here is the built change request:");
+	   //System.out.println(SQL);
+	   
+	   //conn = CustomDBConnection.getConnection("TESTSQLTST04", "1433", "test_warehouse_dev04", getdbUser(), getdbPassword(), getSQLauth());
+	   //String SQL = "select age_range_id, age_range from dbo.age_range where age_range_id = 1;";
+	   
+	   conn = CustomDBConnection.getConnection(activeServer, "1433", "placeholderForDB", getdbUser(), getdbPassword(), getSQLauth());
+	   //SQL = "EXEC dbo.sp_help_job @job_name = N'" + job + "',  @job_aspect = N'steps';";
+	   SQL = "use msdb; EXEC dbo.sp_help_job @job_name = N'" + job + "',  @job_aspect = N'steps';";
+	   
+	   //conn = CustomDBConnection.getConnection("mydbserver1", "1433", "tutorialdb", getdbUser(), getdbPassword(), getSQLauth());
+	   //String SQL = "select customerid, name from customers where name = 'orlando';";
+	   
+	   
+	   
+	   
+       try 
+	   {
+           if (conn == null){throw new Exception("Failed to create connection to database");};
+           stat = conn.createStatement();
+       } 
+	   catch (Exception e)
+	   {
+		   error = "E13" + " failed " + e.getMessage();
+           System.out.println(error);
+		   
+		   returnString = error;
+		   return returnString;
+
+       }
+	   
+	   
+       try 
+	   {
+	       System.out.println(getCurentDateTime() + ": About to execute SQL query for retrieving nightly job steps...");
+           ResultSet rs = stat.executeQuery(SQL);
+		   
+		   //Iterate through the data in the result set and display it.
+		   JsonArrayBuilder jarr = Json.createArrayBuilder();
+		   
+           while (rs.next()) {
+				
+				
+                System.out.println(rs.getString("step_id") + " " + rs.getString("step_name"));
+				//NightlyJobSteps += rs.getString("step_id") + " " + rs.getString("step_name") + " " + cleanedUpFailAction + "\n";
+				
+				//System.out.println(rs.getString("age_range_id") + " " + rs.getString("age_range"));
+				//NightlyJobSteps = rs.getString("age_range_id") + " " + rs.getString("age_range");
+				
+				//System.out.println(rs.getString("customerid") + " " + rs.getString("name"));
+				//NightlyJobSteps = rs.getString("customerid") + " " + rs.getString("name");
+				
+				jarr.add(Json.createObjectBuilder()
+					  .add("step_id", rs.getString("step_id"))
+					  .add("step_name", rs.getString("step_name"))
+				  .build());
+           }
+		   
+		   JsonArray arr = jarr.build();
+		   JsonObject joSteps = Json.createObjectBuilder().add("steps", arr).build();
+		   System.out.println(joSteps);
+			
+		   returnString = joSteps.toString();
+		   
+       } 
+	   catch (Exception e) 
+	   {
+		    System.out.println(getCurentDateTime() + ": Something failed at getNightlyjobStepsSQLquery function"); 
+			System.out.println(e.toString());			
+            //e.printStackTrace();  
+			returnString = "Something failed at getNightlyjobStepsSQLquery function: " + e.getMessage();
+       } 
+	   finally 
+	   { 
+           CustomDBConnection.closeConnection(conn);
+		   	if(returnString == null)
+			{
+				returnString = "failed";
+			}
+       }
+	  
+	   return returnString;
+	   
+    }
+
+	
+	
 	@JavaScriptMethod
 	public String checkIfUserIsInJenkinsPRDgroup() 
 	{
