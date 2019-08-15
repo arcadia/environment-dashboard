@@ -1433,6 +1433,7 @@ public class EnvDashboardView extends View {
 	   
        try 
 	   {
+	   
 	       System.out.println(getCurentDateTime() + ": About to execute SQL query for retrieving nightly job steps...");
            ResultSet rs = stat.executeQuery(SQL);
 		   
@@ -1459,9 +1460,208 @@ public class EnvDashboardView extends View {
 		   
 		   JsonArray arr = jarr.build();
 		   JsonObject joSteps = Json.createObjectBuilder().add("steps", arr).build();
-		   System.out.println(joSteps);
+		   //System.out.println(joSteps);
+		   
+		   
+		   //Let's append job info itself
+			//SQL = "EXEC dbo.sp_help_job @job_name = N'" + job + "',  @job_aspect = N'job';";
+			SQL = "use msdb; EXEC dbo.sp_help_job @job_name = N'" + job + "',  @job_aspect = N'job';";
+			System.out.println(getCurentDateTime() + ": About to execute SQL query for retriving nightly job start time info...");
+            rs = stat.executeQuery(SQL);
 			
-		   returnString = joSteps.toString();
+			while (rs.next()) {
+			
+				String mappedCurrentExecutionStatus = null;
+				switch (rs.getInt("current_execution_status")) {
+				  case 1:
+					mappedCurrentExecutionStatus = "Executing";
+					break;
+				  case 2:
+					mappedCurrentExecutionStatus = "Waiting for thread";
+					break;
+				  case 3:
+					mappedCurrentExecutionStatus = "Between retries";
+					break;
+				  case 4:
+					mappedCurrentExecutionStatus = "Idle";
+					break;
+				  case 5:
+					mappedCurrentExecutionStatus = "Suspended";
+					break;
+		          case 7:
+					mappedCurrentExecutionStatus = "Performing completion actions";
+					break;
+				  default:
+					mappedCurrentExecutionStatus = "Undetermined";	
+				}
+				
+				
+				String enabledStatus = null;
+				switch (rs.getInt("enabled")) {
+				  case 1:
+					enabledStatus = "enabled";
+					break;
+				  case 0:
+					enabledStatus = "disabled";
+					break;
+				  default:
+					enabledStatus = "undetermined";	
+				}
+			
+                System.out.println(rs.getString("next_run_schedule_id") + 
+							 " " + rs.getString("next_run_date") + 
+							 " " + rs.getString("next_run_time") + 
+							 " " + enabledStatus + 
+							 " " + mappedCurrentExecutionStatus + 
+							 " " + job +
+							 " " + activeDB +
+							 " " + activeServer);
+							 
+				//CRjobInfo += rs.getString("start_step_id") + " " + rs.getString("date_modified") + " " + rs.getString("last_run_date") + "\n";
+				
+				//System.out.println(rs.getString("age_range_id") + " " + rs.getString("age_range"));
+				//CRjobInfo = rs.getString("age_range_id") + " " + rs.getString("age_range");
+				
+				//System.out.println(rs.getString("customerid") + " " + rs.getString("name"));
+				//CRjobInfo = rs.getString("customerid") + " " + rs.getString("name");
+				
+				jarr.add(Json.createObjectBuilder()
+					  .add("next_run_schedule_id", rs.getString("next_run_schedule_id"))
+					  .add("next_run_date", rs.getString("next_run_date"))
+					  .add("next_run_time", rs.getString("next_run_time"))
+					  .add("enabledStatus", enabledStatus)
+					  .add("current_execution_status", mappedCurrentExecutionStatus)
+					  .add("job", job)
+					  .add("activeDB", activeDB)
+					  .add("activeServer", activeServer)
+				  .build());
+           }
+		   
+		   arr = jarr.build();
+		   JsonObject joInfo = Json.createObjectBuilder().add("info", arr).build();
+		   //System.out.println(joInfo);
+			
+			
+			
+			
+			//Let's append job start info
+			job = job + " Start";
+			
+		   //Check if the NJ Start exists
+		   System.out.println(getCurentDateTime() + ": Check if " + job + " exists...");
+           rs = stat.executeQuery("use msdb; SELECT name FROM dbo.sysjobs WHERE name = '" + job + "'");
+		   String retrievedJob = null;
+	       while (rs.next())
+		   {
+				System.out.println(rs.getString("name"));
+				retrievedJob = rs.getString("name");
+		   }
+		   
+		   if (retrievedJob == null || retrievedJob.isEmpty())
+		   {
+				System.out.println(getCurentDateTime() + ": " + job + " doesn't exist");
+				  jarr.add(Json.createObjectBuilder()
+						  .add("name", "doesnotexist")
+					  .build());
+		   }
+		   else
+		   {
+				System.out.println(getCurentDateTime() + ": " + job + " exists");
+				
+				//SQL = "EXEC dbo.sp_help_job @job_name = N'" + job + "',  @job_aspect = N'job';";
+				SQL = "use msdb; EXEC dbo.sp_help_job @job_name = N'" + job + "',  @job_aspect = N'job';";
+				System.out.println(getCurentDateTime() + ": About to execute SQL query for retriving nightly job Start start time info...");
+				rs = stat.executeQuery(SQL);
+				
+				while (rs.next()) {
+				
+					String mappedCurrentExecutionStatus = null;
+					switch (rs.getInt("current_execution_status")) {
+					  case 1:
+						mappedCurrentExecutionStatus = "Executing";
+						break;
+					  case 2:
+						mappedCurrentExecutionStatus = "Waiting for thread";
+						break;
+					  case 3:
+						mappedCurrentExecutionStatus = "Between retries";
+						break;
+					  case 4:
+						mappedCurrentExecutionStatus = "Idle";
+						break;
+					  case 5:
+						mappedCurrentExecutionStatus = "Suspended";
+						break;
+					  case 7:
+						mappedCurrentExecutionStatus = "Performing completion actions";
+						break;
+					  default:
+						mappedCurrentExecutionStatus = "Undetermined";	
+					}
+					
+					
+					String enabledStatus = null;
+					switch (rs.getInt("enabled")) {
+					  case 1:
+						enabledStatus = "enabled";
+						break;
+					  case 0:
+						enabledStatus = "disabled";
+						break;
+					  default:
+						enabledStatus = "undetermined";	
+					}
+				
+					System.out.println(rs.getString("next_run_schedule_id") + 
+								 " " + rs.getString("next_run_date") + 
+								 " " + rs.getString("next_run_time") + 
+								 " " + enabledStatus + 
+								 " " + mappedCurrentExecutionStatus + 
+								 " " + job);
+								 
+					//CRjobInfo += rs.getString("start_step_id") + " " + rs.getString("date_modified") + " " + rs.getString("last_run_date") + "\n";
+					
+					//System.out.println(rs.getString("age_range_id") + " " + rs.getString("age_range"));
+					//CRjobInfo = rs.getString("age_range_id") + " " + rs.getString("age_range");
+					
+					//System.out.println(rs.getString("customerid") + " " + rs.getString("name"));
+					//CRjobInfo = rs.getString("customerid") + " " + rs.getString("name");
+					
+					jarr.add(Json.createObjectBuilder()
+						  .add("name", "exists")
+						  .add("next_run_schedule_id", rs.getString("next_run_schedule_id"))
+						  .add("next_run_date", rs.getString("next_run_date"))
+						  .add("next_run_time", rs.getString("next_run_time"))
+						  .add("enabledStatus", enabledStatus)
+						  .add("current_execution_status", mappedCurrentExecutionStatus)
+						  .add("job", job)
+					  .build());
+			   }
+		  
+           }		  
+		   arr = jarr.build();
+		   JsonObject joInfoStart = Json.createObjectBuilder().add("infoStart", arr).build();
+		   //System.out.println(joInfoStart);
+			
+			//Combine two json objects
+		   JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
+
+			for (String key : joSteps.keySet()) {
+				jsonObjectBuilder.add(key, joSteps.get(key));
+			}
+			for (String key : joInfo.keySet()) {
+				jsonObjectBuilder.add(key, joInfo.get(key));
+			}
+			for (String key : joInfoStart.keySet()) {
+				jsonObjectBuilder.add(key, joInfoStart.get(key));
+			}
+			 
+			JsonObject combinedStepsAndInfoAndInfoStart = jsonObjectBuilder.build();
+			System.out.println(combinedStepsAndInfoAndInfoStart);
+			
+					
+		    returnString = combinedStepsAndInfoAndInfoStart.toString();
+			
 		   
        } 
 	   catch (Exception e) 

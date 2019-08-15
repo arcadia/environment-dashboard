@@ -1982,7 +1982,6 @@
 										 
 									 });
 									 
-									 
 									//console.log("Finished populating the array");
 									//console.log(availableNJsteps);
 									 
@@ -1990,6 +1989,59 @@
 									  source: availableNJsteps,
 									  minLength: 0
 									}); 
+									
+									
+									//Get information on the nightly job
+								     Q.each(stepsjobject2.info, function(index, element){
+										console.log(element.job); 
+										console.log(element.next_run_schedule_id); 
+										console.log(element.next_run_date); 
+									    console.log(element.next_run_time);
+										
+										/*
+										 element.next_run_schedule_id
+										 element.next_run_date
+										 element.next_run_time
+										 element.enabledStatus
+										 element.current_execution_status
+										 element.job
+										 element.activeDB
+										 element.activeServer
+										 */
+										 
+										 
+										 
+									 });
+									 
+									 
+									 //Get information on the nightly job
+								     Q.each(stepsjobject2.infoStart, function(index, element){
+									 
+										console.log(element.name);
+									    if (element.name == "exists")
+										{
+											console.log(element.job); 
+											console.log(element.next_run_schedule_id); 
+											console.log(element.next_run_date); 
+											console.log(element.next_run_time);
+										}
+										
+										
+										
+										/*
+										 element.next_run_schedule_id
+										 element.next_run_date
+										 element.next_run_time
+										 element.enabledStatus
+										 element.current_execution_status
+										 element.job
+										 element.activeDB
+										 element.activeServer
+										 */
+										 
+										 
+										 
+									 });
 									
 								 }
 								 else
