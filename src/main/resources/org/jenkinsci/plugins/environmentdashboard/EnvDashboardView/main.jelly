@@ -453,10 +453,10 @@
 						
 						var authorizedForPRDactions = "TBD";
 						
-
 						
 						//Hide the dynamic dialog initially after the page loads					
 						Q(document).ready(function(){
+						
 						
 							EnvDashViewProxy = <st:bind value="${it}"/>;
 							
@@ -488,9 +488,10 @@
 								});
 							}, 300 * 1000); // 5 minutes
 							
+
+
 							
-													
-						
+							
 							Q("#overlay, #dialog, #dialog2, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection, #envSection, #prd-env-cr-job, #kickoffDateTimeSection").hide();
 							Q("#dialog").draggable();
 							
@@ -665,14 +666,7 @@
 							}).prev(".ui-dialog-titlebar").css("background","#81BEF7");
 							
 							
-							
-														
-							Q.validator.addMethod("dateTime", function(value, element) {
-								var futureDateTime = new Date(value);
-								var now = new Date();
-								return this.optional(element) || (futureDateTime &gt; now);
-							});
-							
+						
 							
 							validationObj = Q("#dialog").validate({ // initialize the plugin
 								rules: {
@@ -711,7 +705,7 @@
 									},
 									datetimepicker: {
 										required: true,
-										dateTime: true
+										remote: "http://jenkinsmaster.arcadiahosted.local:8080/plugin/environment-dashboard/json/test.json"
 									},
 								    EnvDecision: {
 										required: true
@@ -728,7 +722,7 @@
 									njStartStepDecision: "please make a choice",
 									datetimepicker: {
 										required: "please schedule this PRD deployment",
-										dateTime: "please enter the date into the future"
+										remote: "please enter the date into the future"
 									},
 									njstartstep: "please enter name of the step",
 									EnvDecision: "please make a choice"
@@ -1459,22 +1453,9 @@
 							
 							Q("#datetimepicker").datetimepicker({
 							    lang: 'en-US',
-								format: 'm/d/Y H:i T',
+								format: 'm/d/Y H:i',
 								step: 30
 							});
-							
-							
-
-							/*
-							Q("#njstartstep").focus(function (){
-								if (NJexistence == true)
-								{
-									Q("#njstartstep").autocomplete( "search", "" );
-									//re-initialize;
-									NJexistence = false;
-								}
-							});
-							*/
 							
 							
 							Q("input[name=clientBuilds]").change(function(){

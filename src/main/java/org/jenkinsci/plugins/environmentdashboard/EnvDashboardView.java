@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Date;
 
 import javax.servlet.ServletException;
 
@@ -1888,7 +1889,7 @@ public class EnvDashboardView extends View {
 	public String getCurentDateTime()
 	{
 
-		String timeStamp = new SimpleDateFormat("yyyyMMdd-hh:mm:ss-aaa-z").format(new java.util.Date());
+		String timeStamp = new SimpleDateFormat("yyyyMMdd-hh:mm:ss-aaa-z").format(new Date());
 		return timeStamp;
     }
 	
@@ -2127,6 +2128,12 @@ public class EnvDashboardView extends View {
 	   
     }
 	
+	@JavaScriptMethod
+	public String getServerDateTime() {
+	   String timeStamp = new SimpleDateFormat("MM/dd/yyyy HH:mm").format(new Date());
+	   return timeStamp;
+	 
+    }
 	
 	public Secret getdbPasswordSecret() {
         return dbPassword;
