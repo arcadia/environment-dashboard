@@ -13,10 +13,8 @@
 
 <div id="loader"></div>
 <script>
-var myVar;
-
 Q(window).load(function(){
-	myVar = setTimeout(showDashboard, 3000);
+	setTimeout(showDashboard, 3000);
 });
 
 function showDashboard() {
@@ -1852,23 +1850,11 @@ function showDashboard() {
 									
 									typeofDeployment = "backend";
 									
-									 Q("#overlay, #dialog").show();
-									 Q("#startCRjobSection, #noRollbackSection").show();	
-									 Q("#PRDsection").show();
-									 
+									Q("#overlay").show();
+									Q("#loader").show();
+									
 									 Q("#startnjlabel").text(" Start nightly job upon successful execution of deployment and/or change request job");
 									 
-									 if (env != "DEV")
-									 {
-										Q("#non-dev-env").show();
-										
-										if (env == "PRD") 
-										{		
-											Q("#kickoffDateTimeSection").show();
-											Q("#datetimepickerLabel").text("Deployment kick off date and time");
-										}
-
-									 }
 									
 									 //Set the html elements
 									 var compSubstr = comp.substring(0, comp.indexOf(' '))
@@ -1991,28 +1977,29 @@ function showDashboard() {
 									//alert(Q().jquery); //it is 1.7.2
 									
 									typeofDeployment = "client";
-									Q("#overlay, #dialog").show();
-
-									Q("#startnjlabel").text(" Start nightly job upon successful execution of deployment and/or change request job");
+									
+									Q("#clientAcronym").val(comp);
+									Q("#build_num").val(buildNum);
+								  
+									 CRjob = comp + "_Change_Request";
+									 Q("#cr-job-dep").text(CRjob);
+									 //Q("#dialog2Title").text(CRjob);
+									 Q("#dialog2").dialog("option","title",CRjob);
 									
 									 if (env == null)
 									 {
+										Q("#overlay, #dialog").show();
+										Q("#startnjlabel").text(" Start nightly job upon successful execution of deployment and/or change request job");
+
 									 
 										 Q("#envSection").show();
 										 Q("#dialogTitle").text("Deploying " + comp + " for " + buildNum);
-										
+										 
 									 }
 									 else
 									 {
-									 
-										Q("#PRDsection").show();
-									    Q("#startCRjobSection, #noRollbackSection").show();
-										
-										if (env == "PRD")
-										{
-											Q("#kickoffDateTimeSection").show();
-											Q("#datetimepickerLabel").text("Deployment kick off date and time");	
-										}
+										Q("#overlay").show();
+										Q("#loader").show();
 										 
 										 //Set the html elements
 										 Q("#dialogTitle").text("Deploying " + comp + " to " + env + " for " + buildNum);
@@ -2020,16 +2007,6 @@ function showDashboard() {
 										 
 										 getNightlyjobSteps();
 									 }
-									 
-									 
-									  Q("#clientAcronym").val(comp);
-									  Q("#build_num").val(buildNum);
-									  
-									 CRjob = comp + "_Change_Request";
-									 Q("#cr-job-dep").text(CRjob);
-									 //Q("#dialog2Title").text(CRjob);
-									 Q("#dialog2").dialog("option","title",CRjob);
-									 
 									 
 									
 								}
@@ -2074,22 +2051,15 @@ function showDashboard() {
 								
 								if (proceed)
 								{
+									Q("#overlay").show();
+									Q("#loader").show();
+									
 									//alert( "You are running jQuery version: " + Q.fn.jquery );
 									//alert(Q().jquery); //it is 1.7.2
 									
 									typeofDeployment = "CRjob";
 
-									 Q("#overlay, #dialog, #PRDsection").show();
-									 Q("#startCRjobSection, #noRollbackSection").hide();
-									 Q("#prd-env-cr-job").show();
-
 									 Q("#startnjlabel").text(" Start nightly job upon successful execution of change request job");
-									 
-									if (env == "PRD")
-									{
-										Q("#kickoffDateTimeSection").show();
-										Q("#datetimepickerLabel").text("Change Request job kick off date and time");
-									}
 									 
 									 //Set the html elements
 									 var compSubstr = comp.substring(0, comp.indexOf(' '));
@@ -2101,11 +2071,9 @@ function showDashboard() {
 									//Q("#dialog2Title").text(CRjob);
 									Q("#dialog2").dialog("option","title",CRjob);
 									 
-									 
-									 Q("#environment").val(env);
-									 
-									 
-									 getNightlyjobSteps();
+									Q("#environment").val(env);
+									  
+									getNightlyjobSteps();
 									
 								 }
 
@@ -2273,6 +2241,41 @@ function showDashboard() {
 											 
 										 });
 									  }
+									
+									
+									
+									Q("#loader").hide();
+									Q("#dialog, #PRDsection").show();
+									
+									if (typeofDeployment == "CRjob")
+									{
+									
+										Q("#startCRjobSection, #noRollbackSection").hide();
+										Q("#prd-env-cr-job").show();
+
+									}
+									else if (typeofDeployment == "client" || typeofDeployment == "backend")
+									{
+										Q("#startCRjobSection, #noRollbackSection").show();
+										
+										if (typeofDeployment == "backend")
+										{
+											if (Q("#environment").val() != "DEV")
+											{
+												Q("#non-dev-env").show();
+
+											}
+										}
+										
+									}
+
+									
+									if (Q("#environment").val() == "PRD") 
+									{		
+										Q("#kickoffDateTimeSection").show();
+										Q("#datetimepickerLabel").text("Deployment kick off date and time");
+									}
+									
 									
 								 }
 								 else
