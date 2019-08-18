@@ -452,6 +452,7 @@
 						var EnvDashViewProxy;
 						
 						var authorizedForPRDactions = "TBD";
+						var dateValidated = false;
 						
 						
 						//Hide the dynamic dialog initially after the page loads					
@@ -666,6 +667,8 @@
 							}).prev(".ui-dialog-titlebar").css("background","#81BEF7");
 							
 							
+							
+							
 						
 							
 							validationObj = Q("#dialog").validate({ // initialize the plugin
@@ -705,7 +708,55 @@
 									},
 									datetimepicker: {
 										required: true,
-										remote: "http://jenkinsmaster.arcadiahosted.local:8080/plugin/environment-dashboard/json/test.json"
+										//remote: "/plugin/environment-dashboard/json/test.json"
+										remote: {
+											//url: "/plugin/environment-dashboard/json/test.json",
+											url: "/view/Client_and_Backend_Deploy/getServerDateTimeLocal",
+											datatype: 'html',
+											dataFilter: function(data) {
+												//alert('in datafilter section');
+												//alert(data);
+												
+												 //Passed time
+												 var futureDateTime = new Date(Q("#datetimepicker").val());
+												 console.log("passed time is " + futureDateTime);
+												 
+												 //Server time
+												 var serverDateTime = new Date(data);
+												 console.log("server time is " + serverDateTime);
+												 
+												 if (futureDateTime &gt; serverDateTime)
+												 {
+													console.log("future date is greater than server time");
+													dateValidated = true;
+													return '"true"';
+													
+												 }
+												 else
+												 {
+													console.log("future date is less than server time");
+													//return '"false"';
+													dateValidated = false;
+													return "\"please enter the date into the future (server response)\"";
+												 
+												 }
+												
+											},
+											//complete: function() {
+												//alert('in complete section');
+												//alert(data);
+												//return '"true"';
+												
+												//return true;
+												
+											//},
+											error: function(xhr, textStatus, errorThrown) {
+												alert('ajax loading error... ... ' + textStatus + ' ' + errorThrown + ' ' + xhr.responseText);
+												//return "\"ajax loading error\"";
+												
+												//return false;
+											}
+										}
 									},
 								    EnvDecision: {
 										required: true
@@ -736,6 +787,7 @@
 									}
 								}
 							});
+							
 							
 							
 							validationObj2 = Q("#dialog4").validate({ // initialize the plugin
@@ -948,10 +1000,12 @@
 								{  
 								  e.preventDefault(); 
 								}
-								else
+								else if (dateValidated)
 								{
 									// Stop form from submitting normally
 									e.preventDefault();
+									
+									dateValidated = false;
 									
 									//calculate seconds so we know when the jenkins build needs to be triggered									
 									if(Q("#datetimepicker").val())

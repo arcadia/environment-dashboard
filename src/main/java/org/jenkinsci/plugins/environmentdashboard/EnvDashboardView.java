@@ -46,6 +46,9 @@ import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.interceptor.RequirePOST;
 import org.kohsuke.stapler.bind.JavaScriptMethod;
+import org.kohsuke.stapler.HttpResponse;
+import org.kohsuke.stapler.WebMethod;
+import org.kohsuke.stapler.HttpResponses;
 
 import java.text.SimpleDateFormat;
 
@@ -2148,4 +2151,16 @@ public class EnvDashboardView extends View {
     public void onJobRenamed(Item item, String s, String s2) {
 
     }
+	
+	
+	
+	@WebMethod(name="getServerDateTimeLocal")
+	public HttpResponse getServerDateTimeLocal() {
+		String timeStamp = new SimpleDateFormat("MM/dd/yyyy HH:mm").format(new Date());
+		return HttpResponses.text(timeStamp);
+	}
+	
+	
+	
+	  
 }
