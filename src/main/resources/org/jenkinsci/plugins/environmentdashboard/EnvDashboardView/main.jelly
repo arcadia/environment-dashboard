@@ -456,7 +456,10 @@
 						var futureDateTime;
 						var serverDateTime;
 						var dateValidated = false;
-						
+						var NJdetails;
+						var NJStartdetails;
+						var NJexistence = false;
+						var NJStartExistence = false;
 						
 						//Hide the dynamic dialog initially after the page loads					
 						Q(document).ready(function(){
@@ -731,8 +734,19 @@
 												 if (futureDateTime &gt; serverDateTime)
 												 {
 													console.log("future date is greater than server time");
-													dateValidated = true;
-													return '"true"';
+													
+													//Check the start time of NJ
+													if (NJexistence)
+													{
+														getClientJobNextRunDateTime(NJdetails, serverDateTime);
+														//dateValidated = true;
+														return '"false"';
+													}
+													else
+													{
+														dateValidated = true;
+														return '"true"';
+													}
 													
 												 }
 												 else
@@ -1610,6 +1624,66 @@
 						});
 					
 						
+						
+						function getClientJobNextRunDateTime(jobDetails, servertime)
+						{
+							
+							console.log("At getClientJobNextRunDateTime");
+							console.log("Processing " + jobDetails.job);							
+							console.log(jobDetails.next_run_schedule_id);
+							console.log(jobDetails.next_run_date);
+							console.log(jobDetails.next_run_time);
+							console.log(jobDetails.next_run_date_time);
+							
+							var NJ = jobDetails.job;
+							var NextRunScheduleID = jobDetails.next_run_schedule_id;
+							var NextRunDate = jobDetails.next_run_date;
+							var NextRunTime = jobDetails.next_run_time;
+							var NextRunDateTimeForConv = jobDetails.next_run_date_time;
+						
+						    var validTime;
+							
+							if (NextRunScheduleID != 0 &amp;&amp; NextRunDate != 0)
+							{
+								validTime = true;
+							}
+							else
+							{ 
+								validTime = false;
+								console.log("It looks like the " + NJ + " is not scheduled to run");
+							}
+
+
+							if (validTime)
+							{
+
+								var NextRunDateTime = new Date(NextRunDateTimeForConv);
+								console.log("The built NextRunDateTime is " + NextRunDateTime);
+								
+							   if (servertime &gt; NextRunDateTime)
+							   {
+									console.log("It looks like " + NJ + " was disabled for at least a day. Will hypothetically bring its next run date and time into the future assuming it runs daily.");
+									while (servertime &gt; NextRunDateTime)
+									{
+										NextRunDateTime.setDate(NextRunDateTime.getDate() + 1);
+									}
+
+							   }
+							   
+							   console.log("Next " + NJ + " date and time to run is " + NextRunDateTime);
+							   console.log("Current server date and time is " + servertime);
+
+								
+							}	
+
+						
+						}
+						
+						
+						
+						
+						
+						
 						function CloseResetDynamicDialog(typeOfAction)
 						{
 						
@@ -2059,22 +2133,37 @@
 									 
 									 //Get information on the nightly job
 									 
-									 var NJexistence = false;
-								     Q.each(stepsjobject2.info, function(index, element){
 									 
+								     Q.each(stepsjobject2.info, function(index, element){
+										
+										
 										console.log(element.name);
 									    if (element.name == "exists")
 										{
 											NJexistence = true;
-											console.log(element.job); 
-											console.log(element.next_run_schedule_id); 
-											console.log(element.next_run_date); 
-											console.log(element.next_run_time);
+											//console.log(element.job); 
+											//console.log(element.next_run_schedule_id); 
+											//console.log(element.next_run_date); 
+											//console.log(element.next_run_time);
+											
+											
+											NJdetails = {
+											  job: element.job,
+											  next_run_schedule_id: element.next_run_schedule_id,
+											  next_run_date: element.next_run_date,
+											  next_run_time: element.next_run_time,
+											  next_run_date_time: element.next_run_date_time
+											};
+											
+											console.log(NJdetails.job);
+											console.log(NJdetails.next_run_schedule_id);
+											console.log(NJdetails.next_run_date);
+											console.log(NJdetails.next_run_time);
+											console.log(NJdetails.next_run_date_time);
 										}
 										
+
 										
-										
-									 
 										
 										/*
 										 element.next_run_schedule_id
@@ -2124,16 +2213,31 @@
 										});
 										
 										 
-										 //Get information on the nightly job
+										 //Get information on the nightly job start
 										 Q.each(stepsjobject2.infoStart, function(index, element){
 										 
 											console.log(element.name);
 											if (element.name == "exists")
 											{
-												console.log(element.job); 
-												console.log(element.next_run_schedule_id); 
-												console.log(element.next_run_date); 
-												console.log(element.next_run_time);
+												NJStartExistence = true;
+												//console.log(element.job); 
+												//console.log(element.next_run_schedule_id); 
+												//console.log(element.next_run_date); 
+												//console.log(element.next_run_time);
+												
+												NJStartdetails = {
+												  job: element.job,
+												  next_run_schedule_id: element.next_run_schedule_id,
+												  next_run_date: element.next_run_date,
+												  next_run_time: element.next_run_time,
+												  next_run_date_time: element.next_run_date_time
+												};
+												
+												console.log(NJStartdetails.job);
+												console.log(NJStartdetails.next_run_schedule_id);
+												console.log(NJStartdetails.next_run_date);
+												console.log(NJStartdetails.next_run_time);
+												console.log(NJStartdetails.next_run_date_time);
 											}
 											
 											

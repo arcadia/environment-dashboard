@@ -1485,6 +1485,8 @@ public class EnvDashboardView extends View {
 		   JsonObject joSteps = null;
 		   JsonObject joInfo = null;
 		   JsonObject joInfoStart = null;
+		   Date next_run_date_time_for_conv = null;
+		   String next_run_date_time = null;
 		   
 		   
 		   //Check if the NJ Start exists
@@ -1587,6 +1589,24 @@ public class EnvDashboardView extends View {
 						enabledStatus = "undetermined";	
 					}
 				
+					
+					if (rs.getInt("next_run_schedule_id") != 0 && rs.getInt("next_run_date") != 0)
+					{
+						next_run_date_time_for_conv = new SimpleDateFormat("yyyyMMdd HHmmss").parse(rs.getString("next_run_date") + " " + rs.getString("next_run_time"));
+						next_run_date_time = next_run_date_time_for_conv.toString();
+						
+						//System.out.println(next_run_date_time);
+					}
+					else
+					{
+						next_run_date_time = "0";
+					}
+					
+					
+					
+					
+					System.out.println(next_run_date_time);
+					
 					System.out.println(rs.getString("next_run_schedule_id") + 
 								 " " + rs.getString("next_run_date") + 
 								 " " + rs.getString("next_run_time") + 
@@ -1594,7 +1614,8 @@ public class EnvDashboardView extends View {
 								 " " + mappedCurrentExecutionStatus + 
 								 " " + job +
 								 " " + activeDB +
-								 " " + activeServer);
+								 " " + activeServer +
+								 " " + next_run_date_time);
 								 
 					//CRjobInfo += rs.getString("start_step_id") + " " + rs.getString("date_modified") + " " + rs.getString("last_run_date") + "\n";
 					
@@ -1614,6 +1635,7 @@ public class EnvDashboardView extends View {
 						  .add("job", job)
 						  .add("activeDB", activeDB)
 						  .add("activeServer", activeServer)
+						  .add("next_run_date_time", next_run_date_time)
 					  .build());
 			   }
 			   
@@ -1690,12 +1712,28 @@ public class EnvDashboardView extends View {
 							enabledStatus = "undetermined";	
 						}
 					
+
+						if (rs.getInt("next_run_schedule_id") != 0 && rs.getInt("next_run_date") != 0)
+						{
+							next_run_date_time_for_conv = new SimpleDateFormat("yyyyMMdd HHmmss").parse(rs.getString("next_run_date") + " " + rs.getString("next_run_time"));
+							next_run_date_time = next_run_date_time_for_conv.toString();
+							
+							//System.out.println(next_run_date_time);
+						}
+						else
+						{
+							next_run_date_time = "0";
+						}
+					
+						System.out.println(next_run_date_time);
+					
 						System.out.println(rs.getString("next_run_schedule_id") + 
 									 " " + rs.getString("next_run_date") + 
 									 " " + rs.getString("next_run_time") + 
 									 " " + enabledStatus + 
 									 " " + mappedCurrentExecutionStatus + 
-									 " " + job);
+									 " " + job +
+									 " " + next_run_date_time);	
 									 
 						//CRjobInfo += rs.getString("start_step_id") + " " + rs.getString("date_modified") + " " + rs.getString("last_run_date") + "\n";
 						
@@ -1713,6 +1751,7 @@ public class EnvDashboardView extends View {
 							  .add("enabledStatus", enabledStatus)
 							  .add("current_execution_status", mappedCurrentExecutionStatus)
 							  .add("job", job)
+							  .add("next_run_date_time", next_run_date_time)
 						  .build());
 				   }
 			  
