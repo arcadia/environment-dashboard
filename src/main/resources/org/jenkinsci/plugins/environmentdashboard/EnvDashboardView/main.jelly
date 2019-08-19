@@ -751,11 +751,77 @@ function showDashboard() {
 													console.log("future date is greater than server time");
 													
 													//Check the start time of NJ
+													var NJNextRunDateTime;
 													if (NJexistence)
 													{
-														getClientJobNextRunDateTime(NJdetails, serverDateTime);
-														//dateValidated = true;
-														return '"false"';
+														NJNextRunDateTime = getClientJobNextRunDateTime(NJdetails, serverDateTime);
+														if (NJNextRunDateTime != false)
+														{
+															if (futureDateTime &lt; NJNextRunDateTime)
+															{
+																dateValidated = true;
+																return '"true"';
+															
+															}
+															else
+															{
+															    Q("#dialog3").dialog("option","title","Warning");
+																Q("#dialog3text").text("client's NJ will start on " + NJNextRunDateTime + ". Please schedule deployment 10 minutes earlier before its start time");
+																Q("#dialog3").dialog("open");
+																
+																console.log("client's NJ will start on " + NJNextRunDateTime + ". Please schedule deployment 10 minutes earlier before its start time");
+																//return '"false"';
+																dateValidated = false;
+																return "\"client's NJ will kick off before requested scheduled time\"";
+															    
+															}
+														
+														}
+														else
+														{
+															if (NJStartExistence)
+															{
+																NJNextRunDateTime = getClientJobNextRunDateTime(NJStartdetails, serverDateTime);
+																if (NJNextRunDateTime != false)
+																{
+																	if (futureDateTime &lt; NJNextRunDateTime)
+																	{
+																		dateValidated = true;
+																		return '"true"';
+																	
+																	}
+																	else
+																	{
+																		Q("#dialog3").dialog("option","title","Warning");
+																		Q("#dialog3text").text("client's NJ Start will start on " + NJNextRunDateTime + ". Please schedule deployment 10 minutes earlier before its start time");
+																		Q("#dialog3").dialog("open");		
+																		
+																		console.log("client's NJ Start will start on " + NJNextRunDateTime + ". Please schedule deployment 10 minutes earlier before its start time");
+																		//return '"false"';
+																		dateValidated = false;
+																		return "\"client's NJ Start will kick off before requested scheduled time\"";
+																		
+															
+																	}
+																
+																}
+																else
+																{
+																
+																	dateValidated = true;
+																	return '"true"';
+																
+																}
+															}
+															else
+															{												
+																	dateValidated = true;
+																	return '"true"';
+															}
+														
+														}
+														
+
 													}
 													else
 													{
@@ -769,7 +835,7 @@ function showDashboard() {
 													console.log("future date is less than server time");
 													//return '"false"';
 													dateValidated = false;
-													return "\"please enter the date into the future\"";
+													return "\"please enter the date and time into the future\"";
 												 
 												 }
 												
@@ -807,7 +873,7 @@ function showDashboard() {
 									njStartStepDecision: "please make a choice",
 									datetimepicker: {
 										required: "please schedule this PRD deployment",
-										remote: "please enter the date into the future"
+										remote: "please enter the date and time into the future"
 									},
 									njstartstep: "please enter name of the step",
 									EnvDecision: "please make a choice"
@@ -1688,8 +1754,13 @@ function showDashboard() {
 							   console.log("Next " + NJ + " date and time to run is " + NextRunDateTime);
 							   console.log("Current server date and time is " + servertime);
 
-								
-							}	
+								return NextRunDateTime;
+							}
+							else
+							{
+							
+								return false;
+							}
 
 						
 						}

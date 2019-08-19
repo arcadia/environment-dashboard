@@ -1487,7 +1487,7 @@ public class EnvDashboardView extends View {
 		   JsonObject joInfoStart = null;
 		   Date next_run_date_time_for_conv = null;
 		   String next_run_date_time = null;
-		   
+		   String next_run_time = null;
 		   
 		   //Check if the NJ Start exists
 			System.out.println(getCurentDateTime() + ": Check if " + job + " exists...");
@@ -1592,7 +1592,16 @@ public class EnvDashboardView extends View {
 					
 					if (rs.getInt("next_run_schedule_id") != 0 && rs.getInt("next_run_date") != 0)
 					{
-						next_run_date_time_for_conv = new SimpleDateFormat("yyyyMMdd HHmmss").parse(rs.getString("next_run_date") + " " + rs.getString("next_run_time"));
+						next_run_time = rs.getString("next_run_time");
+							
+						while (next_run_time.length() != 6)
+						{
+
+						  next_run_time = "0" + next_run_time;
+
+						}
+					
+						next_run_date_time_for_conv = new SimpleDateFormat("yyyyMMdd HHmm").parse(rs.getString("next_run_date") + " " + next_run_time);
 						next_run_date_time = next_run_date_time_for_conv.toString();
 						
 						//System.out.println(next_run_date_time);
@@ -1715,7 +1724,16 @@ public class EnvDashboardView extends View {
 
 						if (rs.getInt("next_run_schedule_id") != 0 && rs.getInt("next_run_date") != 0)
 						{
-							next_run_date_time_for_conv = new SimpleDateFormat("yyyyMMdd HHmmss").parse(rs.getString("next_run_date") + " " + rs.getString("next_run_time"));
+							next_run_time = rs.getString("next_run_time");
+							
+							while (next_run_time.length() != 6)
+							{
+
+							  next_run_time = "0" + next_run_time;
+
+							}
+						
+							next_run_date_time_for_conv = new SimpleDateFormat("yyyyMMdd HHmm").parse(rs.getString("next_run_date") + " " + next_run_time);
 							next_run_date_time = next_run_date_time_for_conv.toString();
 							
 							//System.out.println(next_run_date_time);
