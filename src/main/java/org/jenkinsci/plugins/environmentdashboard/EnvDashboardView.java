@@ -1601,7 +1601,7 @@ public class EnvDashboardView extends View {
 
 						}
 					
-						next_run_date_time_for_conv = new SimpleDateFormat("yyyyMMdd HHmm").parse(rs.getString("next_run_date") + " " + next_run_time);
+						next_run_date_time_for_conv = new SimpleDateFormat("yyyyMMdd HHmm").parse(rs.getString("next_run_date") + " " + next_run_time.substring(0,4));
 						next_run_date_time = next_run_date_time_for_conv.toString();
 						
 						//System.out.println(next_run_date_time);
@@ -1733,7 +1733,7 @@ public class EnvDashboardView extends View {
 
 							}
 						
-							next_run_date_time_for_conv = new SimpleDateFormat("yyyyMMdd HHmm").parse(rs.getString("next_run_date") + " " + next_run_time);
+							next_run_date_time_for_conv = new SimpleDateFormat("yyyyMMdd HHmm").parse(rs.getString("next_run_date") + " " + next_run_time.substring(0,4));
 							next_run_date_time = next_run_date_time_for_conv.toString();
 							
 							//System.out.println(next_run_date_time);

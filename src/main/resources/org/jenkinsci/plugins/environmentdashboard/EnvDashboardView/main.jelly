@@ -12,16 +12,19 @@
 <script src="${rootURL}/plugin/environment-dashboard/js/jquery-ui.js"></script>
 
 <div id="loader"></div>
+<div id="loader2"></div>
+
 <script>
 Q(window).load(function(){
 	setTimeout(showDashboard, 3000);
 });
 
 function showDashboard() {
-  Q("#loader").hide();
+  Q("#loader, #loader2").hide();
   Q("#startDashboard").show();
 }
 </script>
+
 
 
 <div class="overlay" style="display:none; background-color: rgba(0, 0, 0, 0.4); position:absolute; top: 0; left:0; bottom:0; right:0;" onclick="hideAll()"></div>
@@ -531,14 +534,20 @@ function showDashboard() {
 							
 							
 							Q("#dialog2").dialog({
+								//create: function( e, ui ) { this.element.css( "z-index", "0" ); },
 								autoOpen: false, 
 								modal: true,
+								//zIndex: 0,
 								draggable: true,
 								resizable: false,
 								autoResize: true,
 								width: 1000,
 								//height: 600,
 								dialogClass: "no-close",
+								//open: function (event, ui) {
+								 //Q('.ui-dialog').css('z-index',1);
+								 //Q('.ui-widget-overlay').css('z-index',0);
+								//},
 								buttons: {
 								OK: function (e) {
 										//Q(this).submit();
@@ -549,6 +558,10 @@ function showDashboard() {
 										//alert(Q("#SQLscript").val());
 										//alert(Q("#activeServer").val());
 										
+										// Setter
+										//Q(this).dialog( "option", "modal", false );
+										Q("#overlay3").show();
+										Q("#loader2").show();
 										
 										//Loop through CRjob steps and find the max step_id
 										var step_ids = [];
@@ -658,13 +671,22 @@ function showDashboard() {
 											 if (response4.indexOf("failed") == -1)
 											 {
 												//Processing CRjob steps succeeded
-												Q("#dialog3").dialog("option","title","Success");
-												Q("#dialog3text").text(response4);
-												Q("#dialog3").dialog("open");
+												//Q("#dialog3").dialog("option","title","Success");
+												//Q("#dialog3text").text(response4);
+												//Q("#dialog3").dialog("open");
+												console.log(response4);
+												
+												Q("#loader2").hide();
+												Q("#overlay3").hide();
+												//Q(this).dialog( "option", "modal", true );												
+												Q("#dialog2").dialog("close");
 											 
 											 }
 											 else
 											 {
+												Q("#loader2").hide();
+												Q("#overlay3").hide();
+												//Q(this).dialog( "option", "modal", true );
 											 
 												Q("#dialog3").dialog("option","title","Failure");
 												Q("#dialog3text").text(response4);
@@ -673,11 +695,7 @@ function showDashboard() {
 											 }
 											 
 										});
-												
 										
-										Q("#dialog2").dialog("close");
-												
-					
 										
 									},
 									Cancel: function () {
@@ -766,13 +784,25 @@ function showDashboard() {
 															else
 															{
 															    Q("#dialog3").dialog("option","title","Warning");
-																Q("#dialog3text").text("client's NJ will start on " + NJNextRunDateTime + ". Please schedule deployment 10 minutes earlier before its start time");
+																
+																if (typeofDeployment == "CRjob")
+																{
+																	Q("#dialog3text").text("client's NJ will kick off before/at requested scheduled time. Client's NJ will start on " + NJNextRunDateTime + ". Please schedule CR job 10 minutes earlier before NJ start time.");
+																	console.log("client's NJ will kick off before/at requested scheduled time. Client's NJ will start on " + NJNextRunDateTime + ". Please schedule CR job 10 minutes earlier before NJ start time.");
+																}
+																else
+																{
+																	Q("#dialog3text").text("client's NJ will kick off before/at requested scheduled time. Client's NJ will start on " + NJNextRunDateTime + ". Please schedule deployment 10 minutes earlier before NJ start time.");
+																	console.log("client's NJ will kick off before/at requested scheduled time. Client's NJ will start on " + NJNextRunDateTime + ". Please schedule deployment 10 minutes earlier before NJ start time.");
+																}
+																
+																
 																Q("#dialog3").dialog("open");
 																
-																console.log("client's NJ will start on " + NJNextRunDateTime + ". Please schedule deployment 10 minutes earlier before its start time");
+																
 																//return '"false"';
 																dateValidated = false;
-																return "\"client's NJ will kick off before requested scheduled time\"";
+																return "\"client's NJ will be running at this time\"";
 															    
 															}
 														
@@ -793,13 +823,24 @@ function showDashboard() {
 																	else
 																	{
 																		Q("#dialog3").dialog("option","title","Warning");
-																		Q("#dialog3text").text("client's NJ Start will start on " + NJNextRunDateTime + ". Please schedule deployment 10 minutes earlier before its start time");
+																		
+																		if (typeofDeployment == "CRjob")
+																		{
+																			Q("#dialog3text").text("client's NJ Start will kick off before/at requested scheduled time. Client's NJ Start will start on " + NJNextRunDateTime + ". Please schedule CR job 10 minutes earlier before NJ Start start time.");
+																			console.log("client's NJ Start will kick off before/at requested scheduled time. Client's NJ Start will start on " + NJNextRunDateTime + ". Please schedule CR job 10 minutes earlier before NJ Start start time.");																				
+																		}
+																		else
+																		{
+																			Q("#dialog3text").text("client's NJ Start will kick off before/at requested scheduled time. Client's NJ Start will start on " + NJNextRunDateTime + ". Please schedule deployment 10 minutes earlier before NJ Start start time.");
+																			console.log("client's NJ Start will kick off before/at requested scheduled time. Client's NJ Start will start on " + NJNextRunDateTime + ". Please schedule deployment 10 minutes earlier before NJ Start start time.");																		
+																		}
+																		
+																		
 																		Q("#dialog3").dialog("open");		
 																		
-																		console.log("client's NJ Start will start on " + NJNextRunDateTime + ". Please schedule deployment 10 minutes earlier before its start time");
 																		//return '"false"';
 																		dateValidated = false;
-																		return "\"client's NJ Start will kick off before requested scheduled time\"";
+																		return "\"client's NJ Start will be running at this time\"";
 																		
 															
 																	}
@@ -1391,6 +1432,8 @@ function showDashboard() {
 								//alert(Q("#SQLscript").val());
 								//alert(Q("#activeServer").val());
 								
+								Q("#overlay3").show();
+								Q("#loader2").show();
 								
 								//Connecting directly to SQL server by passing SQL query to parse
 								var response3 = "";
@@ -1398,6 +1441,9 @@ function showDashboard() {
 									 response3 = t.responseObject();
 									 if (response3.indexOf("failed") == -1)
 									 {
+										Q("#loader2").hide();
+										Q("#overlay3").hide();
+										
 										//parsing succeeded
 									 	Q("#dialog3").dialog("option","title","Success");
 										Q("#dialog3text").text(response3);
@@ -1406,6 +1452,9 @@ function showDashboard() {
 									 }
 									 else
 									 {
+									 
+										Q("#loader2").hide();
+										Q("#overlay3").hide();
 									 
 									 	Q("#dialog3").dialog("option","title","Failure");
 										Q("#dialog3text").text(response3);
@@ -1431,6 +1480,10 @@ function showDashboard() {
 								//Q("#dialog3").dialog("open");
 								
 								//Retrieve CR job steps
+								
+								Q("#overlay2").show();
+								Q("#loader").show();
+								
 								var response2 = "";
 								EnvDashViewProxy.getCRjobStepsSQLquery(CRjob,Q("#clientAcronym").val(),Q("#environment").val(), function(t) {
 									 response2 = t.responseObject();
@@ -1496,6 +1549,8 @@ function showDashboard() {
 												 }
 												 else
 												 {
+													Q("#loader").hide();
+													Q("#overlay2").hide();
 													
 												 	Q("#dialog3").dialog("option","title","Error");
 													Q("#dialog3text").text(CRjob + " is not idle at the moment");
@@ -1507,6 +1562,9 @@ function showDashboard() {
 											}
 											else
 											{
+												Q("#loader").hide();
+												Q("#overlay2").hide();
+											
 												Q("#dialog3").dialog("option","title","Error");
 												Q("#dialog3text").text(CRjob + " does not exist");
 												Q("#dialog3").dialog("open");	
@@ -1548,6 +1606,9 @@ function showDashboard() {
 											//alert("Finished populating the table");
 											 
 											 //Present CR job details
+											 Q("#loader").hide();
+											 Q("#overlay2").hide();
+											 
 											 Q("#dialog2").dialog("open");
 											 //Q("#CRjobsteps").show();
 											 Q("#CRjobinfoTable, #CRjobstepsTable").show();
@@ -1556,11 +1617,13 @@ function showDashboard() {
 										 }
 
 										 
-										 
 										
 									 }
 									 else
 									 {
+										Q("#loader").hide();
+										Q("#overlay2").hide();
+										
 										Q("#dialog3").dialog("option","title","Error");
 										Q("#dialog3text").text(response2);
 										Q("#dialog3").dialog("open");
@@ -2362,6 +2425,14 @@ function showDashboard() {
 								 }
 								 else
 								 {
+									Q("#loader").hide();
+									
+									if (noInitialEnv)
+									{
+										Q("#overlay2").hide();
+										
+									}
+									
 									Q("#dialog3").dialog("option","title","Error");
 									Q("#dialog3text").text(response6);
 									Q("#dialog3").dialog("open");
@@ -2543,6 +2614,7 @@ function showDashboard() {
 </div>
 <div id="overlay" style="display:none;"></div>
 <div id="overlay2" style="display:none;"></div>
+<div id="overlay3" style="display:none;"></div>
 <form id="dialog" style="display:none;" autocomplete="off">
 	<p id="dialogTitle">Placeholder for Deployment Information</p>
 
