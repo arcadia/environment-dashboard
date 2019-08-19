@@ -2674,7 +2674,7 @@ function showDashboard() {
 	<input type="hidden" id="activeServer" value=""/>
 	
 </form>
-<div id="dialog3" title="Title place holder">
+<div id="dialog3" title="Title place holder" style="display:none;">
   <p id="dialog3text">Place holder for message</p>
 </div>
 <form id="dialog4" title="cr-job-step-title" style="display:none;" autocomplete="off">
