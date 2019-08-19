@@ -474,6 +474,7 @@ function showDashboard() {
 						var NJStartdetails;
 						var NJexistence = false;
 						var NJStartExistence = false;
+						var noInitialEnv = false;
 						
 						//Hide the dynamic dialog initially after the page loads					
 						Q(document).ready(function(){
@@ -1903,23 +1904,21 @@ function showDashboard() {
 						
 						function CheckEnvDecision()
 						{
-							Q("#PRDsection").show(500);
-							Q("#startCRjobSection, #noRollbackSection").show();
-							
+
 							if (Q("#EnvDecision").val() != "")
 							{
-								if (Q("#EnvDecision").val() == "PRD")
+								if (Q("#EnvDecision").val() != "PRD")
 								{
-									Q("#kickoffDateTimeSection").show();
-									Q("#datetimepickerLabel").text("Deployment kick off date and time");	
-							    }
-							    else
-							    {
 									Q("#kickoffDateTimeSection").hide();
 							    }
 							   
-							   
 							   Q("#environment").val(Q("#EnvDecision").val());
+							   
+
+							   
+							   Q("#overlay2").show();
+							   Q("#loader").show();
+							   
 							   getNightlyjobSteps();
 								
 							}
@@ -1988,6 +1987,7 @@ function showDashboard() {
 									
 									 if (env == null)
 									 {
+										noInitialEnv = true;
 										Q("#overlay, #dialog").show();
 										Q("#startnjlabel").text(" Start nightly job upon successful execution of deployment and/or change request job");
 
@@ -2245,18 +2245,30 @@ function showDashboard() {
 									
 									
 									Q("#loader").hide();
-									Q("#dialog, #PRDsection").show();
+									Q("#dialog").show();
+									
+									if (noInitialEnv)
+									{
+										Q("#overlay2").hide();
+										Q("#PRDsection").show(500);
+									}
+									else
+									{
+										Q("#PRDsection").show();
+									}
 									
 									if (typeofDeployment == "CRjob")
 									{
 									
 										Q("#startCRjobSection, #noRollbackSection").hide();
 										Q("#prd-env-cr-job").show();
+										Q("#datetimepickerLabel").text("Change Request job kick off date and time");
 
 									}
 									else if (typeofDeployment == "client" || typeofDeployment == "backend")
 									{
 										Q("#startCRjobSection, #noRollbackSection").show();
+										Q("#datetimepickerLabel").text("Deployment kick off date and time");
 										
 										if (typeofDeployment == "backend")
 										{
@@ -2273,7 +2285,6 @@ function showDashboard() {
 									if (Q("#environment").val() == "PRD") 
 									{		
 										Q("#kickoffDateTimeSection").show();
-										Q("#datetimepickerLabel").text("Deployment kick off date and time");
 									}
 									
 									
@@ -2460,6 +2471,7 @@ function showDashboard() {
 	</table>
 </div>
 <div id="overlay" style="display:none;"></div>
+<div id="overlay2" style="display:none;"></div>
 <form id="dialog" style="display:none;" autocomplete="off">
 	<p id="dialogTitle">Placeholder for Deployment Information</p>
 
