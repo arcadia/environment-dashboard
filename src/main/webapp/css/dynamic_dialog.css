@@ -53,11 +53,14 @@
 	float:left; text-align:center;
 	z-index: 1;}
 #overlay3{
-	position: absolute; top: 0; left: 0;
-	width: 100%; height: 100%;
-	opacity:.8; background-color:white; 
-	margin:0px; display:inline-block;
-	float:left; text-align:center;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: #aaaaaa;
+	opacity: .3;
+	filter: Alpha(Opacity=30); /* support: IE8 */
 	z-index: 103;}
 #dialog {
 	border: 3px groove blue; text-align:left;

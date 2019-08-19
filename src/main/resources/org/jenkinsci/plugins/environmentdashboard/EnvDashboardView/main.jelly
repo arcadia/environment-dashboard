@@ -1481,8 +1481,8 @@ function showDashboard() {
 								
 								//Retrieve CR job steps
 								
-								Q("#overlay2").show();
-								Q("#loader").show();
+								Q("#overlay3").show();
+								Q("#loader2").show();
 								
 								var response2 = "";
 								EnvDashViewProxy.getCRjobStepsSQLquery(CRjob,Q("#clientAcronym").val(),Q("#environment").val(), function(t) {
@@ -1549,8 +1549,8 @@ function showDashboard() {
 												 }
 												 else
 												 {
-													Q("#loader").hide();
-													Q("#overlay2").hide();
+													Q("#loader2").hide();
+													Q("#overlay3").hide();
 													
 												 	Q("#dialog3").dialog("option","title","Error");
 													Q("#dialog3text").text(CRjob + " is not idle at the moment");
@@ -1562,8 +1562,8 @@ function showDashboard() {
 											}
 											else
 											{
-												Q("#loader").hide();
-												Q("#overlay2").hide();
+												Q("#loader2").hide();
+												Q("#overlay3").hide();
 											
 												Q("#dialog3").dialog("option","title","Error");
 												Q("#dialog3text").text(CRjob + " does not exist");
@@ -1606,8 +1606,8 @@ function showDashboard() {
 											//alert("Finished populating the table");
 											 
 											 //Present CR job details
-											 Q("#loader").hide();
-											 Q("#overlay2").hide();
+											 Q("#loader2").hide();
+											 Q("#overlay3").hide();
 											 
 											 Q("#dialog2").dialog("open");
 											 //Q("#CRjobsteps").show();
@@ -1621,8 +1621,8 @@ function showDashboard() {
 									 }
 									 else
 									 {
-										Q("#loader").hide();
-										Q("#overlay2").hide();
+										Q("#loader2").hide();
+										Q("#overlay3").hide();
 										
 										Q("#dialog3").dialog("option","title","Error");
 										Q("#dialog3text").text(response2);
