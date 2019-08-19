@@ -12,7 +12,7 @@
 <script src="${rootURL}/plugin/environment-dashboard/js/jquery-ui.js"></script>
 
 <div id="loader"></div>
-<div id="loader2"></div>
+<div id="loader2" style="display:none;"></div>
 
 <script>
 Q(window).load(function(){
@@ -20,7 +20,7 @@ Q(window).load(function(){
 });
 
 function showDashboard() {
-  Q("#loader, #loader2").hide();
+  Q("#loader").hide();
   Q("#startDashboard").show();
 }
 </script>
@@ -1850,7 +1850,16 @@ function showDashboard() {
 							}
 							else
 							{
-								Q("#ClientRevisionSection, #njstartstepSection, #prd-env, #prd-env-cr-job, #kickoffDateTimeSection").hide();
+								
+								
+								
+								Q("#ClientRevisionSection, #njstartstepSection, #prd-env, #kickoffDateTimeSection").hide();
+								
+								if (typeofDeployment != "CRjob")
+								{
+									Q("#prd-env-cr-job").hide();
+								}
+								
 								
 								if (typeofDeployment == "backend")
 								{
@@ -1986,7 +1995,7 @@ function showDashboard() {
 									typeofDeployment = "backend";
 									
 									Q("#overlay").show();
-									Q("#loader").show();
+									Q("#loader2").show();
 									
 									 Q("#startnjlabel").text(" Start nightly job upon successful execution of deployment and/or change request job");
 									 
@@ -2051,7 +2060,7 @@ function showDashboard() {
 
 							   
 							   Q("#overlay2").show();
-							   Q("#loader").show();
+							   Q("#loader2").show();
 							   
 							   getNightlyjobSteps();
 								
@@ -2111,6 +2120,8 @@ function showDashboard() {
 									
 									typeofDeployment = "client";
 									
+									Q("#startnjlabel").text(" Start nightly job upon successful execution of deployment and/or change request job");
+									
 									Q("#clientAcronym").val(comp);
 									Q("#build_num").val(buildNum);
 								  
@@ -2123,9 +2134,7 @@ function showDashboard() {
 									 {
 										noInitialEnv = true;
 										Q("#overlay, #dialog").show();
-										Q("#startnjlabel").text(" Start nightly job upon successful execution of deployment and/or change request job");
-
-									 
+										
 										 Q("#envSection").show();
 										 Q("#dialogTitle").text("Deploying " + comp + " for " + buildNum);
 										 
@@ -2133,7 +2142,7 @@ function showDashboard() {
 									 else
 									 {
 										Q("#overlay").show();
-										Q("#loader").show();
+										Q("#loader2").show();
 										 
 										 //Set the html elements
 										 Q("#dialogTitle").text("Deploying " + comp + " to " + env + " for " + buildNum);
@@ -2186,7 +2195,7 @@ function showDashboard() {
 								if (proceed)
 								{
 									Q("#overlay").show();
-									Q("#loader").show();
+									Q("#loader2").show();
 									
 									//alert( "You are running jQuery version: " + Q.fn.jquery );
 									//alert(Q().jquery); //it is 1.7.2
@@ -2378,7 +2387,7 @@ function showDashboard() {
 									
 									
 									
-									Q("#loader").hide();
+									Q("#loader2").hide();
 									Q("#dialog").show();
 									
 									if (noInitialEnv)
@@ -2425,7 +2434,7 @@ function showDashboard() {
 								 }
 								 else
 								 {
-									Q("#loader").hide();
+									Q("#loader2").hide();
 									
 									if (noInitialEnv)
 									{
