@@ -295,32 +295,43 @@ function showDashboard() {
 						<tr>
 							<td align="center"><strong><a href="javascript:toggle('${comps}_History')">${comps}</a></strong></td>
 							<j:forEach items="${orderOfEnvs}" var="env">
+							
 								<j:set var="deployment" value="${it.getCompLastDeployed(env, comps)}"/>
-								<j:if test="${!deployment.isEmpty()}">
-									<j:switch on="${deployment.get('buildstatus')}">
-										<j:case value="SUCCESS">
-											<j:set var="bgcol" value="#DAF5DA;"/>
-											<j:set var="clss" value="notused"/>
-											<j:set var="extn" value=""/>
-										</j:case>
-										<j:case value="FAILURE">
-											<j:set var="bgcol" value="#FF6666;"/>
-											<j:set var="clss" value="notused"/>
-											<j:set var="extn" value=""/>
-										</j:case>
-										<j:case value="RUNNING">
-											<j:set var="bgcol" value="#ffffff;"/>
-											<j:set var="clss" value="deploying"/>
-											<j:set var="extn" value="console"/>
-										</j:case>
-										<j:default>
-											<j:set var="bgcol" value="#eccf97;"/>
-											<j:set var="clss" value="notused"/>
-											<j:set var="extn" value="console"/>
-										</j:default>
-									</j:switch>
-								</j:if>
+								
+								<j:choose>
+									<j:when test="${!deployment.isEmpty()}">
+										<j:switch on="${deployment.get('buildstatus')}">
+											<j:case value="SUCCESS">
+												<j:set var="bgcol" value="#DAF5DA;"/>
+												<j:set var="clss" value="notused"/>
+												<j:set var="extn" value=""/>
+											</j:case>
+											<j:case value="FAILURE">
+												<j:set var="bgcol" value="#FF6666;"/>
+												<j:set var="clss" value="notused"/>
+												<j:set var="extn" value=""/>
+											</j:case>
+											<j:case value="RUNNING">
+												<j:set var="bgcol" value="#ffffff;"/>
+												<j:set var="clss" value="deploying"/>
+												<j:set var="extn" value="console"/>
+											</j:case>
+											<j:default>
+												<j:set var="bgcol" value="#eccf97;"/>
+												<j:set var="clss" value="notused"/>
+												<j:set var="extn" value="console"/>
+											</j:default>
+										</j:switch>
+									</j:when>
+									<j:otherwise>
+										<j:set var="bgcol" value="#E8E8E8;"/>
+										<j:set var="clss" value="notused"/>
+										<j:set var="extn" value="console"/>
+									</j:otherwise>
+								</j:choose>
+			
 
+                    
 								<td class="${clss}" style="background-color:${bgcol} padding 1.5% 1.5%;" align="center">
 									<j:if test="${!deployment.isEmpty()}">
 										<a style="text-decoration:none; color:blue; font-size:medium;" title="View" href="javascript:toggle('${comps}_${env}_Popup');">
@@ -451,6 +462,7 @@ function showDashboard() {
 										</j:forEach>
 									</j:if>
 								</td>
+
 							</j:forEach>
 						</tr>
 					</j:forEach>
@@ -1136,12 +1148,20 @@ function showDashboard() {
 							}).prev(".ui-dialog-titlebar").css("background","#81BEF7");
 							
 							
-							Q("#dialog").submit(function(e){ 
+							Q("#dialog").submit(function(e){
+							
+								var go = false;
+								
+								if ((dateValidated &amp;&amp; Q("#environment").val() == 'PRD') || Q("#environment").val() != 'PRD')
+								{
+									go = true;
+								}
+								
 								if(!validationObj.form())
 								{  
 								  e.preventDefault(); 
 								}
-								else if (dateValidated)
+								else if (go)
 								{
 									// Stop form from submitting normally
 									e.preventDefault();
@@ -1190,6 +1210,10 @@ function showDashboard() {
 										Q("#dialog3").dialog("open");
 									}
 								
+								}
+								else
+								{
+									e.preventDefault();
 								}
 								
 							});
@@ -2547,7 +2571,8 @@ function showDashboard() {
 								windowObjectReference.focus();
 							}
 							
-							
+							Q("#startDashboard").hide();
+							Q("#loader").show();
 							window.location.reload(true);
 							
 						}

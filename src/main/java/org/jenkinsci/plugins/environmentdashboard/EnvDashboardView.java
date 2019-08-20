@@ -391,6 +391,9 @@ public class EnvDashboardView extends View {
     }
 
     public ArrayList<String> getOrderOfEnvs() {
+		
+		//System.err.println("At getOrderOfEnvs function...");
+	
         ArrayList<String> orderOfEnvs;
         orderOfEnvs = splitEnvOrder(envOrder);
         if (orderOfEnvs == null || orderOfEnvs.isEmpty()){
@@ -404,6 +407,8 @@ public class EnvDashboardView extends View {
                 while (rs.next()) {
                     if (orderOfEnvs != null) {
                         orderOfEnvs.add(rs.getString("envName"));
+						
+						//System.err.println(rs.getString("envName"));
                     }
                 }
                 DBConnection.closeConnection(conn);
@@ -602,6 +607,19 @@ public class EnvDashboardView extends View {
     }
 
     public HashMap getCompLastDeployed(String env, String comp) {
+		
+		//if (comp.equals("test Backend"))
+		/*
+		if (comp.equals("test CRjob"))
+		{
+			System.out.println("At getCompLastDeployed");
+			System.out.println("Passed arguments:");
+			System.out.println(env);
+			System.out.println(comp);
+		}
+		*/
+		
+		
         HashMap<String, String> deployment;
         deployment = new HashMap<String, String>();
         String[] fields = {"buildstatus", "buildJobUrl", "jobUrl", "buildNum", "created_at", "packageName"};
@@ -610,12 +628,31 @@ public class EnvDashboardView extends View {
             allDBFields.add(field);
         }
         String queryString = "select top 1 " + StringUtils.join(allDBFields, ", ").replace(".$","") + " from env_dashboard where envName = '" + env + "' and compName = '" + comp + "' order by created_at desc;";
+		
+		//if (comp.equals("test Backend"))
+		/*
+		if (comp.equals("test CRjob"))
+		{
+			//System.out.println("Built SQL query:");
+			//System.out.println(queryString);
+		}
+		*/
+		
         try {
             Connection conn = DBConnection.getConnection();
             ResultSet rs = runQuery(conn, queryString);
             rs.next();
             for (String field : allDBFields) {
                 deployment.put(field, rs.getString(field));
+				
+				//if (comp.equals("test Backend"))
+				/*
+				if (comp.equals("test CRjob"))
+				{
+					System.out.println(rs.getString(field));
+				}
+				*/
+				
             }
             DBConnection.closeConnection(conn);
         } catch (SQLException e) {
