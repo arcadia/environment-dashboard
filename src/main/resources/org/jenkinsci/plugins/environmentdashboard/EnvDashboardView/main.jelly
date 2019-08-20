@@ -1568,8 +1568,8 @@ function showDashboard() {
 													 Q("#CRjobinfoTable tbody").append('<td style="width: 8%;text-align:center">' + element.current_execution_step + '</td>');
 													 Q("#CRjobinfoTable tbody").append('</tr>');
 													 
-													 Q("#activeDB").val(element.activeDB);
-													 Q("#activeServer").val(element.activeServer);
+													 //Q("#activeDB").val(element.activeDB);
+													 //Q("#activeServer").val(element.activeServer);
 												 }
 												 else
 												 {
@@ -2086,6 +2086,8 @@ function showDashboard() {
 							   Q("#overlay2").show();
 							   Q("#loader2").show();
 							   
+							   
+							   
 							   getNightlyjobSteps();
 								
 							}
@@ -2169,7 +2171,7 @@ function showDashboard() {
 										Q("#loader2").show();
 										 
 										 //Set the html elements
-										 Q("#dialogTitle").text("Deploying " + comp + " to " + env + " for " + buildNum);
+										 //Q("#dialogTitle").text("Deploying " + comp + " to " + env + " for " + buildNum);
 										 Q("#environment").val(env);
 										 
 										 getNightlyjobSteps();
@@ -2230,7 +2232,7 @@ function showDashboard() {
 									 
 									 //Set the html elements
 									 var compSubstr = comp.substring(0, comp.indexOf(' '));
-									Q("#dialogTitle").text("Change request " + compSubstr + " to " + env);
+									//Q("#dialogTitle").text("Change request " + compSubstr + " to " + env);
 									Q("#clientAcronym").val(compSubstr);
 
 									CRjob = compSubstr + "_Change_Request";
@@ -2313,7 +2315,8 @@ function showDashboard() {
 											console.log(NJdetails.next_run_date_time);
 										}
 										
-
+										Q("#activeDB").val(element.activeDB);
+										Q("#activeServer").val(element.activeServer);
 										
 										
 										/*
@@ -2421,12 +2424,16 @@ function showDashboard() {
 									}
 									else
 									{
+										Q("#dialogTitle").text("Deploying " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " for " + Q("#build_num").val() + " &#x2192; " + Q("#activeServer").val());
+
 										Q("#PRDsection").show();
 									}
 									
 									if (typeofDeployment == "CRjob")
 									{
-									
+										Q("#dialogTitle").text("Change request " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " &#x2192; " + Q("#activeServer").val());
+
+
 										Q("#startCRjobSection, #noRollbackSection").hide();
 										Q("#prd-env-cr-job").show();
 										Q("#datetimepickerLabel").text("Change Request job kick off date and time");
@@ -2439,11 +2446,17 @@ function showDashboard() {
 										
 										if (typeofDeployment == "backend")
 										{
+											Q("#dialogTitle").text("Backend deploy " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " for " + Q("#core_version").val() + " &#x2192; " + Q("#activeServer").val());
+
 											if (Q("#environment").val() != "DEV")
 											{
 												Q("#non-dev-env").show();
 
 											}
+										}
+										else
+										{
+											Q("#dialogTitle").text("Deploying " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " for " + Q("#build_num").val() + " &#x2192; " + Q("#activeServer").val());
 										}
 										
 									}
@@ -2460,10 +2473,15 @@ function showDashboard() {
 								 {
 									Q("#loader2").hide();
 									
+									
 									if (noInitialEnv)
 									{
 										Q("#overlay2").hide();
 										
+									}
+									else
+									{
+										Q("#overlay").hide();
 									}
 									
 									Q("#dialog3").dialog("option","title","Error");

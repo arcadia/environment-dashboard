@@ -1079,52 +1079,27 @@ public class EnvDashboardView extends View {
 	   System.out.println(job);
 	   
 		
-	   //identify the active database
-	   String SQL = "use " + getOpsDB() + ";\n" +
-			"select c.acronym as 'client_acronym', d.name as 'db_name', p.name as 'prov_name' from dbo.[database] d inner join dbo.client c on d.client_id = c.client_id\n" +
-			"										  inner join dbo.provisioning_environment p on d.provisioning_environment_id = p.provisioning_environment_id\n" +
-			"										  inner join dbo.environment e on e.environment_id = p.environment_id\n" +
-			"										  inner join dbo.type t on t.type_id = d.type_id\n" +
-			"										  inner join dbo.db_instance_database dbi on dbi.database_id = d.database_id\n" +
-			"										  inner join dbo.status s on s.status_id = dbi.status_id\n" +
-			"where c.acronym = '" + customer + "' and e.name = '" + env + "' and t.name = 'WAREHOUSE' and s.name = 'Active';";
-
-	   String returnValue = getRequestedInfo(customer, env, SQL, "db_name");
-	   if(returnValue.contains("failed"))
-	   {
+		String returnValue = getActiveDBprovEnvAndServerSQLquery(customer, env);
+		if(returnValue.contains("failed"))
+		{
 			System.out.println(returnValue);
 			returnString = returnValue;
 			return returnString;
-	   }
-	   else
-	   {
-			activeDB = returnValue;
-			//System.out.println(activeDB);
-			
-	   }
-	  
-	  
-	   //identify the active server
-	   SQL = "use " + getOpsDB() + ";\n" +
-		"select name from dbo.db_instance where db_instance_id in\n" +
-		"(\n" +
-		"select dbinst.db_instance_id from dbo.[database] db inner join dbo.db_instance_database dbinst on db.database_id = dbinst.database_id\n" +
-		"where db.name = '" + activeDB + "' and dbinst.status_id = (select status_id from dbo.status where name = 'Active')\n" +
-		");";
+		}
+		else
+		{
 
-	   returnValue = getRequestedInfo(customer, env, SQL, "name");
-	   if(returnValue.contains("failed"))
-	   {
-			System.out.println(returnValue);
-			returnString = returnValue;
-			return returnString;
-	   }
-	   else
-	   {
-			activeServer = returnValue;
-			//System.out.println(activeServer);
+			String[] arrOfStr = returnValue.split(",");
+			//for (String a: arrOfStr)
+			  //  System.out.println(a);
 			
-	   }
+			activeDB = arrOfStr[0];
+			System.out.println(activeDB);
+			
+			activeServer = arrOfStr[2];
+			System.out.println(activeServer);
+			
+		}			
 	  
 	  
 	  	//String activeServer = "TESTSQLTST04";
@@ -1156,7 +1131,7 @@ public class EnvDashboardView extends View {
 	   
 	   conn = CustomDBConnection.getConnection(activeServer, "1433", "placeholderForDB", getdbUser(), getdbPassword(), getSQLauth());
 	   //SQL = "EXEC dbo.sp_help_job @job_name = N'" + job + "',  @job_aspect = N'steps';";
-	   SQL = "use msdb; EXEC dbo.sp_help_job @job_name = N'" + job + "',  @job_aspect = N'steps';";
+	   String SQL = "use msdb; EXEC dbo.sp_help_job @job_name = N'" + job + "',  @job_aspect = N'steps';";
 	   
 	   //conn = CustomDBConnection.getConnection("mydbserver1", "1433", "tutorialdb", getdbUser(), getdbPassword(), getSQLauth());
 	   //String SQL = "select customerid, name from customers where name = 'orlando';";
@@ -1378,6 +1353,90 @@ public class EnvDashboardView extends View {
     }
 	
 	
+	@JavaScriptMethod
+	public String getActiveDBprovEnvAndServerSQLquery(String customer, String env) 
+	{
+	
+		String returnString = null;
+		String activeDB = null;
+		String provEnv = null;
+		String activeServer = null;
+
+		System.out.println(getCurentDateTime() + ": At getActiveDBprovEnvAndServerSQLquery function");
+
+
+		//identify the active database
+		String SQL = "use " + getOpsDB() + ";\n" +
+			"select c.acronym as 'client_acronym', d.name as 'db_name', p.name as 'prov_name' from dbo.[database] d inner join dbo.client c on d.client_id = c.client_id\n" +
+			"										  inner join dbo.provisioning_environment p on d.provisioning_environment_id = p.provisioning_environment_id\n" +
+			"										  inner join dbo.environment e on e.environment_id = p.environment_id\n" +
+			"										  inner join dbo.type t on t.type_id = d.type_id\n" +
+			"										  inner join dbo.db_instance_database dbi on dbi.database_id = d.database_id\n" +
+			"										  inner join dbo.status s on s.status_id = dbi.status_id\n" +
+			"where c.acronym = '" + customer + "' and e.name = '" + env + "' and t.name = 'WAREHOUSE' and s.name = 'Active';";
+
+		String returnValue = getRequestedInfo(customer, env, SQL, "db_name");
+		if(returnValue.contains("failed"))
+		{
+			System.out.println(returnValue);
+			returnString = returnValue;
+			return returnString;
+		}
+		else
+		{
+			activeDB = returnValue;
+			//System.out.println(activeDB);
+			
+		}
+
+
+		returnValue = getRequestedInfo(customer, env, SQL, "prov_name");
+		if(returnValue.contains("failed"))
+		{
+			System.out.println(returnValue);
+			returnString = returnValue;
+			return returnString;
+		}
+		else
+		{
+			provEnv = returnValue;
+			//System.out.println(provEnv);
+			
+		}
+
+
+		String job = customer + " Nightly Job " + provEnv;
+		System.out.println(getCurentDateTime() + ": Here is the nightly job generated:");
+		System.out.println(job);
+
+		//identify the active server
+		SQL = "use " + getOpsDB() + ";\n" +
+		"select name from dbo.db_instance where db_instance_id in\n" +
+		"(\n" +
+		"select dbinst.db_instance_id from dbo.[database] db inner join dbo.db_instance_database dbinst on db.database_id = dbinst.database_id\n" +
+		"where db.name = '" + activeDB + "' and dbinst.status_id = (select status_id from dbo.status where name = 'Active')\n" +
+		");";
+
+		returnValue = getRequestedInfo(customer, env, SQL, "name");
+		if(returnValue.contains("failed"))
+		{
+			System.out.println(returnValue);
+			returnString = returnValue;
+			return returnString;
+		}
+		else
+		{
+			activeServer = returnValue;
+			//System.out.println(activeServer);
+			
+		}
+		
+		returnString = activeDB + "," + provEnv + "," + activeServer;
+		
+		return returnString;
+	
+	}
+	
 	
 	@JavaScriptMethod
 	public String getNightlyjobStepsSQLquery(String customer, String env) 
@@ -1391,19 +1450,7 @@ public class EnvDashboardView extends View {
 		
 	   System.out.println(getCurentDateTime() + ": At getNightlyjobStepsSQLquery function");
 	   
-	   
-	   
-	   //identify the active database
-	   String SQL = "use " + getOpsDB() + ";\n" +
-			"select c.acronym as 'client_acronym', d.name as 'db_name', p.name as 'prov_name' from dbo.[database] d inner join dbo.client c on d.client_id = c.client_id\n" +
-			"										  inner join dbo.provisioning_environment p on d.provisioning_environment_id = p.provisioning_environment_id\n" +
-			"										  inner join dbo.environment e on e.environment_id = p.environment_id\n" +
-			"										  inner join dbo.type t on t.type_id = d.type_id\n" +
-			"										  inner join dbo.db_instance_database dbi on dbi.database_id = d.database_id\n" +
-			"										  inner join dbo.status s on s.status_id = dbi.status_id\n" +
-			"where c.acronym = '" + customer + "' and e.name = '" + env + "' and t.name = 'WAREHOUSE' and s.name = 'Active';";
-
-	   String returnValue = getRequestedInfo(customer, env, SQL, "db_name");
+	   String returnValue = getActiveDBprovEnvAndServerSQLquery(customer, env);
 	   if(returnValue.contains("failed"))
 	   {
 			System.out.println(returnValue);
@@ -1412,54 +1459,28 @@ public class EnvDashboardView extends View {
 	   }
 	   else
 	   {
-			activeDB = returnValue;
-			//System.out.println(activeDB);
+	   
+	        String[] arrOfStr = returnValue.split(",");
+            //for (String a: arrOfStr)
+              //  System.out.println(a);
 			
-	   }
-	  
-	  
-	   returnValue = getRequestedInfo(customer, env, SQL, "prov_name");
-	   if(returnValue.contains("failed"))
-	   {
-			System.out.println(returnValue);
-			returnString = returnValue;
-			return returnString;
-	   }
-	   else
-	   {
-			provEnv = returnValue;
-			//System.out.println(provEnv);
+			activeDB = arrOfStr[0];
+			System.out.println(activeDB);
 			
-	   }
-	  
+			provEnv = arrOfStr[1];
+			System.out.println(provEnv);
+			
+			activeServer = arrOfStr[2];
+			System.out.println(activeServer);
+			
+		}
+			
 	  
 	   String job = customer + " Nightly Job " + provEnv;
 	   System.out.println(getCurentDateTime() + ": Here is the nightly job generated:");
 	   System.out.println(job);
 	  
-	   //identify the active server
-	   SQL = "use " + getOpsDB() + ";\n" +
-		"select name from dbo.db_instance where db_instance_id in\n" +
-		"(\n" +
-		"select dbinst.db_instance_id from dbo.[database] db inner join dbo.db_instance_database dbinst on db.database_id = dbinst.database_id\n" +
-		"where db.name = '" + activeDB + "' and dbinst.status_id = (select status_id from dbo.status where name = 'Active')\n" +
-		");";
-
-	   returnValue = getRequestedInfo(customer, env, SQL, "name");
-	   if(returnValue.contains("failed"))
-	   {
-			System.out.println(returnValue);
-			returnString = returnValue;
-			return returnString;
-	   }
-	   else
-	   {
-			activeServer = returnValue;
-			//System.out.println(activeServer);
-			
-	   }
-	  
-	  
+	   
 	  	//String activeServer = "TESTSQLTST04";
 		
 	   
@@ -1489,7 +1510,7 @@ public class EnvDashboardView extends View {
 	   
 	   conn = CustomDBConnection.getConnection(activeServer, "1433", "placeholderForDB", getdbUser(), getdbPassword(), getSQLauth());
 	   //SQL = "EXEC dbo.sp_help_job @job_name = N'" + job + "',  @job_aspect = N'steps';";
-	   SQL = "use msdb; EXEC dbo.sp_help_job @job_name = N'" + job + "',  @job_aspect = N'steps';";
+	   String SQL = "use msdb; EXEC dbo.sp_help_job @job_name = N'" + job + "',  @job_aspect = N'steps';";
 	   
 	   //conn = CustomDBConnection.getConnection("mydbserver1", "1433", "tutorialdb", getdbUser(), getdbPassword(), getSQLauth());
 	   //String SQL = "select customerid, name from customers where name = 'orlando';";
@@ -1541,6 +1562,8 @@ public class EnvDashboardView extends View {
 				System.out.println(getCurentDateTime() + ": " + job + " doesn't exist");
 				  jarr.add(Json.createObjectBuilder()
 						  .add("name", "doesnotexist")
+						  .add("activeDB", activeDB)
+						  .add("activeServer", activeServer)
 					  .build());
 					  
 				arr = jarr.build();
