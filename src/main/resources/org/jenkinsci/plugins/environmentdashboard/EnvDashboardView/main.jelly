@@ -1446,6 +1446,8 @@ function showDashboard() {
 								CRjobstepActionType = "new";
 								Q("#stepname").val("");
 								Q("#SQLscript").val("");
+								
+								Q("#dialog4").dialog("option","title","New step");
 								Q("#dialog4").dialog("open");
 							});
 
@@ -2874,7 +2876,7 @@ function showDashboard() {
 </div>
 <form id="dialog4" title="cr-job-step-title" style="display:none;" autocomplete="off">
 	<div id="stepnameDefinition" style="text-align: left">
-		<label id="stepnameLabel">Step name:</label><div class="divider"/><input id="stepname" name="stepname" type="text"/><br></br>
+		<label id="stepnameLabel">Step name:</label><div class="divider"/><input id="stepname" name="stepname" type="text" size="25" placeholder="Jira Ticket and step number"/><br></br>
 		<br></br>
 		<label id="commandLabel">Command:</label>
 		<br></br>
