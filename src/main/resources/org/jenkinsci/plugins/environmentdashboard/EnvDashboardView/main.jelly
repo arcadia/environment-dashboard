@@ -579,14 +579,10 @@ function showDashboard() {
 										var step_ids = [];
 										var last_step_id;
 										
-										Q( "#CRjobstepsTable td" ).each(function( index ) {
-
-										  if (Q( this ).attr("id") == "step_id") 
-										  {
-											step_ids.push(Q( this ).text());
-										  }
-											
+										Q("#actualCRjobstepsTable").find("tr:gt(0)").each(function( index ) {
+											step_ids.push(Q(this).find("#step_id").text());
 										});
+										
 										last_step_id = Math.max.apply(Math, step_ids);
 										
 										
@@ -604,77 +600,33 @@ function showDashboard() {
 											};
 										var JSONObjToSend;
 										
-										 Q( "#CRjobstepsTable td" ).each(function( index ) {
-										 
-										 
-											 //var Qtd = Q(this);
-											 //Qth = Qtd.closest('tbody').find('th').eq(Qtd.index());
-											 //console.log(Qth.text());
-											 
-											 //var Qtd = Q(this);
-											 //var tdIndex = Qtd.index() + 1;
-											 //var Qth = Q('#CRjobstepsTable tr').find('th:nth-child(' + tdIndex + ')');
-											 //console.log(Qth.text());
-											 
-											 
-
-											//console.log('Processing row number ' + i);
-											//console.log( index + ": " + Q( this ).attr("id") );
-											//console.log( index + ": " + Q( this ).text() );
-											//alert( index + ": " + Q( this ).text() );
-										 
-											  
-											  
-											  if (Q( this ).attr("id") == "step_id") 
-											  {
-												step_id = Q( this ).text();
-												command = Q('.' + Q( this ).text() + "_for_command_retrieval").text();
+										
+										Q("#actualCRjobstepsTable").find("tr:gt(0)").each(function( index ) {
+										
+											command = Q('.' + Q(this).find("#step_id").text() + "_for_command_retrieval").text();
+								
+											if (Q(this).find("#step_id").text() == last_step_id)
+											{
+												on_success_action = 1;
+											}
+											else
+											{
+												on_success_action = 3;
+											}
 												
-												if (step_id == last_step_id)
-												{
-													on_success_action = 1;
-												}
-												else
-												{
-													on_success_action = 3;
-												}
+											step_name = Q(this).find("#step_name").text();
+											subsystem = Q(this).find("#subsystem").text();
+										  
+											CRjobStepsJSONobj.CRjobsteps.push({ 
+												"job_name" : CRjob,
+												"step_name" : step_name,
+												"subsystem" : subsystem,
+												"command" : command,
+												"on_success_action" : on_success_action
+											});
 												
-											  }
-											  else if (Q( this ).attr("id") == "step_name") 
-											  {
-												step_name = Q( this ).text();
-											  }
-											  else if (Q( this ).attr("id") == "subsystem") 
-											  {
-												subsystem = Q( this ).text();
-											  }
-											  else if (Q( this ).attr("id") == "radioButton")  
-											  {
-												
-												response4 = "";
-												
-												//alert("about to pass the following values for row number " + i);
-												//alert(Q("#activeServer").val());
-												//alert(CRjob);
-												//alert(step_id);
-												//alert(step_name);
-												//alert(subsystem);
-												//alert(command);
-												
-												CRjobStepsJSONobj.CRjobsteps.push({ 
-													"job_name" : CRjob,
-													"step_name" : step_name,
-													"subsystem" : subsystem,
-													"command" : command,
-													"on_success_action" : on_success_action
-													
-												});
-												
-												i = i + 1;
-											  }
-											  
 										});
-												
+										
 										
 										//alert(CRjobStepsJSONobj);
 
@@ -717,10 +669,6 @@ function showDashboard() {
 								}
 							}).prev(".ui-dialog-titlebar").css("background","#81BEF7");
 							
-							
-							
-							
-						
 							
 							validationObj = Q("#dialog").validate({ // initialize the plugin
 								rules: {
@@ -994,108 +942,55 @@ function showDashboard() {
 											var i;
 											var proceed;
 											var id;
-											var skip;
 											
 										    //store the changes temporarily;
 											if (CRjobstepActionType == "edit")
 											{
 											
-												i = 1;
-												proceed = true;
-												id = Q("input[name=CRjobsteps]").filter(":checked").prop('id');
+												id = Q("input[name=CRjobsteps]:checked", "#actualCRjobstepsTable").val();
+
+												Q("#actualCRjobstepsTable").find("#" + id + "").find("#step_name").text(Q("#stepname").val().trim());
+												Q("#actualCRjobstepsTable").find("." + id + "_for_command_retrieval").text(Q("#SQLscript").val());
+												Q("#actualCRjobstepsTable").find("#" + id + "").find("#command_substring").text(Q("#SQLscript").val().substring(0, 14));
+												Q("#actualCRjobstepsTable").find("#" + id + "").find("#subsystem").text("TSQL");
+											
+												Q(this).dialog("close");
 												
-												Q( "#CRjobstepsTable td" ).each(function( index ) {
-												
-												  if (Q( this ).attr("id") == "step_id") 
-											      {
-												    step_id = Q( this ).text();
-													
-													if (step_id == id)
-													{
-														skip = true;
-													}
-													else
-													{
-														skip = false;
-													}
-													
-												  }
-												  else if (Q( this ).attr("id") == "step_name") 
-												  {
-													if(!skip)
-													{
-														if (Q( this ).text().trim() == Q("#stepname").val().trim())
-														{
-															Q("#dialog3").dialog("option","title","Error");
-															Q("#dialog3text").text(Q("#stepname").val() + " step already exists");
-															Q("#dialog3").dialog("open");
-															proceed = false;
-															return false;
-														}
-													}
-												  }
-												  else if (Q( this ).attr("id") == "radioButton")  
-												  {
-													
-													i = i + 1;
-												  }
-													  
-												});
-												
-												if (proceed)
-												{
-													Q('.' + Q("input[name=CRjobsteps]").filter(":checked").prop('id') + "_for_step_name_retrieval").text(Q("#stepname").val().trim());
-													Q('.' + Q("input[name=CRjobsteps]").filter(":checked").prop('id') + "_for_command_retrieval").text(Q("#SQLscript").val());
-													Q('.' + Q("input[name=CRjobsteps]").filter(":checked").prop('id') + "_for_short_command_retrieval").text(Q("#SQLscript").val().substring(0, 14));
-													Q('.' + Q("input[name=CRjobsteps]").filter(":checked").prop('id') + "_for_subsystem_retrieval").text("TSQL");
-													
-													Q(this).dialog("close");
-												}
 											}
 											else if (CRjobstepActionType == "new")
 											{
 											
-											
-												i = 1;
 												proceed = true;
-												Q( "#CRjobstepsTable td" ).each(function( index ) {
-
-												  if (Q( this ).attr("id") == "step_name") 
-												  {
-													if (Q( this ).text().trim() == Q("#stepname").val().trim())
+												
+												Q("#actualCRjobstepsTable").find("tr:gt(0)").each(function( index ) {
+													
+													if (Q(this).find("#step_name").text().trim() == Q("#stepname").val().trim())
 													{
 														Q("#dialog3").dialog("option","title","Error");
-														Q("#dialog3text").text(Q("#stepname").val().trim() + " step already exists");
+														Q("#dialog3text").text(Q("#stepname").val() + " step already exists");
 														Q("#dialog3").dialog("open");
 														proceed = false;
 														return false;
 													}
-												  }
-												  else if (Q( this ).attr("id") == "radioButton")  
-												  {
-													
-													i = i + 1;
-												  }
-													  
-												});
+
+												});	
+
 												
 												if (proceed)
 												{
+												
+												
 													//Loop through CRjob steps and find the max step_id
 													var step_ids = [];
 													var next_step_id;
 													var last_step_id;
 													
 													var empty = true;
-													Q( "#CRjobstepsTable td" ).each(function( index ) {
-
-													  if (Q( this ).attr("id") == "step_id") 
-													  {
+													Q("#actualCRjobstepsTable").find("tr:gt(0)").each(function( index ) {
 														empty = false;
-														step_ids.push(Q( this ).text());
-													  }
-														
+														step_ids.push(Q(this).find("#step_id").text());
 													});
+
 													
 													if (empty)
 													{
@@ -1105,7 +1000,10 @@ function showDashboard() {
 													{
 														last_step_id = Math.max.apply(Math, step_ids);
 														next_step_id = last_step_id + 1;
-														Q('.' + last_step_id + "_for_on_success_action_retrieval").text("goto next step");
+														
+														//Q('.' + last_step_id + "_for_on_success_action_retrieval").text("goto next step");
+														
+														Q("#actualCRjobstepsTable").find("#" + last_step_id + "").find("#on_success_action").text("goto next step");
 													}
 													
 													
@@ -1113,24 +1011,22 @@ function showDashboard() {
 													//console.log(next_step_id);
 													
 													
-													Q("#CRjobstepsTable tbody").append('<tr>');
-													Q("#CRjobstepsTable tbody").append('<td id="step_id" style="width: 8%;text-align:center">' + next_step_id + '</td>');
-													Q("#CRjobstepsTable tbody").append('<td id="step_name" style="width: 8%;text-align:center" class="' + next_step_id + '_for_step_name_retrieval">' + Q("#stepname").val().trim() + '</td>');
-													Q("#CRjobstepsTable tbody").append('<td id="subsystem" style="width: 8%;text-align:center" class="' + next_step_id + '_for_subsystem_retrieval">' + "TSQL" + '</td>');
-													Q("#CRjobstepsTable tbody").append('<td id="command_substring" style="width: 8%;text-align:center" class="' + next_step_id + '_for_short_command_retrieval">' + Q("#SQLscript").val().substring(0, 14) + '...</td>');
-													//Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center;visibility:hidden"><textarea class="' + next_step_id + '_for_command_retrieval">' + element.command + '</textarea></td>');	 
-													
-													
-													Q("#CRjobstepsTable tbody").append('<td id="on_success_action" style="width: 8%;text-align:center" class="' + next_step_id + '_for_on_success_action_retrieval">' + "quit with success" + '</td>');
-													Q("#CRjobstepsTable tbody").append('<td id="on_fail_action" style="width: 8%;text-align:center" class="' + next_step_id + '_for_on_fail_action_retrieval">' + "quit with failure" + '</td>');
-													Q("#CRjobstepsTable tbody").append('<td id="radioButton" style="width: 8%;text-align:center"><input type="radio" name="CRjobsteps" id="' + next_step_id + '"></input></td>');
+													Q("#actualCRjobstepsTable").append('<tr id="' + next_step_id + '">' +
+														 '<td id="step_id" style="width: 8%;text-align:center">' + next_step_id + '</td>' +
+														 '<td id="step_name" style="width: 8%;text-align:center" class="' + next_step_id + '_for_step_name_retrieval">' + Q("#stepname").val().trim() + '</td>' +
+														 '<td id="subsystem" style="width: 8%;text-align:center" class="' + next_step_id + '_for_subsystem_retrieval">' + "TSQL" + '</td>' +
+														 '<td id="command_substring" style="width: 8%;text-align:center" class="' + next_step_id + '_for_short_command_retrieval">' + Q("#SQLscript").val().substring(0, 14) + '...</td>' +
+														 //'<td style="width: 8%;text-align:center;visibility:hidden"><textarea class="' + next_step_id + '_for_command_retrieval">' + element.command + '</textarea></td>' +	 
+														 '<td id="on_success_action" style="width: 8%;text-align:center" class="' + next_step_id + '_for_on_success_action_retrieval">' + "quit with success" + '</td>' +
+														 '<td id="on_fail_action" style="width: 8%;text-align:center" class="' + next_step_id + '_for_on_fail_action_retrieval">' + "quit with failure" + '</td>' +
+														 '<td id="radioButton" style="width: 8%;text-align:center"><input type="radio" name="CRjobsteps" value="' + next_step_id + '"></input></td>' +
+														 
+														 //'<td>EditButton</td>' +
+														 //'<td style="width: 8%;text-align:center"><input type="button" id="edit" value="edit"></input></td>' +
+													 '</tr>');
+												 
+												   Q("#actualCRjobstepsTable").append('<textarea style="display:none;" class="' + next_step_id + '_for_command_retrieval">' + Q("#SQLscript").val() + '</textarea>');	 
 
-													//Q("#CRjobstepsTable tbody").append('<td>EditButton</td>');
-													//Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center"><input type="button" id="edit" value="edit"></input></td>');
-													Q("#CRjobstepsTable tbody").append('</tr>');
-
-													Q("#CRjobstepsTable").append('<textarea style="display:none;" class="' + next_step_id + '_for_command_retrieval">' + Q("#SQLscript").val() + '</textarea>');	
-													
 													Q(this).dialog("close");
 												}										
 											}
@@ -1230,16 +1126,15 @@ function showDashboard() {
 							
 							Q("#edit").click(function(){
 							
-								if (Q("input:radio[name=CRjobsteps]").is(":checked"))
+								if (Q("input:radio[name=CRjobsteps]", "#actualCRjobstepsTable").is(":checked"))
 								{
 									CRjobstepActionType = "edit";
-									var id = Q("input[name=CRjobsteps]").filter(":checked").prop('id');
+									var id = Q("input[name=CRjobsteps]:checked", "#actualCRjobstepsTable").val();
 									
-									Q("#stepname").val(Q('.' + Q("input[name=CRjobsteps]").filter(":checked").prop('id') + "_for_step_name_retrieval").text());
-									Q("#SQLscript").val(Q('.' + Q("input[name=CRjobsteps]").filter(":checked").prop('id') + "_for_command_retrieval").text());
-									
-									Q("#dialog4").dialog("option","title",Q('.' + Q("input[name=CRjobsteps]").filter(":checked").prop('id') + "_for_step_name_retrieval").text());
-									
+									Q("#stepname").val(Q("#actualCRjobstepsTable").find("#" + id + "").find("#step_name").text());
+									Q("#SQLscript").val(Q("#actualCRjobstepsTable").find("." + id + "_for_command_retrieval").text());
+															
+									Q("#dialog4").dialog("option","title",Q("#actualCRjobstepsTable").find("#" + id + "").find("#step_name").text());
 									Q("#dialog4").dialog("open");
 								}
 								else
@@ -1254,126 +1149,60 @@ function showDashboard() {
 							});
 							
 							
+
+							
 							
 							Q("#delete").click(function(){
 							
-								if (Q("input:radio[name=CRjobsteps]").is(":checked"))
+								if (Q("input:radio[name=CRjobsteps]", "#actualCRjobstepsTable").is(":checked"))
 								{
 									CRjobstepActionType = "delete";
-									var id = Q("input[name=CRjobsteps]").filter(":checked").prop('id');
+									var id = Q("input[name=CRjobsteps]:checked", "#actualCRjobstepsTable").val();
+									 
+								    console.log(id);
+									Q("#actualCRjobstepsTable").find("#" + id + "").remove();
+									Q("#actualCRjobstepsTable").find("." + id + "_for_command_retrieval").remove();
 									
-									//console.log(id);
+									//Q('#' + id + '').remove();
+									//Q('.' + id + "_for_command_retrieval").remove();
 
 									var step_id;
-									Q( "#CRjobstepsTable td" ).each(function( index ) {
-
-										  if (Q( this ).attr("id") == "step_id") 
-										  {
-											step_id = Q( this ).text();
-											
-											if (step_id == id)
-											{
-												Q( this ).remove();
-												Q('.' + Q( this ).text() + "_for_command_retrieval").remove();
-												
-											}
-
-											
-										  }
-										  else if (Q( this ).attr("id") == "step_name") 
-										  {
-											if (step_id == id)
-											{
-												Q( this ).remove();
-											}
-										  }
-										  else if (Q( this ).attr("id") == "subsystem") 
-										  {
-											if (step_id == id)
-											{
-												Q( this ).remove();
-											}
-										  }
-										  else if (Q( this ).attr("id") == "command_substring") 
-										  {
-											if (step_id == id)
-											{
-												Q( this ).remove();
-											}
-										  }
-										  else if (Q( this ).attr("id") == "on_success_action") 
-										  {
-											if (step_id == id)
-											{
-												Q( this ).remove();
-											}
-										  }
-										  else if (Q( this ).attr("id") == "on_fail_action") 
-										  {
-											if (step_id == id)
-											{
-												Q( this ).remove();
-											}
-										  }
-										  else if (Q( this ).attr("id") == "radioButton")  
-										  {
-
-											if (step_id == id)
-											{
-												Q( this ).remove();
-											}
-										  }
-									});
 									
 									
 									//Re-sequence
 									var i = 1;
-									Q( "#CRjobstepsTable td" ).each(function( index ) {
+									Q("#actualCRjobstepsTable").find("tr:gt(0)").each(function( index ) {
+									
+										
+										Q(this).attr("id", i);
+										Q(this).find("#step_id").text(i);
+										
+										//console.log(Q(this).find("#step_id").text());
+										//console.log(Q(this).find("#step_name").text());
+										//console.log(Q(this).find("#subsystem").text());
+										//console.log(Q(this).find("#command_substring").text());
+										//console.log(Q(this).find("#on_success_action").text());
+										//console.log(Q(this).find("#on_fail_action").text());
 
-										  if (Q( this ).attr("id") == "step_id") 
-										  {
-											Q( this ).text(i);
-										  }
-										  else if (Q( this ).attr("id") == "step_name") 
-										  {
-											Q( this ).attr("class", i + "_for_step_name_retrieval");
-										  }
-										  else if (Q( this ).attr("id") == "subsystem") 
-										  {
-											Q( this ).attr("class", i + "_for_subsystem_retrieval");
-										  }
-										  else if (Q( this ).attr("id") == "command_substring") 
-										  {
-											Q( this ).attr("class", i + "_for_short_command_retrieval");
-										  }
-										  else if (Q( this ).attr("id") == "on_success_action") 
-										  {
-											Q( this ).attr("class", i + "_for_on_success_action_retrieval");
-										  }
-										  else if (Q( this ).attr("id") == "on_fail_action") 
-										  {
-											Q( this ).attr("class", i + "_for_on_fail_action_retrieval");
-										  }
-										  else if (Q( this ).attr("id") == "radioButton")  
-										  {
-											
-											i = i + 1;
-										  }
-										  
+										i = i + 1;
+										
+										
 									});
-
+									
+								
 									i = 1;
-									Q( "#CRjobstepsTable input[type=radio]" ).each(function( index ) {
+									Q("#actualCRjobstepsTable input[type=radio]").each(function( index ) {
 
-										Q( this ).attr("id", i);
+										Q(this).val(i);
 										i = i + 1;
 										 
 									});
 
+									
 									i = 1;
-									Q( "#CRjobstepsTable textarea" ).each(function( index ) {
+									Q("#actualCRjobstepsTable textarea").each(function( index ) {
 
-										Q( this ).attr("class", i + "_for_command_retrieval");
+										Q(this).attr("class", i + "_for_command_retrieval");
 										i = i + 1;
 										 
 									});
@@ -1383,47 +1212,27 @@ function showDashboard() {
 									var step_ids = [];
 									var last_step_id;
 
-									Q( "#CRjobstepsTable td" ).each(function( index ) {
-
-									  if (Q( this ).attr("id") == "step_id") 
-									  {
-										step_ids.push(Q( this ).text());
-									  }
-										
+									Q("#actualCRjobstepsTable").find("tr:gt(0)").each(function( index ) {
+										step_ids.push(Q(this).find("#step_id").text());
 									});
+									
 									last_step_id = Math.max.apply(Math, step_ids);
 									
+									
 									//console.log(last_step_id);
-									i = 1;
-									Q( "#CRjobstepsTable td" ).each(function( index ) {
-
-									  if (Q( this ).attr("id") == "step_id") 
-									  {
-										step_id = Q( this ).text();
-										//console.log(step_id);
-										
-									  }
-									  else if (Q( this ).attr("id") == "on_success_action") 
-									  {
-
-										//console.log('before setting the success action..');
-										//console.log(last_step_id);
-										//console.log(step_id);
-										
-										if (step_id == last_step_id)
+									
+									Q("#actualCRjobstepsTable").find("tr:gt(0)").each(function( index ) {
+									
+										if (Q(this).find("#step_id").text() == last_step_id)
 										{
-											Q( this ).text("quit with success");
+											
+											Q(this).find("#on_success_action").text("quit with success");
 										}
 										else
 										{
-											Q( this ).text("goto next step");
+											
+											Q(this).find("#on_success_action").text("goto next step");
 										}
-									  }
-									  else if (Q( this ).attr("id") == "radioButton")  
-									  {
-										
-										i = i + 1;
-									  }
 										  
 									});
 
@@ -1531,9 +1340,13 @@ function showDashboard() {
 										 //alert("About to populate the table...");
 										 
 										 //Initialize
-										 Q("#CRjobinfoTable td").remove();
-										 Q("#CRjobstepsTable td").remove();
-										 Q("#CRjobstepsTable textarea").remove();
+										 //Q("#actualCRjobinfoTable tr").remove();
+										 //Q("#actualCRjobstepsTable tr").remove();
+										 										 
+										 Q("#actualCRjobinfoTable").find("tr:gt(0)").remove();
+										 Q("#actualCRjobstepsTable").find("tr:gt(0)").remove();
+										 
+										 Q("#actualCRjobstepsTable textarea").remove();
 										 
 										 
 										var CRjobExistence = false;
@@ -1560,15 +1373,15 @@ function showDashboard() {
 												if (element.current_execution_status == "Idle")
 												{
 													 CRjobIdleStatus = true;
-													 Q("#CRjobinfoTable tbody").append('<tr>');
-													 Q("#CRjobinfoTable tbody").append('<td style="width: 8%;text-align:center">' + element.start_step_id + '</td>');
-													 Q("#CRjobinfoTable tbody").append('<td style="width: 8%;text-align:center">' + element.date_modified + '</td>');
-													 Q("#CRjobinfoTable tbody").append('<td style="width: 8%;text-align:center">' + element.last_run_date + '</td>');
-													 Q("#CRjobinfoTable tbody").append('<td style="width: 8%;text-align:center">' + element.last_run_time + '</td>');
-													 Q("#CRjobinfoTable tbody").append('<td style="width: 8%;text-align:center">' + element.last_run_outcome + '</td>');
-													 Q("#CRjobinfoTable tbody").append('<td style="width: 8%;text-align:center">' + element.current_execution_status + '</td>');
-													 Q("#CRjobinfoTable tbody").append('<td style="width: 8%;text-align:center">' + element.current_execution_step + '</td>');
-													 Q("#CRjobinfoTable tbody").append('</tr>');
+													 Q("#actualCRjobinfoTable").append('<tr>' +
+																						 '<td style="width: 8%;text-align:center">' + element.start_step_id + '</td>' +
+																						 '<td style="width: 8%;text-align:center">' + element.date_modified + '</td>' +
+																						 '<td style="width: 8%;text-align:center">' + element.last_run_date + '</td>' +
+																						 '<td style="width: 8%;text-align:center">' + element.last_run_time + '</td>' +
+																						 '<td style="width: 8%;text-align:center">' + element.last_run_outcome + '</td>' +
+																						 '<td style="width: 8%;text-align:center">' + element.current_execution_status + '</td>' +
+																						 '<td style="width: 8%;text-align:center">' + element.current_execution_step + '</td>' +
+																					   '</tr>');
 													 
 													 //Q("#activeDB").val(element.activeDB);
 													 //Q("#activeServer").val(element.activeServer);
@@ -1610,21 +1423,21 @@ function showDashboard() {
 												//alert(element.step_name); 
 												//alert(element.on_fail_action); 
 												
-												 Q("#CRjobstepsTable tbody").append('<tr>');
-												 Q("#CRjobstepsTable tbody").append('<td id="step_id" style="width: 8%;text-align:center">' + element.step_id + '</td>');
-												 Q("#CRjobstepsTable tbody").append('<td id="step_name" style="width: 8%;text-align:center" class="' + element.step_id + '_for_step_name_retrieval">' + element.step_name + '</td>');
-												 Q("#CRjobstepsTable tbody").append('<td id="subsystem" style="width: 8%;text-align:center" class="' + element.step_id + '_for_subsystem_retrieval">' + element.subsystem + '</td>');
-												 Q("#CRjobstepsTable tbody").append('<td id="command_substring" style="width: 8%;text-align:center" class="' + element.step_id + '_for_short_command_retrieval">' + element.command.substring(0, 14) + '...</td>');
-												 //Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center;visibility:hidden"><textarea class="' + element.step_id + '_for_command_retrieval">' + element.command + '</textarea></td>');	 
-												 Q("#CRjobstepsTable tbody").append('<td id="on_success_action" style="width: 8%;text-align:center" class="' + element.step_id + '_for_on_success_action_retrieval">' + element.on_success_action + '</td>');
-												 Q("#CRjobstepsTable tbody").append('<td id="on_fail_action" style="width: 8%;text-align:center" class="' + element.step_id + '_for_on_fail_action_retrieval">' + element.on_fail_action + '</td>');
-												 Q("#CRjobstepsTable tbody").append('<td id="radioButton" style="width: 8%;text-align:center"><input type="radio" name="CRjobsteps" id="' + element.step_id + '"></input></td>');
+												 Q("#actualCRjobstepsTable").append('<tr id="' + element.step_id + '">' +
+																						 '<td id="step_id" style="width: 8%;text-align:center">' + element.step_id + '</td>' +
+																						 '<td id="step_name" style="width: 8%;text-align:center" class="' + element.step_id + '_for_step_name_retrieval">' + element.step_name + '</td>' +
+																						 '<td id="subsystem" style="width: 8%;text-align:center" class="' + element.step_id + '_for_subsystem_retrieval">' + element.subsystem + '</td>' +
+																						 '<td id="command_substring" style="width: 8%;text-align:center" class="' + element.step_id + '_for_short_command_retrieval">' + element.command.substring(0, 14) + '...</td>' +
+																						 //'<td style="width: 8%;text-align:center;visibility:hidden"><textarea class="' + element.step_id + '_for_command_retrieval">' + element.command + '</textarea></td>' +	 
+																						 '<td id="on_success_action" style="width: 8%;text-align:center" class="' + element.step_id + '_for_on_success_action_retrieval">' + element.on_success_action + '</td>' +
+																						 '<td id="on_fail_action" style="width: 8%;text-align:center" class="' + element.step_id + '_for_on_fail_action_retrieval">' + element.on_fail_action + '</td>' +
+																						 '<td id="radioButton" style="width: 8%;text-align:center"><input type="radio" name="CRjobsteps" value="' + element.step_id + '"></input></td>' +
+																						 
+																						 //'<td>EditButton</td>' +
+																						 //'<td style="width: 8%;text-align:center"><input type="button" id="edit" value="edit"></input></td>' +
+																					 '</tr>');
 												 
-												 //Q("#CRjobstepsTable tbody").append('<td>EditButton</td>');
-												 //Q("#CRjobstepsTable tbody").append('<td style="width: 8%;text-align:center"><input type="button" id="edit" value="edit"></input></td>');
-												 Q("#CRjobstepsTable tbody").append('</tr>');
-												 
-												 Q("#CRjobstepsTable").append('<textarea style="display:none;" class="' + element.step_id + '_for_command_retrieval">' + element.command + '</textarea>');	 
+												 Q("#actualCRjobstepsTable").append('<textarea style="display:none;" class="' + element.step_id + '_for_command_retrieval">' + element.command + '</textarea>');	 
 												 
 											 });
 											 
