@@ -1000,9 +1000,7 @@ function showDashboard() {
 													{
 														last_step_id = Math.max.apply(Math, step_ids);
 														next_step_id = last_step_id + 1;
-														
-														//Q('.' + last_step_id + "_for_on_success_action_retrieval").text("goto next step");
-														
+																												
 														Q("#actualCRjobstepsTable").find("#" + last_step_id + "").find("#on_success_action").text("goto next step");
 													}
 													
@@ -1013,12 +1011,12 @@ function showDashboard() {
 													
 													Q("#actualCRjobstepsTable").append('<tr id="' + next_step_id + '">' +
 														 '<td id="step_id" style="width: 8%;text-align:center">' + next_step_id + '</td>' +
-														 '<td id="step_name" style="width: 8%;text-align:center" class="' + next_step_id + '_for_step_name_retrieval">' + Q("#stepname").val().trim() + '</td>' +
-														 '<td id="subsystem" style="width: 8%;text-align:center" class="' + next_step_id + '_for_subsystem_retrieval">' + "TSQL" + '</td>' +
-														 '<td id="command_substring" style="width: 8%;text-align:center" class="' + next_step_id + '_for_short_command_retrieval">' + Q("#SQLscript").val().substring(0, 14) + '...</td>' +
+														 '<td id="step_name" style="width: 8%;text-align:center">' + Q("#stepname").val().trim() + '</td>' +
+														 '<td id="subsystem" style="width: 8%;text-align:center">' + "TSQL" + '</td>' +
+														 '<td id="command_substring" style="width: 8%;text-align:center">' + Q("#SQLscript").val().substring(0, 14) + '...</td>' +
 														 //'<td style="width: 8%;text-align:center;visibility:hidden"><textarea class="' + next_step_id + '_for_command_retrieval">' + element.command + '</textarea></td>' +	 
-														 '<td id="on_success_action" style="width: 8%;text-align:center" class="' + next_step_id + '_for_on_success_action_retrieval">' + "quit with success" + '</td>' +
-														 '<td id="on_fail_action" style="width: 8%;text-align:center" class="' + next_step_id + '_for_on_fail_action_retrieval">' + "quit with failure" + '</td>' +
+														 '<td id="on_success_action" style="width: 8%;text-align:center">' + "quit with success" + '</td>' +
+														 '<td id="on_fail_action" style="width: 8%;text-align:center">' + "quit with failure" + '</td>' +
 														 '<td id="radioButton" style="width: 8%;text-align:center"><input type="radio" name="CRjobsteps" value="' + next_step_id + '"></input></td>' +
 														 
 														 //'<td>EditButton</td>' +
@@ -1349,6 +1347,7 @@ function showDashboard() {
 										 Q("#actualCRjobstepsTable textarea").remove();
 										 
 										 
+										 
 										var CRjobExistence = false;
 										var CRjobIdleStatus = false;
 										 
@@ -1425,12 +1424,12 @@ function showDashboard() {
 												
 												 Q("#actualCRjobstepsTable").append('<tr id="' + element.step_id + '">' +
 																						 '<td id="step_id" style="width: 8%;text-align:center">' + element.step_id + '</td>' +
-																						 '<td id="step_name" style="width: 8%;text-align:center" class="' + element.step_id + '_for_step_name_retrieval">' + element.step_name + '</td>' +
-																						 '<td id="subsystem" style="width: 8%;text-align:center" class="' + element.step_id + '_for_subsystem_retrieval">' + element.subsystem + '</td>' +
-																						 '<td id="command_substring" style="width: 8%;text-align:center" class="' + element.step_id + '_for_short_command_retrieval">' + element.command.substring(0, 14) + '...</td>' +
+																						 '<td id="step_name" style="width: 8%;text-align:center">' + element.step_name + '</td>' +
+																						 '<td id="subsystem" style="width: 8%;text-align:center">' + element.subsystem + '</td>' +
+																						 '<td id="command_substring" style="width: 8%;text-align:center">' + element.command.substring(0, 14) + '...</td>' +
 																						 //'<td style="width: 8%;text-align:center;visibility:hidden"><textarea class="' + element.step_id + '_for_command_retrieval">' + element.command + '</textarea></td>' +	 
-																						 '<td id="on_success_action" style="width: 8%;text-align:center" class="' + element.step_id + '_for_on_success_action_retrieval">' + element.on_success_action + '</td>' +
-																						 '<td id="on_fail_action" style="width: 8%;text-align:center" class="' + element.step_id + '_for_on_fail_action_retrieval">' + element.on_fail_action + '</td>' +
+																						 '<td id="on_success_action" style="width: 8%;text-align:center">' + element.on_success_action + '</td>' +
+																						 '<td id="on_fail_action" style="width: 8%;text-align:center">' + element.on_fail_action + '</td>' +
 																						 '<td id="radioButton" style="width: 8%;text-align:center"><input type="radio" name="CRjobsteps" value="' + element.step_id + '"></input></td>' +
 																						 
 																						 //'<td>EditButton</td>' +
@@ -1454,6 +1453,7 @@ function showDashboard() {
 											 
 
 										 }
+
 
 										 
 										
@@ -2633,9 +2633,9 @@ function showDashboard() {
 	
 		<!--<span id="customErrorPlacement2" style="color:red; font-weight:bold"></span><br></br>-->
 
-		<div id="CRjobinfoTable" style="display: none; height:110px; overflow: auto;">
+		<div id="CRjobinfoTable" style="display: none; height:130px; overflow: auto;">
 			<label id="CRjobstatusInfo">CR job status info</label>
-			<table id="actualCRjobinfoTable" style="width=100%;" class="table table-bordered table-striped table-condensed hoverable-table-in-dialog">
+			<table id="actualCRjobinfoTable" style="width=100%;" class="table table-bordered table-striped table-condensed">
 				<tbody>
 					<th style="width: 8%;text-align:center">start_step_id</th>
 					<th style="width: 8%;text-align:center">date_modified</th>
@@ -2651,7 +2651,7 @@ function showDashboard() {
 		
 		<br></br>
 		
-		<div id="CRjobstepsTable" style="display: none; height:125px; overflow: auto;">
+		<div id="CRjobstepsTable" style="display: none; height:150px; overflow: auto;">
 			<label id="CRjobstepsInfo">CR job steps</label>
 			<table id="actualCRjobstepsTable" style="width=100%;" class="table table-bordered table-striped table-condensed hoverable-table-in-dialog">
 				<tbody>
