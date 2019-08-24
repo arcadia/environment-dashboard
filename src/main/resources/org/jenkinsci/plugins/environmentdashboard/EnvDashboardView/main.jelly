@@ -2691,10 +2691,17 @@ function showDashboard() {
 	<div id="stepnameDefinition" style="text-align: left">
 		<label id="stepnameLabel">Step name:</label><div class="divider"/><input id="stepname" name="stepname" type="text" size="25" placeholder="Jira Ticket and step number"/><br></br>
 		<br></br>
-		<label id="commandLabel">Command:</label>
-		<br></br>
-		<input type="button" id="parse" value="Parse"></input><div class="divider"/><div class="divider"/><div class="divider"/>
-		<textarea id="SQLscript" name="SQLscript" rows="20" cols="80" placeholder="Please enter SQL script and make sure to specify name(s) of the database(s) in the query..."></textarea>
+		
+		<div id="commmandLabelAndParseSection">
+			<label id="commandLabel">Command:</label>
+			<br></br><br></br>
+			<input type="button" id="parse" value="Parse" style="width:80px"></input>
+		</div>
+		
+		<div id="textAreaSection">
+			<textarea id="SQLscript" name="SQLscript" style="margin-left:10px;" rows="20" cols="80" placeholder="Please enter SQL script and make sure to specify name(s) of the database(s) in the query..."></textarea>
+		</div>
+		
 	</div>
 </form>
 </j:jelly>
