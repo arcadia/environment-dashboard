@@ -638,7 +638,7 @@ function showDashboard() {
 												//Q("#dialog3").dialog("option","title","Success");
 												//Q("#dialog3text").text(response4);
 												//Q("#dialog3").dialog("open");
-												console.log(response4);
+												//console.log(response4);
 												
 												Q("#loader2").hide();
 												Q("#overlay3").hide();
@@ -718,15 +718,15 @@ function showDashboard() {
 												
 												 //Passed time
 												 futureDateTime = new Date(Q("#datetimepicker").val());
-												 console.log("passed time is " + futureDateTime);
+												 //console.log("passed time is " + futureDateTime);
 												 
 												 //Server time
 												 serverDateTime = new Date(data);
-												 console.log("server time is " + serverDateTime);
+												 //console.log("server time is " + serverDateTime);
 												 
 												 if (futureDateTime &gt; serverDateTime)
 												 {
-													console.log("future date is greater than server time");
+													//console.log("future date is greater than server time");
 													
 													//Check the start time of NJ
 													var NJNextRunDateTime;
@@ -748,12 +748,12 @@ function showDashboard() {
 																if (typeofDeployment == "CRjob")
 																{
 																	Q("#dialog3text").text("client's NJ will kick off before/at requested scheduled time. Client's NJ will start on " + NJNextRunDateTime + ". Please schedule CR job 10 minutes earlier before NJ start time.");
-																	console.log("client's NJ will kick off before/at requested scheduled time. Client's NJ will start on " + NJNextRunDateTime + ". Please schedule CR job 10 minutes earlier before NJ start time.");
+																	//console.log("client's NJ will kick off before/at requested scheduled time. Client's NJ will start on " + NJNextRunDateTime + ". Please schedule CR job 10 minutes earlier before NJ start time.");
 																}
 																else
 																{
 																	Q("#dialog3text").text("client's NJ will kick off before/at requested scheduled time. Client's NJ will start on " + NJNextRunDateTime + ". Please schedule deployment 10 minutes earlier before NJ start time.");
-																	console.log("client's NJ will kick off before/at requested scheduled time. Client's NJ will start on " + NJNextRunDateTime + ". Please schedule deployment 10 minutes earlier before NJ start time.");
+																	//console.log("client's NJ will kick off before/at requested scheduled time. Client's NJ will start on " + NJNextRunDateTime + ". Please schedule deployment 10 minutes earlier before NJ start time.");
 																}
 																
 																
@@ -787,12 +787,12 @@ function showDashboard() {
 																		if (typeofDeployment == "CRjob")
 																		{
 																			Q("#dialog3text").text("client's NJ Start will kick off before/at requested scheduled time. Client's NJ Start will start on " + NJNextRunDateTime + ". Please schedule CR job 10 minutes earlier before NJ Start start time.");
-																			console.log("client's NJ Start will kick off before/at requested scheduled time. Client's NJ Start will start on " + NJNextRunDateTime + ". Please schedule CR job 10 minutes earlier before NJ Start start time.");																				
+																			//console.log("client's NJ Start will kick off before/at requested scheduled time. Client's NJ Start will start on " + NJNextRunDateTime + ". Please schedule CR job 10 minutes earlier before NJ Start start time.");																				
 																		}
 																		else
 																		{
 																			Q("#dialog3text").text("client's NJ Start will kick off before/at requested scheduled time. Client's NJ Start will start on " + NJNextRunDateTime + ". Please schedule deployment 10 minutes earlier before NJ Start start time.");
-																			console.log("client's NJ Start will kick off before/at requested scheduled time. Client's NJ Start will start on " + NJNextRunDateTime + ". Please schedule deployment 10 minutes earlier before NJ Start start time.");																		
+																			//console.log("client's NJ Start will kick off before/at requested scheduled time. Client's NJ Start will start on " + NJNextRunDateTime + ". Please schedule deployment 10 minutes earlier before NJ Start start time.");																		
 																		}
 																		
 																		
@@ -833,7 +833,7 @@ function showDashboard() {
 												 }
 												 else
 												 {
-													console.log("future date is less than server time");
+													//console.log("future date is less than server time");
 													//return '"false"';
 													dateValidated = false;
 													return "\"please enter the date and time into the future\"";
@@ -850,7 +850,11 @@ function showDashboard() {
 												
 											//},
 											error: function(xhr, textStatus, errorThrown) {
-												alert('ajax loading error... ... ' + textStatus + ' ' + errorThrown + ' ' + xhr.responseText);
+												//alert('ajax loading error... ... ' + textStatus + ' ' + errorThrown + ' ' + xhr.responseText);
+												
+												Q("#dialog3").dialog("option","title","Error");
+												Q("#dialog3text").text("ajax loading error... " + textStatus + " " + errorThrown + " " + xhr.responseText);
+												Q("#dialog3").dialog("open");
 												
 												dateValidated = false;
 												return "\"ajax loading error\"";
@@ -1157,7 +1161,7 @@ function showDashboard() {
 									CRjobstepActionType = "delete";
 									var id = Q("input[name=CRjobsteps]:checked", "#actualCRjobstepsTable").val();
 									 
-								    console.log(id);
+								    //console.log(id);
 									Q("#actualCRjobstepsTable").find("#" + id + "").remove();
 									Q("#actualCRjobstepsTable").find("." + id + "_for_command_retrieval").remove();
 									
@@ -1354,7 +1358,7 @@ function showDashboard() {
 										 Q.each(stepsjobject.info, function(index, element){
 										 
 										 
-											console.log(element.name);
+											//console.log(element.name);
 											if (element.name == "exists")
 											{
 												CRjobExistence = true;
@@ -1368,7 +1372,7 @@ function showDashboard() {
 												//alert(element.current_execution_status); 
 												//alert(element.current_execution_step); 
 												
-												console.log(element.current_execution_status);
+												//console.log(element.current_execution_status);
 												if (element.current_execution_status == "Idle")
 												{
 													 CRjobIdleStatus = true;
@@ -1611,12 +1615,12 @@ function showDashboard() {
 						function getClientJobNextRunDateTime(jobDetails, servertime)
 						{
 							
-							console.log("At getClientJobNextRunDateTime");
-							console.log("Processing " + jobDetails.job);							
-							console.log(jobDetails.next_run_schedule_id);
-							console.log(jobDetails.next_run_date);
-							console.log(jobDetails.next_run_time);
-							console.log(jobDetails.next_run_date_time);
+							//console.log("At getClientJobNextRunDateTime");
+							//console.log("Processing " + jobDetails.job);							
+							//console.log(jobDetails.next_run_schedule_id);
+							//console.log(jobDetails.next_run_date);
+							//console.log(jobDetails.next_run_time);
+							//console.log(jobDetails.next_run_date_time);
 							
 							var NJ = jobDetails.job;
 							var NextRunScheduleID = jobDetails.next_run_schedule_id;
@@ -1633,7 +1637,7 @@ function showDashboard() {
 							else
 							{ 
 								validTime = false;
-								console.log("It looks like the " + NJ + " is not scheduled to run");
+								//console.log("It looks like the " + NJ + " is not scheduled to run");
 							}
 
 
@@ -1641,11 +1645,11 @@ function showDashboard() {
 							{
 
 								var NextRunDateTime = new Date(NextRunDateTimeForConv);
-								console.log("The built NextRunDateTime is " + NextRunDateTime);
+								//console.log("The built NextRunDateTime is " + NextRunDateTime);
 								
 							   if (servertime &gt; NextRunDateTime)
 							   {
-									console.log("It looks like " + NJ + " was disabled for at least a day. Will hypothetically bring its next run date and time into the future assuming it runs daily.");
+									//console.log("It looks like " + NJ + " was disabled for at least a day. Will hypothetically bring its next run date and time into the future assuming it runs daily.");
 									while (servertime &gt; NextRunDateTime)
 									{
 										NextRunDateTime.setDate(NextRunDateTime.getDate() + 1);
@@ -1653,8 +1657,8 @@ function showDashboard() {
 
 							   }
 							   
-							   console.log("Next " + NJ + " date and time to run is " + NextRunDateTime);
-							   console.log("Current server date and time is " + servertime);
+							   //console.log("Next " + NJ + " date and time to run is " + NextRunDateTime);
+							   //console.log("Current server date and time is " + servertime);
 
 								return NextRunDateTime;
 							}
@@ -1738,12 +1742,12 @@ function showDashboard() {
 						}
 						*/
 						
-						
+						/*
 						function success2(msg)
 						{
 							alert("You May Pass!" + msg); 
 						}
-						
+						*/
 						
 						function failure(jqXHR, textStatus, error)
 						{ 
@@ -1758,12 +1762,15 @@ function showDashboard() {
 							Q('.' + Q("input[name=clientBuilds]").filter(":checked").prop('id') + "_sha_forReplacement").css('visibility', 'visible');
 						}
 						
+						
+						/*
 						function failure2(jqXHR, textStatus, error)
 						{ 
 							alert("You May not Pass!" + textStatus); 
 							alert("You May not Pass!" + error); 
 							
 						}
+						*/
 						
 						/*
 						function always()
@@ -1772,12 +1779,12 @@ function showDashboard() {
 						}
 						*/
 						
-						
+						/*
 						function always2()
 						{ 
 							alert("Questions Answered."); 
 						}
-						
+						*/
 					
 						function updateTable(data)
 						{
@@ -1796,12 +1803,14 @@ function showDashboard() {
 						
 						}
 					
+						/*
 						function processSuccess(data)
 						{
 							alert("Inside processSuccess function");
 							alert(data);
 						
 						}
+						*/
 						
 						function showBackendDepDynamicDialog(comp, env, coreVersion) 
 						{
@@ -2105,7 +2114,7 @@ function showDashboard() {
 								     Q.each(stepsjobject2.info, function(index, element){
 										
 										
-										console.log(element.name);
+										//console.log(element.name);
 									    if (element.name == "exists")
 										{
 											NJexistence = true;
@@ -2123,11 +2132,11 @@ function showDashboard() {
 											  next_run_date_time: element.next_run_date_time
 											};
 											
-											console.log(NJdetails.job);
-											console.log(NJdetails.next_run_schedule_id);
-											console.log(NJdetails.next_run_date);
-											console.log(NJdetails.next_run_time);
-											console.log(NJdetails.next_run_date_time);
+											//console.log(NJdetails.job);
+											//console.log(NJdetails.next_run_schedule_id);
+											//console.log(NJdetails.next_run_date);
+											//console.log(NJdetails.next_run_time);
+											//console.log(NJdetails.next_run_date_time);
 										}
 										
 										Q("#activeDB").val(element.activeDB);
@@ -2185,7 +2194,7 @@ function showDashboard() {
 										 //Get information on the nightly job start
 										 Q.each(stepsjobject2.infoStart, function(index, element){
 										 
-											console.log(element.name);
+											//console.log(element.name);
 											if (element.name == "exists")
 											{
 												NJStartExistence = true;
@@ -2202,11 +2211,11 @@ function showDashboard() {
 												  next_run_date_time: element.next_run_date_time
 												};
 												
-												console.log(NJStartdetails.job);
-												console.log(NJStartdetails.next_run_schedule_id);
-												console.log(NJStartdetails.next_run_date);
-												console.log(NJStartdetails.next_run_time);
-												console.log(NJStartdetails.next_run_date_time);
+												//console.log(NJStartdetails.job);
+												//console.log(NJStartdetails.next_run_schedule_id);
+												//console.log(NJStartdetails.next_run_date);
+												//console.log(NJStartdetails.next_run_time);
+												//console.log(NJStartdetails.next_run_date_time);
 											}
 											
 											
