@@ -833,6 +833,40 @@ public class EnvDashboardView extends View {
 	   System.out.println(getCurentDateTime() + ": Here is the SQl query passed to parseSQLquery function");
 	   System.out.println(SQL);
 	   System.out.println(server);
+	   
+	   
+	    String convertedSQL = new String();
+        String newLineInd = "\n";
+		String[] arrOfStr = SQL.split("\n");
+		for (String a: arrOfStr)
+		{
+		
+			 //check if the go statement is by itself
+			if (a.trim().toUpperCase().matches("GO($)"))
+			{
+					//System.out.println(a.trim().toUpperCase().matches("GO($)"));
+					convertedSQL = convertedSQL + ";" + newLineInd;
+			}
+			//check if the go statement is followed by integer
+			else if (a.trim().toUpperCase().matches("GO(\\s+\\d+)"))
+			{
+					//System.out.println(a.trim().toUpperCase().matches("GO(\\s+\\d+)"));
+					convertedSQL = convertedSQL + ";" + newLineInd;
+			}
+			else
+			{
+					convertedSQL = convertedSQL + a + newLineInd;
+			}
+			
+		}
+
+	    SQL = convertedSQL;
+		
+		//System.out.println(arrOfStr[0]);
+		//System.out.println(arrOfStr[1]);
+		System.out.println(getCurentDateTime() + ": Here is the SQl query after being processed for GO statements");
+		System.out.println(SQL);
+		
 	
        Connection conn = null;
        Statement stat = null;
