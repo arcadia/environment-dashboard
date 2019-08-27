@@ -15,6 +15,11 @@
 <div id="loader2" style="display:none;"></div>
 
 <script>
+window.addEventListener('error', function (e) {
+  var error = e.error;
+  alert(error);
+});
+
 Q(window).load(function(){
 	setTimeout(showDashboard, 3000);
 });
@@ -468,7 +473,7 @@ function showDashboard() {
 					</j:forEach>
 
 					<script language="javascript">
-											
+						
 						var validationObj;
 						var validationObj2;
 						var refreshIntervalId;
@@ -493,8 +498,7 @@ function showDashboard() {
 						
 						//Hide the dynamic dialog initially after the page loads					
 						Q(document).ready(function(){
-						
-						
+							
 							EnvDashViewProxy = <st:bind value="${it}"/>;
 							
 							//Make dummy calls to server side using proxy so 404 error can be avoided
