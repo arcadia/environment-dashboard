@@ -32,13 +32,13 @@ public class CustomDBConnection {
 		{
 			//Use this string for manual testing on your local computer
 			//dbConnectionString = "jdbc:sqlserver://" + server + ":" + port + ";databaseName=" + db + ";user=" + userName + ";password=" + userPassword;
-			dbConnectionString = "jdbc:sqlserver://" + server + ":" + port + ";user=" + userName + ";password=" + userPassword;
+			dbConnectionString = "jdbc:sqlserver://" + server + ":" + port + ";user=" + userName + ";password=" + userPassword + ";queryTimeout=1800";
 		}
 		else
 		{
 			//Try using Windows Integrated Authentication once on the domain
 			//dbConnectionString = "jdbc:sqlserver://" + server + ":" + port + ";databaseName=" + db + ";integratedSecurity=true";
-			dbConnectionString = "jdbc:sqlserver://" + server + ":" + port + ";integratedSecurity=true";
+			dbConnectionString = "jdbc:sqlserver://" + server + ":" + port + ";integratedSecurity=true;queryTimeout=1800";
 		}
 		
 		//System.out.println(dbConnectionString);

@@ -778,7 +778,7 @@ public class EnvDashboardView extends View {
 	   String user = System.getProperty("user.name");
 	   System.out.println(user);
 	   
-	   conn = CustomDBConnection.getConnection("adoskara-pc2", "1433", "test", getdbUser(), getdbPassword(), getSQLauth());
+	   conn = CustomDBConnection.getConnection("mycomputer", "1433", "test", getdbUser(), getdbPassword(), getSQLauth());
 	   //String SQL = "select * from dbo.persons where name = 'john';";
 	   String SQL = "select * from dbo.persons;";
 	   
@@ -905,7 +905,7 @@ public class EnvDashboardView extends View {
 	   
 	   
 	   
-	   //conn = CustomDBConnection.getConnection("adoskara-pc2", "1433", "test", getdbUser(), getdbPassword(), getSQLauth());
+	   //conn = CustomDBConnection.getConnection("mycomputer", "1433", "test", getdbUser(), getdbPassword(), getSQLauth());
 	   //String SQL = "select * from dbo.persons where name = 'john';";
 	   //String SQL = "select * from dbo.persons;";
 	   
@@ -990,7 +990,7 @@ public class EnvDashboardView extends View {
 	   
 	   
 	   
-	   //conn = CustomDBConnection.getConnection("adoskara-pc2", "1433", "test", getdbUser(), getdbPassword(), getSQLauth());
+	   //conn = CustomDBConnection.getConnection("mycomputer", "1433", "test", getdbUser(), getdbPassword(), getSQLauth());
 	   //String SQL = "select * from dbo.persons where name = 'john';";
 	   //String SQL = "select * from dbo.persons;";
 	   
@@ -1155,7 +1155,7 @@ public class EnvDashboardView extends View {
 	   String CRjobInfo = new String();
 	   
 	   
-	   //conn = CustomDBConnection.getConnection("adoskara-pc2", "1433", "msdb", getdbUser(), getdbPassword(), getSQLauth());
+	   //conn = CustomDBConnection.getConnection("mycomputer", "1433", "msdb", getdbUser(), getdbPassword(), getSQLauth());
 	   //String SQL = "EXEC dbo.sp_help_job @job_name = N'" + job + "',  @job_aspect = N'steps';";
 	   //System.out.println(getCurentDateTime() + ": Here is the built change request:");
 	   //System.out.println(SQL);
@@ -1534,7 +1534,7 @@ public class EnvDashboardView extends View {
 	   String NightlyJobInfo = new String();
 	   String retrievedJob = null;
 	   
-	   //conn = CustomDBConnection.getConnection("adoskara-pc2", "1433", "msdb", getdbUser(), getdbPassword(), getSQLauth());
+	   //conn = CustomDBConnection.getConnection("mycomputer", "1433", "msdb", getdbUser(), getdbPassword(), getSQLauth());
 	   //String SQL = "EXEC dbo.sp_help_job @job_name = N'" + job + "',  @job_aspect = N'steps';";
 	   //System.out.println(getCurentDateTime() + ": Here is the built change request:");
 	   //System.out.println(SQL);
