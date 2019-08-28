@@ -2109,21 +2109,46 @@ public class EnvDashboardView extends View {
 	       System.out.println(getCurentDateTime() + ": About to execute SQL query...");
            ResultSet rs = stat.executeQuery(SQL);
 		   
+		   System.out.println("after executing query");
+		   System.out.println(rs);
+		   
 		    int size = 0;
 			if (rs != null) 
 			{
 			  rs.last();    // moves cursor to the last row
 			  size = rs.getRow(); // get row id 
-			  if (size > 1)
+			  
+			  System.out.println("Show the size...");
+			  System.out.println(size);
+			  
+			  if (size == 1)
 			  {
+				System.out.println("Only one row is returned as expected");
+			  }
+			  else if (size > 1)
+			  {
+				System.out.println("Only one row is expected to be returned but there was more than one.");
 				throw new Exception("Only one row is expected to be returned but there was more than one.");
 			  }
+			  else if (size == 0)
+			  {
+				System.out.println("No rows were returned.");
+				throw new Exception("No rows were returned.");
+			  }
+			  else
+			  {
+				System.out.println("Number of rows is negative for some reason.");
+				throw new Exception("Number of rows is negative for some reason.");
+			  }
+			  
 			}
 			else
 			{
-				throw new Exception("No rows were returned.");
+				throw new Exception("No result set was produced for some reason");
 			
 			}
+		   
+		   System.out.println("Should not get here if number of rows is not equal one");
 		   
 		   //Iterate through the data in the result set and display it.
 		   rs.beforeFirst();    // moves cursor to the beginning
@@ -2134,6 +2159,9 @@ public class EnvDashboardView extends View {
            }
 		   
        } catch (Exception e) {
+	   
+			System.out.println("In the catch section");
+			
             System.out.println(getCurentDateTime() + ": Something failed at getRequestedInfo function"); 
 			System.out.println(e.toString());			
             //e.printStackTrace();  
@@ -2142,6 +2170,7 @@ public class EnvDashboardView extends View {
            CustomDBConnection.closeConnection(conn);
 		   	if(returnString == null)
 			{
+				System.out.println("returnString is null");
 				returnString = "failed";
 			}
        }
