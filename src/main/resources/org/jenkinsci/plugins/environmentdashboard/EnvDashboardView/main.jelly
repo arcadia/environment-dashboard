@@ -1033,6 +1033,8 @@ function showDashboard() {
 												 
 												   Q("#actualCRjobstepsTable").append('<textarea style="display:none;" class="' + next_step_id + '_for_command_retrieval">' + Q("#SQLscript").val() + '</textarea>');	 
 
+												   EnableDisableEditAndDeleteButtons();
+												   
 													Q(this).dialog("close");
 												}										
 											}
@@ -1241,7 +1243,9 @@ function showDashboard() {
 										}
 										  
 									});
-
+								
+								
+									EnableDisableEditAndDeleteButtons();
 									
 								}
 								else
@@ -1425,6 +1429,8 @@ function showDashboard() {
 										 
 										 if (CRjobIdleStatus)
 										 {
+											
+										 
 											 Q.each(stepsjobject.steps, function(index, element){
 												//alert(element.step_id); 
 												//alert(element.step_name); 
@@ -1449,6 +1455,10 @@ function showDashboard() {
 											 });
 											 
 											 
+											 //console.log(Q("#actualCRjobstepsTable tr").length);
+											EnableDisableEditAndDeleteButtons();
+
+											 
 											//alert("Finished populating the table");
 											 
 											 //Present CR job details
@@ -1462,6 +1472,8 @@ function showDashboard() {
 
 										 }
 
+										 
+										 
 
 										 
 										
@@ -1614,6 +1626,23 @@ function showDashboard() {
 							
 						});
 					
+					
+						function EnableDisableEditAndDeleteButtons()
+						{
+							if (Q("#actualCRjobstepsTable tr").length > 1)
+							{
+								Q("#edit").prop('disabled',false).css('opacity','');
+								Q("#delete").prop('disabled',false).css('opacity','');
+
+							}
+							else
+							{
+
+								Q("#edit").prop('disabled',true).css('opacity',0.5);
+								Q("#delete").prop('disabled',true).css('opacity',0.5);
+
+							}
+						}
 						
 						
 						function getClientJobNextRunDateTime(jobDetails, servertime)
