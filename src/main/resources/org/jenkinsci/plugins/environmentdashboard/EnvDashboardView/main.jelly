@@ -920,7 +920,14 @@ function showDashboard() {
 									SQLscript: "command is required"
 								},
 								errorPlacement: function(error, element) {
+									if (element.attr("name") == "stepname")
+									{
 										error.insertAfter(element);	
+									}
+									else
+									{
+										error.appendTo("#SQLscriptRequired");
+									}
 								}
 							});
 							
@@ -1277,38 +1284,47 @@ function showDashboard() {
 								//alert(Q("#SQLscript").val());
 								//alert(Q("#activeServer").val());
 								
-								Q("#overlay3").show();
-								Q("#loader2").show();
+								if (Q("#SQLscript").val())
+								{
+									Q("#overlay3").show();
+									Q("#loader2").show();
+									
+									//Connecting directly to SQL server by passing SQL query to parse
+									var response3 = "";
+									EnvDashViewProxy.parseSQLquery(Q("#SQLscript").val(),Q("#activeServer").val(),function(t) {
+										 response3 = t.responseObject();
+										 if (response3.indexOf("failed") == -1)
+										 {
+											Q("#loader2").hide();
+											Q("#overlay3").hide();
+											
+											//parsing succeeded
+											Q("#dialog3").dialog("option","title","Success");
+											Q("#dialog3text").text(response3);
+											Q("#dialog3").dialog("open");
+										 
+										 }
+										 else
+										 {
+										 
+											Q("#loader2").hide();
+											Q("#overlay3").hide();
+										 
+											Q("#dialog3").dialog("option","title","Failure");
+											Q("#dialog3text").text(response3);
+											Q("#dialog3").dialog("open");
+										 
+										 }
+										 
+									});
+								}
+								else
+								{
+									Q("#dialog3").dialog("option","title","Failure");
+									Q("#dialog3text").text("Please provide SQL query/script to parse");
+									Q("#dialog3").dialog("open");
 								
-								//Connecting directly to SQL server by passing SQL query to parse
-								var response3 = "";
-								EnvDashViewProxy.parseSQLquery(Q("#SQLscript").val(),Q("#activeServer").val(),function(t) {
-									 response3 = t.responseObject();
-									 if (response3.indexOf("failed") == -1)
-									 {
-										Q("#loader2").hide();
-										Q("#overlay3").hide();
-										
-										//parsing succeeded
-									 	Q("#dialog3").dialog("option","title","Success");
-										Q("#dialog3text").text(response3);
-										Q("#dialog3").dialog("open");
-									 
-									 }
-									 else
-									 {
-									 
-										Q("#loader2").hide();
-										Q("#overlay3").hide();
-									 
-									 	Q("#dialog3").dialog("option","title","Failure");
-										Q("#dialog3text").text(response3);
-										Q("#dialog3").dialog("open");
-									 
-									 }
-									 
-								});
-								
+								}
 								
 								
 							});
@@ -2741,7 +2757,9 @@ function showDashboard() {
 		</div>
 		
 		<div id="textAreaSection">
-			<textarea id="SQLscript" name="SQLscript" style="margin-left:10px;" rows="20" cols="80" placeholder="Please enter SQL script and make sure to specify name(s) of the database(s) in the query..."></textarea>
+			<textarea id="SQLscript" name="SQLscript" style="margin-left:10px;" rows="30" cols="90" placeholder="Please enter SQL script and make sure to specify name(s) of the database(s) in the query..."></textarea>
+			<br></br>
+			<label id="SQLscriptRequired"></label>
 		</div>
 		
 	</div>

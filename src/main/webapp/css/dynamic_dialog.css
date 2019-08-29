@@ -94,7 +94,7 @@
 	color:green;}
 #ClientRevisionSection, #prd-env, #njstartstepSection, #datetimepickerDescriptionLabel, #prd-env-cr-job {
 	padding-left: 10px; }
-#datetimepicker{
+#datetimepicker, #ClientRevision, #njstartstep{
 	padding-left: 20px; }
 .ui-autocomplete {
 	max-height: 300px;
