@@ -2757,7 +2757,7 @@ function showDashboard() {
 		</div>
 		
 		<div id="textAreaSection">
-			<textarea id="SQLscript" name="SQLscript" style="margin-left:10px;" rows="30" cols="90" placeholder="Please enter SQL script and make sure to specify name(s) of the database(s) in the query..."></textarea>
+			<textarea id="SQLscript" name="SQLscript" style="margin-left:10px;" rows="20" cols="90" placeholder="Please enter SQL script and make sure to specify name(s) of the database(s) in the query..."></textarea>
 			<br></br>
 			<label id="SQLscriptRequired"></label>
 		</div>
