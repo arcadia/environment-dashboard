@@ -653,71 +653,50 @@ function showDashboard() {
 							
 							
 							validationObj = Q("#dialog").validate({ // initialize the plugin
-								submitHandler: function(form, e) {
-									var go = false;
-									
-									if ((dateValidated &amp;&amp; Q("#environment").val() == 'PRD') || Q("#environment").val() != 'PRD')
-									{
-										go = true;
-									}
-									
-									if(!validationObj.form())
-									{  
-									  e.preventDefault(); 
-									}
-									else if (go)
-									{
-										// Stop form from submitting normally
-										e.preventDefault();
-										
-										dateValidated = false;
-										
-										//calculate seconds so we know when the jenkins build needs to be triggered									
-										if(Q("#datetimepicker").val())
-										{
-
-											var diff = Math.round((futureDateTime - serverDateTime)/1000);
-											Q("#secondsToWait").val(diff);
-										}
-										else
-										{
-											Q("#secondsToWait").val(0);
-										}
+								submitHandler: function(form, e) {									
+								    
+									// Stop form from submitting normally
+									e.preventDefault();
 																			
-										
-										//alert("client version " + Q("#build_num").val());
-										//alert("core version " + Q("#core_version").val());
-										//alert("type of deployment is " + typeofDeployment);
-										
-										//Determine what type of deployment needs to be performed		
-										if (Q("#build_num").val().length != 0 &amp;&amp; Q("#core_version").val().length == 0 &amp;&amp; typeofDeployment == "client")
-										{
-											//Perform client deployment
-											startDeployment("client",Q("#clientAcronym").val(),Q("#environment").val(),Q("#build_num").val());
-										}
-										else if (Q("#core_version").val().length != 0 &amp;&amp; Q("#build_num").val().length == 0 &amp;&amp; typeofDeployment == "backend")
-										{
-											//Perform backend deployment		
-											startDeployment("backend",Q("#clientAcronym").val(),Q("#environment").val(),Q("#core_version").val());
-										}
-										else if (typeofDeployment == "CRjob")
-										{
-											//Initiate CR job
-											startDeployment("CRjob",Q("#clientAcronym").val(),Q("#environment").val(),"NA");
-
-										}
-										else
-										{
-											//alert("something went wrong");
-											Q("#dialog3").dialog("option","title","Error");
-											Q("#dialog3text").text("something went wrong");
-											Q("#dialog3").dialog("open");
-										}
-									
+									//calculate seconds so we know when the jenkins build needs to be triggered									
+									if(Q("#datetimepicker").val())
+									{
+										var diff = Math.round((futureDateTime - serverDateTime)/1000);
+										Q("#secondsToWait").val(diff);
 									}
 									else
 									{
-										e.preventDefault();
+										Q("#secondsToWait").val(0);
+									}
+																		
+									
+									//alert("client version " + Q("#build_num").val());
+									//alert("core version " + Q("#core_version").val());
+									//alert("type of deployment is " + typeofDeployment);
+									
+									//Determine what type of deployment needs to be performed		
+									if (Q("#build_num").val().length != 0 &amp;&amp; Q("#core_version").val().length == 0 &amp;&amp; typeofDeployment == "client")
+									{
+										//Perform client deployment
+										startDeployment("client",Q("#clientAcronym").val(),Q("#environment").val(),Q("#build_num").val());
+									}
+									else if (Q("#core_version").val().length != 0 &amp;&amp; Q("#build_num").val().length == 0 &amp;&amp; typeofDeployment == "backend")
+									{
+										//Perform backend deployment		
+										startDeployment("backend",Q("#clientAcronym").val(),Q("#environment").val(),Q("#core_version").val());
+									}
+									else if (typeofDeployment == "CRjob")
+									{
+										//Initiate CR job
+										startDeployment("CRjob",Q("#clientAcronym").val(),Q("#environment").val(),"NA");
+
+									}
+									else
+									{
+										//alert("something went wrong");
+										Q("#dialog3").dialog("option","title","Error");
+										Q("#dialog3text").text("something went wrong");
+										Q("#dialog3").dialog("open");
 									}
 									
 								},
