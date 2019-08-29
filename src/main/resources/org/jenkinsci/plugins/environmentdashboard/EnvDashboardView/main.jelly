@@ -507,30 +507,8 @@ function showDashboard() {
 							setInterval(function() {
 								EnvDashViewProxy.maintainConnectivityToProxy(function(t) {
 									 response5 = t.responseObject();
-									 if (response5.indexOf("failed") == -1)
-									 {
-										//parsing succeeded
-										//Q("#dialog3").dialog("option","title","Success");
-										//Q("#dialog3text").text(response5);
-										//Q("#dialog3").dialog("open");
-										//date2 = new Date().toLocaleString();
-										//console.log(date2);
-									 
-									 }
-									 else
-									 {
-									 
-										//Q("#dialog3").dialog("option","title","Failure");
-										//Q("#dialog3text").text(response5);
-										//Q("#dialog3").dialog("open");
-									 
-									 }
-									 
 								});
 							}, 300 * 1000); // 5 minutes
-							
-
-
 							
 							
 							Q("#overlay, #dialog, #dialog2, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection, #envSection, #prd-env-cr-job, #kickoffDateTimeSection").hide();
@@ -714,7 +692,7 @@ function showDashboard() {
 										//remote: "/plugin/environment-dashboard/json/test.json"
 										remote: {
 											//url: "/plugin/environment-dashboard/json/test.json",
-											url: "/view/Client_and_Backend_Deploy/getServerDateTimeLocal",
+											url: "/view/" + Q("#ViewName").val() + "/getServerDateTimeLocal",
 											datatype: 'html',
 											dataFilter: function(data) {
 												//alert('in datafilter section');
@@ -2669,6 +2647,8 @@ function showDashboard() {
 	<input type="hidden" id="build_num" value=""/>
 	<input type="hidden" id="secondsToWait" value=""/>
 	<input type="hidden" id="ClientRevision" value=""/>
+	
+	<input type="hidden" id="ViewName" value="${it.ViewName}"/>
 	
 	<br></br>
 	<br></br>

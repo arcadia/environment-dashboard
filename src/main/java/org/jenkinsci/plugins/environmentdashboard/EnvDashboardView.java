@@ -99,6 +99,7 @@ public class EnvDashboardView extends View {
 	
 	private Secret LDAPpassword = null;
 	
+	private String name = null;
 	
 
     @DataBoundConstructor
@@ -116,6 +117,8 @@ public class EnvDashboardView extends View {
 		this.LDAPserver = LDAPserver;
 		this.LDAPuser = LDAPuser;
 		this.LDAPpassword = Secret.fromString(LDAPpassword);
+		
+		this.name = name;
 		
     }
 
@@ -208,6 +211,8 @@ public class EnvDashboardView extends View {
 		private String LDAPserver;
 		private String LDAPuser;
 		private String LDAPpassword;
+		
+		private String name;
 
 		
         /**
@@ -716,6 +721,10 @@ public class EnvDashboardView extends View {
         this.dbUser = dbUser;
     }
 	
+	public void setViewName(final String name) {
+        this.name = name;
+    }
+	
 	public void setLDAPserver(final String LDAPserver) {
         this.LDAPserver = LDAPserver;
     }
@@ -726,6 +735,10 @@ public class EnvDashboardView extends View {
 	
 	public String getdbUser() {
         return dbUser;
+    }
+	
+	public String getViewName() {
+        return name;
     }
 	
 	public String getLDAPserver() {
