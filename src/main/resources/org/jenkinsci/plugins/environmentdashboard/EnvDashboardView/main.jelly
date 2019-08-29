@@ -489,7 +489,6 @@ function showDashboard() {
 						
 						var futureDateTime;
 						var serverDateTime;
-						var dateValidated = false;
 						var NJdetails;
 						var NJStartdetails;
 						var NJexistence = false;
@@ -766,7 +765,6 @@ function showDashboard() {
 														{
 															if (futureDateTime &lt; NJNextRunDateTime)
 															{
-																dateValidated = true;
 																return '"true"';
 															
 															}
@@ -790,7 +788,6 @@ function showDashboard() {
 																
 																
 																//return '"false"';
-																dateValidated = false;
 																return "\"client's NJ will be running at this time\"";
 															    
 															}
@@ -805,7 +802,6 @@ function showDashboard() {
 																{
 																	if (futureDateTime &lt; NJNextRunDateTime)
 																	{
-																		dateValidated = true;
 																		return '"true"';
 																	
 																	}
@@ -828,7 +824,6 @@ function showDashboard() {
 																		Q("#dialog3").dialog("open");		
 																		
 																		//return '"false"';
-																		dateValidated = false;
 																		return "\"client's NJ Start will be running at this time\"";
 																		
 															
@@ -838,14 +833,12 @@ function showDashboard() {
 																else
 																{
 																
-																	dateValidated = true;
 																	return '"true"';
 																
 																}
 															}
 															else
 															{												
-																	dateValidated = true;
 																	return '"true"';
 															}
 														
@@ -855,7 +848,6 @@ function showDashboard() {
 													}
 													else
 													{
-														dateValidated = true;
 														return '"true"';
 													}
 													
@@ -864,7 +856,6 @@ function showDashboard() {
 												 {
 													//console.log("future date is less than server time");
 													//return '"false"';
-													dateValidated = false;
 													return "\"please enter the date and time into the future\"";
 												 
 												 }
@@ -885,7 +876,6 @@ function showDashboard() {
 												Q("#dialog3text").text("ajax loading error... " + textStatus + " " + errorThrown + " " + xhr.responseText);
 												Q("#dialog3").dialog("open");
 												
-												dateValidated = false;
 												return "\"ajax loading error\"";
 												//return '"false"';
 												
