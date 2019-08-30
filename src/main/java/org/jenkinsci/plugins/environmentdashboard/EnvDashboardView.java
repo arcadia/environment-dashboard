@@ -66,6 +66,7 @@ import javax.naming.ldap.LdapContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import jenkins.model.ModelObjectWithContextMenu.ContextMenu;
 
 
 
@@ -99,9 +100,8 @@ public class EnvDashboardView extends View {
 	
 	private Secret LDAPpassword = null;
 	
-	private String name = null;
-	
 
+	
     @DataBoundConstructor
     public EnvDashboardView(final String name, final String envOrder, final String compOrder, final String tags, final String betaCustomers, final String deployHistory, final String dbUser, final String dbPassword, final Boolean SQLauth, final String LDAPserver, final String LDAPuser, final String LDAPpassword) {
         super(name, Hudson.getInstance());
@@ -118,7 +118,6 @@ public class EnvDashboardView extends View {
 		this.LDAPuser = LDAPuser;
 		this.LDAPpassword = Secret.fromString(LDAPpassword);
 		
-		this.name = name;
 		
     }
 
@@ -212,7 +211,6 @@ public class EnvDashboardView extends View {
 		private String LDAPuser;
 		private String LDAPpassword;
 		
-		private String name;
 
 		
         /**
@@ -334,6 +332,7 @@ public class EnvDashboardView extends View {
 			LDAPserver = formData.getString("LDAPserver");
 			LDAPuser = formData.getString("LDAPuser");
 			LDAPpassword = formData.getString("LDAPpassword");
+			
 			
             save();
             return super.configure(req,formData);
@@ -721,9 +720,7 @@ public class EnvDashboardView extends View {
         this.dbUser = dbUser;
     }
 	
-	public void setViewName(final String name) {
-        this.name = name;
-    }
+	
 	
 	public void setLDAPserver(final String LDAPserver) {
         this.LDAPserver = LDAPserver;
@@ -737,9 +734,6 @@ public class EnvDashboardView extends View {
         return dbUser;
     }
 	
-	public String getViewName() {
-        return name;
-    }
 	
 	public String getLDAPserver() {
         return LDAPserver;
@@ -2347,7 +2341,6 @@ public class EnvDashboardView extends View {
     }
 	
 	
-	
 	@WebMethod(name="getServerDateTimeLocal")
 	public HttpResponse getServerDateTimeLocal() {
 		String timeStamp = new SimpleDateFormat("MM/dd/yyyy HH:mm").format(new Date());
@@ -2355,6 +2348,11 @@ public class EnvDashboardView extends View {
 	}
 	
 	
+	public ContextMenu doChildrenContextMenu(StaplerRequest request, StaplerResponse response) throws Exception {
+	  ContextMenu menu = new ContextMenu();
+	  menu.add("getServerDateTimeLocal","Jenkins Server Time");
+	  return menu;
+	}
 	
 	  
 }
