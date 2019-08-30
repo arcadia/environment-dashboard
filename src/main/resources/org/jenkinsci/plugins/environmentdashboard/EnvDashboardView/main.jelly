@@ -2394,23 +2394,26 @@ function showDashboard() {
 										"&amp;JiraTicket=" + Q("#jiraticket").val().trim().replace(/['"]+/g, '') +
 										"&amp;delay=" + Number(Q("#secondsToWait").val()) + "sec";
 							
-							if (type == "client")
+							if (type == "client" || type == "backend")
 							{
+							
 								buildUrl = buildUrl + 
-										"&amp;SourceBuildID=" + version +
-										"&amp;NoRollback=" + DoNotPerformRollback +
-										"&amp;StartCRjob=" + StartCRjob;
-								
+											"&amp;NoRollback=" + DoNotPerformRollback +
+											"&amp;StartCRjob=" + StartCRjob;
+							
+								if (type == "client")
+								{
+									buildUrl = buildUrl + 
+											"&amp;SourceBuildID=" + version;
+									
+								}
+								else
+								{
+									buildUrl = buildUrl +
+											"&amp;CoreVersion=" + version +
+											"&amp;ClientRevision=" + Q("#ClientRevision").val().trim();
+								}
 							}
-							else if (type == "backend")
-							{
-								buildUrl = buildUrl +
-										"&amp;CoreVersion=" + version +
-										"&amp;ClientRevision=" + Q("#ClientRevision").val().trim() +
-										"&amp;NoRollback=" + DoNotPerformRollback +
-										"&amp;StartCRjob=" + StartCRjob;
-							}
-
 							
 							
 							//debug the URL
