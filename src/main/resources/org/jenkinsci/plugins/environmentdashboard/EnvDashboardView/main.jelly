@@ -494,6 +494,7 @@ function showDashboard() {
 						var NJexistence = false;
 						var NJStartExistence = false;
 						var noInitialEnv = false;
+						var propertiesButtonClicked = false;
 						
 						//Hide the dynamic dialog initially after the page loads					
 						Q(document).ready(function(){
@@ -658,46 +659,73 @@ function showDashboard() {
 								    
 									// Stop form from submitting normally
 									e.preventDefault();
+									
+									var proceed = false;
+									
+									if(Q("#startcrjob").is(":checked") || typeofDeployment == "CRjob")
+									{
+										if(!propertiesButtonClicked)
+										{
+											Q("#dialog3").dialog("option","title","Warning");
+											Q("#dialog3text").text("It looks like you did not click Properties button for change_request job. Please do so so you can update SQL CR job with needed SQL query or script.");
+											Q("#dialog3").dialog("open");
+										
+										}
+										else
+										{
+											proceed = true;
+										
+										}
+									}
+									else
+									{
+										proceed = true;
+									
+									}
+									
+									
+									if(proceed)
+									{
+										//calculate seconds so we know when the jenkins build needs to be triggered									
+										if(Q("#datetimepicker").val())
+										{
+											var diff = Math.round((futureDateTime - serverDateTime)/1000);
+											Q("#secondsToWait").val(diff);
+										}
+										else
+										{
+											Q("#secondsToWait").val(0);
+										}
 																			
-									//calculate seconds so we know when the jenkins build needs to be triggered									
-									if(Q("#datetimepicker").val())
-									{
-										var diff = Math.round((futureDateTime - serverDateTime)/1000);
-										Q("#secondsToWait").val(diff);
-									}
-									else
-									{
-										Q("#secondsToWait").val(0);
-									}
-																		
-									
-									//alert("client version " + Q("#build_num").val());
-									//alert("core version " + Q("#core_version").val());
-									//alert("type of deployment is " + typeofDeployment);
-									
-									//Determine what type of deployment needs to be performed		
-									if (Q("#build_num").val().length != 0 &amp;&amp; Q("#core_version").val().length == 0 &amp;&amp; typeofDeployment == "client")
-									{
-										//Perform client deployment
-										startDeployment("client",Q("#clientAcronym").val(),Q("#environment").val(),Q("#build_num").val());
-									}
-									else if (Q("#core_version").val().length != 0 &amp;&amp; Q("#build_num").val().length == 0 &amp;&amp; typeofDeployment == "backend")
-									{
-										//Perform backend deployment		
-										startDeployment("backend",Q("#clientAcronym").val(),Q("#environment").val(),Q("#core_version").val());
-									}
-									else if (typeofDeployment == "CRjob")
-									{
-										//Initiate CR job
-										startDeployment("CRjob",Q("#clientAcronym").val(),Q("#environment").val(),"NA");
+										
+										//alert("client version " + Q("#build_num").val());
+										//alert("core version " + Q("#core_version").val());
+										//alert("type of deployment is " + typeofDeployment);
+										
+										//Determine what type of deployment needs to be performed		
+										if (Q("#build_num").val().length != 0 &amp;&amp; Q("#core_version").val().length == 0 &amp;&amp; typeofDeployment == "client")
+										{
+											//Perform client deployment
+											startDeployment("client",Q("#clientAcronym").val(),Q("#environment").val(),Q("#build_num").val());
+										}
+										else if (Q("#core_version").val().length != 0 &amp;&amp; Q("#build_num").val().length == 0 &amp;&amp; typeofDeployment == "backend")
+										{
+											//Perform backend deployment		
+											startDeployment("backend",Q("#clientAcronym").val(),Q("#environment").val(),Q("#core_version").val());
+										}
+										else if (typeofDeployment == "CRjob")
+										{
+											//Initiate CR job
+											startDeployment("CRjob",Q("#clientAcronym").val(),Q("#environment").val(),"NA");
 
-									}
-									else
-									{
-										//alert("something went wrong");
-										Q("#dialog3").dialog("option","title","Error");
-										Q("#dialog3text").text("something went wrong");
-										Q("#dialog3").dialog("open");
+										}
+										else
+										{
+											//alert("something went wrong");
+											Q("#dialog3").dialog("option","title","Error");
+											Q("#dialog3text").text("something went wrong");
+											Q("#dialog3").dialog("open");
+										}
 									}
 									
 								},
@@ -1419,7 +1447,8 @@ function showDashboard() {
 											 
 											 //console.log(Q("#actualCRjobstepsTable tr").length);
 											EnableDisableEditAndDeleteButtons();
-
+											
+											propertiesButtonClicked = true;
 											 
 											//alert("Finished populating the table");
 											 
@@ -1722,6 +1751,7 @@ function showDashboard() {
 							Q("#customErrorPlacement").text("");
 							Q("#ClientRevision").val("");
 							
+							propertiesButtonClicked = false;
 						
 							if(prevBuildForFoundSHA)
 							{
