@@ -1745,6 +1745,14 @@ function showDashboard() {
 									Q("#core_version").val("");
 								}
 								
+								
+								if(Q("#envSection").is(":visible"))
+								{
+									Q("#PRDsection").hide(500);
+									Q("#startCRjobSection, #noRollbackSection").hide();
+									Q("#kickoffDateTimeSection").hide();
+								}
+								
 							}
 							
 							Q('#' + Q("#clientAcronym").val() + "_clientVersions").hide();
@@ -1941,7 +1949,7 @@ function showDashboard() {
 							   Q("#overlay2").show();
 							   Q("#loader2").show();
 							   
-							   
+							   //Q("#noRollbackSection").hide();
 							   
 							   getNightlyjobSteps();
 								
@@ -2016,6 +2024,7 @@ function showDashboard() {
 										noInitialEnv = true;
 										Q("#overlay, #dialog").show();
 										
+										 Q("#noRollbackSection").hide();
 										 Q("#envSection").show();
 										 Q("#dialogTitle").text("Deploying " + comp + " for " + buildNum);
 										 
