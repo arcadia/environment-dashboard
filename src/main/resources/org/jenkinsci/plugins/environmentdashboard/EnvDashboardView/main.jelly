@@ -10,9 +10,31 @@
 <script src="${rootURL}/plugin/environment-dashboard/js/jquery.datetimepicker.full.min.js"></script>
 <script src="${rootURL}/plugin/environment-dashboard/js/jquery.validate.js"></script>
 <script src="${rootURL}/plugin/environment-dashboard/js/jquery-ui.js"></script>
+
+<div id="loader"></div>
+<div id="loader2" style="display:none;"></div>
+
+<script>
+window.addEventListener('error', function (e) {
+  var error = e.error;
+  alert(error);
+});
+
+Q(window).load(function(){
+	setTimeout(showDashboard, 3000);
+});
+
+function showDashboard() {
+  Q("#loader").hide();
+  Q("#startDashboard").show();
+}
+</script>
+
+
+
 <div class="overlay" style="display:none; background-color: rgba(0, 0, 0, 0.4); position:absolute; top: 0; left:0; bottom:0; right:0;" onclick="hideAll()"></div>
 <div class="popup" id="popup" style="position: absolute; width: 300px; height:150; display:none; background-color: white; text-align: center; top:50%; left:50%; margin-left: -150px; margin-top: -75;"></div>
-<div id="startDashboard" style="margin-left: -360px; margin-right: 360px;">
+<div id="startDashboard" style="margin-left: -360px; margin-right: 360px; display: none;">
 	<input type="text" id="searchInput" style="width: 100%; font-size: 16px; padding: 12px 20px 12px 40px; border: 1px solid #ddd; margin-bottom: 12px;" onkeyup="filterTable()" placeholder="Search for clients.." title="Type in a client"/>
 	<table id="envDashboard" class="table table-bordered table-striped table-condensed">
 		<tbody>
@@ -31,6 +53,7 @@
 						<j:set var="orderOfEnvs" value="${it.getOrderOfEnvs()}"/>
 						<j:set var="orderOfComps" value="${it.getOrderOfComps()}"/>
 						<j:set var="customColumnsList" value="${it.getCustomDBColumns()}"/>
+						
 
 
 						<j:forEach items="${orderOfEnvs}" var="envsHeader">
@@ -111,7 +134,10 @@
 														<th style="text-align:center">${column.substring(0, 1).toUpperCase() + column.substring(1)}</th>
 													</j:if>
 												</j:forEach>
-												<th style="width:8%;text-align:center">Action</th>
+												
+												<j:if test="${comp.indexOf('CRjob') == -1}"> 
+													<th style="width:8%;text-align:center">Action</th>
+												</j:if>
 												<th style="width:8%;text-align:center">Status</th>
 												<th style="text-align:center">Time</th>
 											</tbody>
@@ -133,12 +159,13 @@
 																</td>
 															</j:if>
 														</j:forEach>
+														<j:if test="${comp.indexOf('CRjob') == -1}"> 
 														<td>
 														  <code>
 															
 																<j:if test="${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1] != null}">
 	 
-																   <j:if test="${comp.indexOf('Backend') == -1}">
+																   <j:if test="${comp.indexOf('Backend') == -1 &amp;&amp; comp.indexOf('CRjob') == -1}">
 																		<j:switch on="${deployment.get('buildstatus')}">
 																			<j:case value="SUCCESS">
 																				<j:choose>
@@ -174,10 +201,13 @@
 																		
 																	</j:if> 
 																	
+
+																	
 																</j:if> 
 															 
 														 </code>
 														</td>
+														</j:if>
 														<td>
 															<j:switch on="${deployment.get('buildstatus')}">
 																<j:case value="SUCCESS">
@@ -270,32 +300,43 @@
 						<tr>
 							<td align="center"><strong><a href="javascript:toggle('${comps}_History')">${comps}</a></strong></td>
 							<j:forEach items="${orderOfEnvs}" var="env">
+							
 								<j:set var="deployment" value="${it.getCompLastDeployed(env, comps)}"/>
-								<j:if test="${!deployment.isEmpty()}">
-									<j:switch on="${deployment.get('buildstatus')}">
-										<j:case value="SUCCESS">
-											<j:set var="bgcol" value="#DAF5DA;"/>
-											<j:set var="clss" value="notused"/>
-											<j:set var="extn" value=""/>
-										</j:case>
-										<j:case value="FAILURE">
-											<j:set var="bgcol" value="#FF6666;"/>
-											<j:set var="clss" value="notused"/>
-											<j:set var="extn" value=""/>
-										</j:case>
-										<j:case value="RUNNING">
-											<j:set var="bgcol" value="#ffffff;"/>
-											<j:set var="clss" value="deploying"/>
-											<j:set var="extn" value="console"/>
-										</j:case>
-										<j:default>
-											<j:set var="bgcol" value="#eccf97;"/>
-											<j:set var="clss" value="notused"/>
-											<j:set var="extn" value="console"/>
-										</j:default>
-									</j:switch>
-								</j:if>
+								
+								<j:choose>
+									<j:when test="${!deployment.isEmpty()}">
+										<j:switch on="${deployment.get('buildstatus')}">
+											<j:case value="SUCCESS">
+												<j:set var="bgcol" value="#DAF5DA;"/>
+												<j:set var="clss" value="notused"/>
+												<j:set var="extn" value=""/>
+											</j:case>
+											<j:case value="FAILURE">
+												<j:set var="bgcol" value="#FF6666;"/>
+												<j:set var="clss" value="notused"/>
+												<j:set var="extn" value=""/>
+											</j:case>
+											<j:case value="RUNNING">
+												<j:set var="bgcol" value="#ffffff;"/>
+												<j:set var="clss" value="deploying"/>
+												<j:set var="extn" value="console"/>
+											</j:case>
+											<j:default>
+												<j:set var="bgcol" value="#eccf97;"/>
+												<j:set var="clss" value="notused"/>
+												<j:set var="extn" value="console"/>
+											</j:default>
+										</j:switch>
+									</j:when>
+									<j:otherwise>
+										<j:set var="bgcol" value="#E8E8E8;"/>
+										<j:set var="clss" value="notused"/>
+										<j:set var="extn" value="console"/>
+									</j:otherwise>
+								</j:choose>
+			
 
+                    
 								<td class="${clss}" style="background-color:${bgcol} padding 1.5% 1.5%;" align="center">
 									<j:if test="${!deployment.isEmpty()}">
 										<a style="text-decoration:none; color:blue; font-size:medium;" title="View" href="javascript:toggle('${comps}_${env}_Popup');">
@@ -328,7 +369,7 @@
 												<j:if test="${orderOfEnvs[orderOfEnvs.indexOf(env)+1] != null}">
 													<j:if test="${orderOfEnvs.indexOf(env) != 0}">
 											
-															<j:if test="${comps.indexOf('Backend') == -1}">
+															<j:if test="${comps.indexOf('Backend') == -1 &amp;&amp; comps.indexOf('CRjob') == -1}">
 															<j:switch on="${deployment.get('buildstatus')}">
 																<j:case value="SUCCESS">
 																	 <a title="Promote" href="javascript:showClientDepDynamicDialog('${comps}','${orderOfEnvs[orderOfEnvs.indexOf(env)+1]}','${deployment.get('buildNum')}');">Promote${it.envVars}</a>
@@ -372,7 +413,7 @@
 												   <!-- DROPDOWN MENUS FOR PERFORMING BACKEND DEPLOYMENTS under 'Last Commit' column-->
 												   
 													<j:if test="${comps.indexOf('Backend') != -1}">  
-                                                         <j:set var="tags" value="${it.getOrderOfTags(comps,env_promote)}"/>
+													<j:set var="tags" value="${it.getOrderOfTags(comps,env_promote)}"/>
 													
 														 <j:set var="SpaceIndex" value="${comps.indexOf(' ',1)}"/>
 														 <j:set var="client" value="${comps.substring(0,SpaceIndex)}"/>
@@ -399,7 +440,7 @@
 													</j:if>
 													
 													<!-- PROMOTE LINKS under 'Last Commit' column -->
-													<j:if test="${comps.indexOf('Backend') == -1}"> 
+													<j:if test="${comps.indexOf('Backend') == -1 &amp;&amp; comps.indexOf('CRjob') == -1}"> 
 														<div style="margin-right:30px; float:right;">
 															<j:switch on="${deployment.get('buildstatus')}">
 																<j:case value="SUCCESS">
@@ -413,37 +454,281 @@
 														
 													  											
 													</j:if>
+													
+													
+													<!-- CRjob LINKS under 'Last Commit' column -->
+													<j:if test="${comps.indexOf('CRjob') != -1}"> 
+														<div style="margin-right:30px; float:right;">
+															<a href="javascript:javascript:showCRjobDynamicDialog('${comps}','${env_promote}');">Initiate at ${env_promote}</a>
+														</div>								
+													</j:if>
 												
 											</j:if>
 										</j:forEach>
 									</j:if>
 								</td>
+
 							</j:forEach>
 						</tr>
 					</j:forEach>
 
 					<script language="javascript">
-											
+						
 						var validationObj;
+						var validationObj2;
 						var refreshIntervalId;
 						var prevBuildForFoundSHA;
 						var typeofDeployment;
+						var CRjob;
+						var CRjobstepActionType;
+						
+						//Create a proxy for EnvDashView Java object on a server side so it can later be used during AJAX calls
+						var EnvDashViewProxy;
+						
+						var authorizedForPRDactions = "TBD";
+						
+						var futureDateTime;
+						var serverDateTime;
+						var NJdetails;
+						var NJStartdetails;
+						var NJexistence = false;
+						var NJStartExistence = false;
+						var noInitialEnv = false;
+						var propertiesButtonClicked = false;
 						
 						//Hide the dynamic dialog initially after the page loads					
 						Q(document).ready(function(){
 						
-							Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection, #envSection").hide();
+							//alert(window.location.pathname);
+							
+							EnvDashViewProxy = <st:bind value="${it}"/>;
+							
+							//Make dummy calls to server side using proxy so 404 error can be avoided
+							var response5;
+							var date2;
+							setInterval(function() {
+								EnvDashViewProxy.maintainConnectivityToProxy(function(t) {
+									 response5 = t.responseObject();
+								});
+							}, 300 * 1000); // 5 minutes
+							
+							
+							Q("#overlay, #dialog, #dialog2, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection, #envSection, #prd-env-cr-job, #kickoffDateTimeSection").hide();
 							Q("#dialog").draggable();
 							
-							
-							Q.validator.addMethod("dateTime", function(value, element) {
-								var futureDateTime = new Date(value);
-								var now = new Date();
-								return this.optional(element) || (futureDateTime &gt; now);
+							Q("#dialog3").dialog({
+								autoOpen: false, 
+								modal: true,
+								draggable: true,
+								dialogClass: "titlebar"
 							});
 							
 							
+							//Q("#dialog3").dialog("option","title","Debug");
+							//Q("#dialog3text").text(EnvDashViewProxy);
+							//Q("#dialog3").dialog("open");
+							
+							
+							Q("#dialog2").dialog({
+								//create: function( e, ui ) { this.element.css( "z-index", "0" ); },
+								autoOpen: false, 
+								modal: true,
+								//zIndex: 0,
+								draggable: true,
+								resizable: false,
+								autoResize: true,
+								width: 1000,
+								//height: 600,
+								dialogClass: "no-close",
+								//open: function (event, ui) {
+								 //Q('.ui-dialog').css('z-index',1);
+								 //Q('.ui-widget-overlay').css('z-index',0);
+								//},
+								buttons: {
+								OK: function (e) {
+										//Q(this).submit();
+										// Stop form from submitting normally
+										e.preventDefault();
+										
+										//Save CR job step
+										//alert(Q("#SQLscript").val());
+										//alert(Q("#activeServer").val());
+										
+										// Setter
+										//Q(this).dialog( "option", "modal", false );
+										Q("#overlay3").show();
+										Q("#loader2").show();
+										
+										//Loop through CRjob steps and find the max step_id
+										var step_ids = [];
+										var last_step_id;
+										
+										Q("#actualCRjobstepsTable").find("tr:gt(0)").each(function( index ) {
+											step_ids.push(Q(this).find("#step_id").text());
+										});
+										
+										last_step_id = Math.max.apply(Math, step_ids);
+										
+										
+										//Loop through CRjob steps and update all of the steps
+										var response4;
+										var i = 1;
+										var step_id;
+										var step_name;
+										var subsystem;
+										var command;
+										var on_success_action;
+										
+										var CRjobStepsJSONobj = {
+												CRjobsteps: []
+											};
+										var JSONObjToSend;
+										
+										
+										Q("#actualCRjobstepsTable").find("tr:gt(0)").each(function( index ) {
+										
+											command = Q('.' + Q(this).find("#step_id").text() + "_for_command_retrieval").text();
+								
+											if (Q(this).find("#step_id").text() == last_step_id)
+											{
+												on_success_action = 1;
+											}
+											else
+											{
+												on_success_action = 3;
+											}
+												
+											step_name = Q(this).find("#step_name").text();
+											subsystem = Q(this).find("#subsystem").text();
+										  
+											CRjobStepsJSONobj.CRjobsteps.push({ 
+												"job_name" : CRjob,
+												"step_name" : step_name,
+												"subsystem" : subsystem,
+												"command" : command,
+												"on_success_action" : on_success_action
+											});
+												
+										});
+										
+										
+										//alert(CRjobStepsJSONobj);
+
+										 EnvDashViewProxy.AddCRjobSteps(Q("#activeServer").val(),CRjob,CRjobStepsJSONobj,function(t) {
+											 response4 = t.responseObject();
+											 if (response4.indexOf("failed") == -1)
+											 {
+												//Processing CRjob steps succeeded
+												//Q("#dialog3").dialog("option","title","Success");
+												//Q("#dialog3text").text(response4);
+												//Q("#dialog3").dialog("open");
+												//console.log(response4);
+												
+												Q("#loader2").hide();
+												Q("#overlay3").hide();
+												//Q(this).dialog( "option", "modal", true );												
+												Q("#dialog2").dialog("close");
+											 
+											 }
+											 else
+											 {
+												Q("#loader2").hide();
+												Q("#overlay3").hide();
+												//Q(this).dialog( "option", "modal", true );
+											 
+												Q("#dialog3").dialog("option","title","Failure");
+												Q("#dialog3text").text(response4);
+												Q("#dialog3").dialog("open");
+											 
+											 }
+											 
+										});
+										
+										
+									},
+									Cancel: function () {
+										Q(this).trigger("reset");
+										Q(this).dialog("close");
+									}
+								}
+							}).prev(".ui-dialog-titlebar").css("background","#81BEF7");
+							
+							
 							validationObj = Q("#dialog").validate({ // initialize the plugin
+								submitHandler: function(form, e) {									
+								    
+									// Stop form from submitting normally
+									e.preventDefault();
+									
+									var proceed = false;
+									
+									if(Q("#startcrjob").is(":checked") || typeofDeployment == "CRjob")
+									{
+										if(!propertiesButtonClicked)
+										{
+											Q("#dialog3").dialog("option","title","Warning");
+											Q("#dialog3text").text("It looks like you did not click Properties button for change_request job. Please do so so you can update SQL CR job with needed SQL query or script.");
+											Q("#dialog3").dialog("open");
+										
+										}
+										else
+										{
+											proceed = true;
+										
+										}
+									}
+									else
+									{
+										proceed = true;
+									
+									}
+									
+									
+									if(proceed)
+									{
+										//calculate seconds so we know when the jenkins build needs to be triggered									
+										if(Q("#datetimepicker").val())
+										{
+											var diff = Math.round((futureDateTime - serverDateTime)/1000);
+											Q("#secondsToWait").val(diff);
+										}
+										else
+										{
+											Q("#secondsToWait").val(0);
+										}
+																			
+										
+										//alert("client version " + Q("#build_num").val());
+										//alert("core version " + Q("#core_version").val());
+										//alert("type of deployment is " + typeofDeployment);
+										
+										//Determine what type of deployment needs to be performed		
+										if (Q("#build_num").val().length != 0 &amp;&amp; Q("#core_version").val().length == 0 &amp;&amp; typeofDeployment == "client")
+										{
+											//Perform client deployment
+											startDeployment("client",Q("#clientAcronym").val(),Q("#environment").val(),Q("#build_num").val());
+										}
+										else if (Q("#core_version").val().length != 0 &amp;&amp; Q("#build_num").val().length == 0 &amp;&amp; typeofDeployment == "backend")
+										{
+											//Perform backend deployment		
+											startDeployment("backend",Q("#clientAcronym").val(),Q("#environment").val(),Q("#core_version").val());
+										}
+										else if (typeofDeployment == "CRjob")
+										{
+											//Initiate CR job
+											startDeployment("CRjob",Q("#clientAcronym").val(),Q("#environment").val(),"NA");
+
+										}
+										else
+										{
+											//alert("something went wrong");
+											Q("#dialog3").dialog("option","title","Error");
+											Q("#dialog3text").text("something went wrong");
+											Q("#dialog3").dialog("open");
+										}
+									}
+									
+								},
 								rules: {
 									ClientRevision: {
 										required: true,
@@ -480,7 +765,152 @@
 									},
 									datetimepicker: {
 										required: true,
-										dateTime: true
+										//remote: "/plugin/environment-dashboard/json/test.json"
+										remote: {
+											//url: "/plugin/environment-dashboard/json/test.json",
+											url: window.location.pathname + "getServerDateTimeLocal",
+											datatype: 'html',
+											dataFilter: function(data) {
+												//alert('in datafilter section');
+												//alert(data);
+												
+												 //Passed time
+												 futureDateTime = new Date(Q("#datetimepicker").val());
+												 //console.log("passed time is " + futureDateTime);
+												 
+												 //Server time
+												 serverDateTime = new Date(data);
+												 //console.log("server time is " + serverDateTime);
+												 
+												 if (futureDateTime &gt; serverDateTime)
+												 {
+													//console.log("future date is greater than server time");
+													
+													//Check the start time of NJ
+													var NJNextRunDateTime;
+													if (NJexistence)
+													{
+														NJNextRunDateTime = getClientJobNextRunDateTime(NJdetails, serverDateTime);
+														if (NJNextRunDateTime != false)
+														{
+															if (futureDateTime &lt; NJNextRunDateTime)
+															{
+																return '"true"';
+															
+															}
+															else
+															{
+															    Q("#dialog3").dialog("option","title","Warning");
+																
+																if (typeofDeployment == "CRjob")
+																{
+																	Q("#dialog3text").text("client's NJ will kick off before/at requested scheduled time. Client's NJ will start on " + NJNextRunDateTime + ". Please schedule CR job 10 minutes earlier before NJ start time.");
+																	//console.log("client's NJ will kick off before/at requested scheduled time. Client's NJ will start on " + NJNextRunDateTime + ". Please schedule CR job 10 minutes earlier before NJ start time.");
+																}
+																else
+																{
+																	Q("#dialog3text").text("client's NJ will kick off before/at requested scheduled time. Client's NJ will start on " + NJNextRunDateTime + ". Please schedule deployment 10 minutes earlier before NJ start time.");
+																	//console.log("client's NJ will kick off before/at requested scheduled time. Client's NJ will start on " + NJNextRunDateTime + ". Please schedule deployment 10 minutes earlier before NJ start time.");
+																}
+																
+																
+																Q("#dialog3").dialog("open");
+																
+																
+																//return '"false"';
+																return "\"client's NJ will be running at this time\"";
+															    
+															}
+														
+														}
+														else
+														{
+															if (NJStartExistence)
+															{
+																NJNextRunDateTime = getClientJobNextRunDateTime(NJStartdetails, serverDateTime);
+																if (NJNextRunDateTime != false)
+																{
+																	if (futureDateTime &lt; NJNextRunDateTime)
+																	{
+																		return '"true"';
+																	
+																	}
+																	else
+																	{
+																		Q("#dialog3").dialog("option","title","Warning");
+																		
+																		if (typeofDeployment == "CRjob")
+																		{
+																			Q("#dialog3text").text("client's NJ Start will kick off before/at requested scheduled time. Client's NJ Start will start on " + NJNextRunDateTime + ". Please schedule CR job 10 minutes earlier before NJ Start start time.");
+																			//console.log("client's NJ Start will kick off before/at requested scheduled time. Client's NJ Start will start on " + NJNextRunDateTime + ". Please schedule CR job 10 minutes earlier before NJ Start start time.");																				
+																		}
+																		else
+																		{
+																			Q("#dialog3text").text("client's NJ Start will kick off before/at requested scheduled time. Client's NJ Start will start on " + NJNextRunDateTime + ". Please schedule deployment 10 minutes earlier before NJ Start start time.");
+																			//console.log("client's NJ Start will kick off before/at requested scheduled time. Client's NJ Start will start on " + NJNextRunDateTime + ". Please schedule deployment 10 minutes earlier before NJ Start start time.");																		
+																		}
+																		
+																		
+																		Q("#dialog3").dialog("open");		
+																		
+																		//return '"false"';
+																		return "\"client's NJ Start will be running at this time\"";
+																		
+															
+																	}
+																
+																}
+																else
+																{
+																
+																	return '"true"';
+																
+																}
+															}
+															else
+															{												
+																	return '"true"';
+															}
+														
+														}
+														
+
+													}
+													else
+													{
+														return '"true"';
+													}
+													
+												 }
+												 else
+												 {
+													//console.log("future date is less than server time");
+													//return '"false"';
+													return "\"please enter the date and time into the future\"";
+												 
+												 }
+												
+											},
+											//complete: function() {
+												//alert('in complete section');
+												//alert(data);
+												//return '"true"';
+												
+												//return true;
+												
+											//},
+											error: function(xhr, textStatus, errorThrown) {
+												//alert('ajax loading error... ... ' + textStatus + ' ' + errorThrown + ' ' + xhr.responseText);
+												
+												Q("#dialog3").dialog("option","title","Error");
+												Q("#dialog3text").text("ajax loading error... " + textStatus + " " + errorThrown + " " + xhr.responseText);
+												Q("#dialog3").dialog("open");
+												
+												return "\"ajax loading error\"";
+												//return '"false"';
+												
+											}
+										}
 									},
 								    EnvDecision: {
 										required: true
@@ -497,7 +927,7 @@
 									njStartStepDecision: "please make a choice",
 									datetimepicker: {
 										required: "please schedule this PRD deployment",
-										dateTime: "please enter the date into the future"
+										remote: "please enter the date and time into the future"
 									},
 									njstartstep: "please enter name of the step",
 									EnvDecision: "please make a choice"
@@ -513,55 +943,165 @@
 							});
 							
 							
-							Q("#dialog").submit(function(e){ 
-								if(!validationObj.form())
-								{  
-								  e.preventDefault(); 
-								}
-								else
-								{
-									// Stop form from submitting normally
-									e.preventDefault();
-									
-									//calculate seconds so we know when the jenkins build needs to be triggered									
-									if(Q("#datetimepicker").val())
+							
+							validationObj2 = Q("#dialog4").validate({ // initialize the plugin
+								/*
+							    submitHandler: function(form) {
+									doAjaxPost();
+								},*/
+								rules: {
+									stepname: {
+										required: true,
+										normalizer: function(value) {
+											return Q.trim(value);
+										}
+									},
+									SQLscript: {
+										required: true
+									}
+								},
+								messages: {
+									stepname: "step name is required",
+									SQLscript: "command is required"
+								},
+								errorPlacement: function(error, element) {
+									if (element.attr("name") == "stepname")
 									{
-										var futureDateTime = new Date(Q("#datetimepicker").val());
-										var now = new Date();
-										var diff = Math.round((futureDateTime - now)/1000);
-										Q("#secondsToWait").val(diff);
+										error.insertAfter(element);	
 									}
 									else
 									{
-										Q("#secondsToWait").val(0);
+										error.appendTo("#SQLscriptRequired");
 									}
-																		
-									
-									//alert("client version " + Q("#build_num").val());
-									//alert("core version " + Q("#core_version").val());
-									//alert("type of deployment is " + typeofDeployment);
-									
-									//Determine what type of deployment needs to be performed		
-									if (Q("#build_num").val().length != 0 &amp;&amp; Q("#core_version").val().length == 0 &amp;&amp; typeofDeployment == "client")
-									{
-										//Perform client deployment
-										startDeployment("client",Q("#clientAcronym").val(),Q("#environment").val(),Q("#build_num").val())
-									}
-									else if (Q("#core_version").val().length != 0 &amp;&amp; Q("#build_num").val().length == 0 &amp;&amp; typeofDeployment == "backend")
-									{
-										//Perform backend deployment		
-										startDeployment("backend",Q("#clientAcronym").val(),Q("#environment").val(),Q("#core_version").val());
-									}
-									else
-									{
-										alert("something went wrong");
-									}
-								
 								}
-								
 							});
 							
 							
+							
+							Q("#dialog4").dialog({
+								autoOpen: false, 
+								modal: true,
+								draggable: true,
+								resizable: false,
+								autoResize: true,
+								width: 1000,
+								//height: 600,
+								dialogClass: "no-close",
+								buttons: {
+									OK: function (e) {
+										//Q(this).submit();
+										if(!validationObj2.form())
+										{  
+										  e.preventDefault(); 
+										}
+										else
+										{
+											// Stop form from submitting normally
+											e.preventDefault();
+											
+											var i;
+											var proceed;
+											var id;
+											
+										    //store the changes temporarily;
+											if (CRjobstepActionType == "edit")
+											{
+											
+												id = Q("input[name=CRjobsteps]:checked", "#actualCRjobstepsTable").val();
+
+												Q("#actualCRjobstepsTable").find("#" + id + "").find("#step_name").text(Q("#stepname").val().trim());
+												Q("#actualCRjobstepsTable").find("." + id + "_for_command_retrieval").text(Q("#SQLscript").val());
+												Q("#actualCRjobstepsTable").find("#" + id + "").find("#command_substring").text(Q("#SQLscript").val().substring(0, 14));
+												Q("#actualCRjobstepsTable").find("#" + id + "").find("#subsystem").text("TSQL");
+											
+												Q(this).dialog("close");
+												
+											}
+											else if (CRjobstepActionType == "new")
+											{
+											
+												proceed = true;
+												
+												Q("#actualCRjobstepsTable").find("tr:gt(0)").each(function( index ) {
+													
+													if (Q(this).find("#step_name").text().trim() == Q("#stepname").val().trim())
+													{
+														Q("#dialog3").dialog("option","title","Error");
+														Q("#dialog3text").text(Q("#stepname").val() + " step already exists");
+														Q("#dialog3").dialog("open");
+														proceed = false;
+														return false;
+													}
+
+												});	
+
+												
+												if (proceed)
+												{
+												
+												
+													//Loop through CRjob steps and find the max step_id
+													var step_ids = [];
+													var next_step_id;
+													var last_step_id;
+													
+													var empty = true;
+													Q("#actualCRjobstepsTable").find("tr:gt(0)").each(function( index ) {
+														empty = false;
+														step_ids.push(Q(this).find("#step_id").text());
+													});
+
+													
+													if (empty)
+													{
+														next_step_id = 1;
+													}
+													else
+													{
+														last_step_id = Math.max.apply(Math, step_ids);
+														next_step_id = last_step_id + 1;
+																												
+														Q("#actualCRjobstepsTable").find("#" + last_step_id + "").find("#on_success_action").text("goto next step");
+													}
+													
+													
+													//console.log(last_step_id);
+													//console.log(next_step_id);
+													
+													
+													Q("#actualCRjobstepsTable").append('<tr id="' + next_step_id + '">' +
+														 '<td id="step_id" style="width: 8%;text-align:center">' + next_step_id + '</td>' +
+														 '<td id="step_name" style="width: 8%;text-align:center">' + Q("#stepname").val().trim() + '</td>' +
+														 '<td id="subsystem" style="width: 8%;text-align:center">' + "TSQL" + '</td>' +
+														 '<td id="command_substring" style="width: 8%;text-align:center">' + Q("#SQLscript").val().substring(0, 14) + '...</td>' +
+														 //'<td style="width: 8%;text-align:center;visibility:hidden"><textarea class="' + next_step_id + '_for_command_retrieval">' + element.command + '</textarea></td>' +	 
+														 '<td id="on_success_action" style="width: 8%;text-align:center">' + "quit with success" + '</td>' +
+														 '<td id="on_fail_action" style="width: 8%;text-align:center">' + "quit with failure" + '</td>' +
+														 '<td id="radioButton" style="width: 8%;text-align:center"><input type="radio" name="CRjobsteps" value="' + next_step_id + '"></input></td>' +
+														 
+														 //'<td>EditButton</td>' +
+														 //'<td style="width: 8%;text-align:center"><input type="button" id="edit" value="edit"></input></td>' +
+													 '</tr>');
+												 
+												   Q("#actualCRjobstepsTable").append('<textarea style="display:none;" class="' + next_step_id + '_for_command_retrieval">' + Q("#SQLscript").val() + '</textarea>');	 
+
+												   EnableDisableEditAndDeleteButtons();
+												   
+													Q(this).dialog("close");
+												}										
+											}
+											
+											
+					
+										}
+									},
+									Cancel: function () {
+										Q(this).trigger("reset");
+										validationObj2.resetForm();
+										Q(this).dialog("close");
+									}
+								}
+							}).prev(".ui-dialog-titlebar").css("background","#81BEF7");
 							
 							
 							Q("#reset").click(function(){
@@ -573,9 +1113,393 @@
 							});
 							
 							
+							Q("#edit").click(function(){
+							
+								if (Q("input:radio[name=CRjobsteps]", "#actualCRjobstepsTable").is(":checked"))
+								{
+									CRjobstepActionType = "edit";
+									var id = Q("input[name=CRjobsteps]:checked", "#actualCRjobstepsTable").val();
+									
+									Q("#stepname").val(Q("#actualCRjobstepsTable").find("#" + id + "").find("#step_name").text());
+									Q("#SQLscript").val(Q("#actualCRjobstepsTable").find("." + id + "_for_command_retrieval").text());
+															
+									Q("#dialog4").dialog("option","title",Q("#actualCRjobstepsTable").find("#" + id + "").find("#step_name").text());
+									Q("#dialog4").dialog("open");
+								}
+								else
+								{
+								
+									Q("#dialog3").dialog("option","title","Failure");
+									Q("#dialog3text").text("Please choose the step to edit first.");
+									Q("#dialog3").dialog("open");
+								
+								}
+								
+							});
+							
+							
+
+							
+							
+							Q("#delete").click(function(){
+							
+								if (Q("input:radio[name=CRjobsteps]", "#actualCRjobstepsTable").is(":checked"))
+								{
+									CRjobstepActionType = "delete";
+									var id = Q("input[name=CRjobsteps]:checked", "#actualCRjobstepsTable").val();
+									 
+								    //console.log(id);
+									Q("#actualCRjobstepsTable").find("#" + id + "").remove();
+									Q("#actualCRjobstepsTable").find("." + id + "_for_command_retrieval").remove();
+									
+									//Q('#' + id + '').remove();
+									//Q('.' + id + "_for_command_retrieval").remove();
+
+									var step_id;
+									
+									
+									//Re-sequence
+									var i = 1;
+									Q("#actualCRjobstepsTable").find("tr:gt(0)").each(function( index ) {
+									
+										
+										Q(this).attr("id", i);
+										Q(this).find("#step_id").text(i);
+										
+										//console.log(Q(this).find("#step_id").text());
+										//console.log(Q(this).find("#step_name").text());
+										//console.log(Q(this).find("#subsystem").text());
+										//console.log(Q(this).find("#command_substring").text());
+										//console.log(Q(this).find("#on_success_action").text());
+										//console.log(Q(this).find("#on_fail_action").text());
+
+										i = i + 1;
+										
+										
+									});
+									
+								
+									i = 1;
+									Q("#actualCRjobstepsTable input[type=radio]").each(function( index ) {
+
+										Q(this).val(i);
+										i = i + 1;
+										 
+									});
+
+									
+									i = 1;
+									Q("#actualCRjobstepsTable textarea").each(function( index ) {
+
+										Q(this).attr("class", i + "_for_command_retrieval");
+										i = i + 1;
+										 
+									});
+									
+									
+									//Loop through CRjob steps and find the max step_id
+									var step_ids = [];
+									var last_step_id;
+
+									Q("#actualCRjobstepsTable").find("tr:gt(0)").each(function( index ) {
+										step_ids.push(Q(this).find("#step_id").text());
+									});
+									
+									last_step_id = Math.max.apply(Math, step_ids);
+									
+									
+									//console.log(last_step_id);
+									
+									Q("#actualCRjobstepsTable").find("tr:gt(0)").each(function( index ) {
+									
+										if (Q(this).find("#step_id").text() == last_step_id)
+										{
+											
+											Q(this).find("#on_success_action").text("quit with success");
+										}
+										else
+										{
+											
+											Q(this).find("#on_success_action").text("goto next step");
+										}
+										  
+									});
+								
+								
+									EnableDisableEditAndDeleteButtons();
+									
+								}
+								else
+								{
+								
+									Q("#dialog3").dialog("option","title","Failure");
+									Q("#dialog3text").text("Please choose the step to delete first.");
+									Q("#dialog3").dialog("open");
+								
+								}
+								
+							});
+							
+							
+							Q("#new").click(function(){
+								
+								CRjobstepActionType = "new";
+								Q("#stepname").val("");
+								Q("#SQLscript").val("");
+								
+								Q("#dialog4").dialog("option","title","New step");
+								Q("#dialog4").dialog("open");
+							});
+
+							
+							
+							Q("#parse").click(function(){
+								
+								//alert(Q("#SQLscript").val());
+								//alert(Q("#activeServer").val());
+								
+								if (Q("#SQLscript").val())
+								{
+									Q("#overlay3").show();
+									Q("#loader2").show();
+									
+									//Connecting directly to SQL server by passing SQL query to parse
+									var response3 = "";
+									EnvDashViewProxy.parseSQLquery(Q("#SQLscript").val(),Q("#activeServer").val(),function(t) {
+										 response3 = t.responseObject();
+										 if (response3.indexOf("failed") == -1)
+										 {
+											Q("#loader2").hide();
+											Q("#overlay3").hide();
+											
+											//parsing succeeded
+											Q("#dialog3").dialog("option","title","Success");
+											Q("#dialog3text").text(response3);
+											Q("#dialog3").dialog("open");
+										 
+										 }
+										 else
+										 {
+										 
+											Q("#loader2").hide();
+											Q("#overlay3").hide();
+										 
+											Q("#dialog3").dialog("option","title","Failure");
+											Q("#dialog3text").text(response3);
+											Q("#dialog3").dialog("open");
+										 
+										 }
+										 
+									});
+								}
+								else
+								{
+									Q("#dialog3").dialog("option","title","Failure");
+									Q("#dialog3text").text("Please provide SQL query/script to parse");
+									Q("#dialog3").dialog("open");
+								
+								}
+								
+								
+							});
+							
+							
+							
+							
+							Q("#properties").click(function(){
+								
+								
+								//alert("properties button was clicked");
+								//Q("#dialog3").dialog("option","title","Debug");
+								//Q("#dialog3text").text("properties button was clicked");
+								//Q("#dialog3").dialog("open");
+								
+								//Retrieve CR job steps
+								
+								Q("#overlay3").show();
+								Q("#loader2").show();
+								
+								var response2 = "";
+								EnvDashViewProxy.getCRjobStepsSQLquery(CRjob,Q("#clientAcronym").val(),Q("#environment").val(), function(t) {
+									 response2 = t.responseObject();
+									 
+									
+									 if (response2.indexOf("failed") == -1)
+									 {
+										/*
+										Q("#dialog3").dialog("option","title","Debug");
+										Q("#dialog3text").text(response2);
+										Q("#dialog3").dialog("open");
+										*/
+										
+										 var stepsjobject = JSON.parse(response2);
+										 //alert(stepsjobject);
+										 
+										 
+										 //alert(response2);
+										 //alert("About to populate the table...");
+										 
+										 //Initialize
+										 //Q("#actualCRjobinfoTable tr").remove();
+										 //Q("#actualCRjobstepsTable tr").remove();
+										 										 
+										 Q("#actualCRjobinfoTable").find("tr:gt(0)").remove();
+										 Q("#actualCRjobstepsTable").find("tr:gt(0)").remove();
+										 
+										 Q("#actualCRjobstepsTable textarea").remove();
+										 
+										 
+										 
+										var CRjobExistence = false;
+										var CRjobIdleStatus = false;
+										 
+										 Q.each(stepsjobject.info, function(index, element){
+										 
+										 
+											//console.log(element.name);
+											if (element.name == "exists")
+											{
+												CRjobExistence = true;
+												
+												
+												//alert(element.start_step_id); 
+												//alert(element.date_modified); 
+												//alert(element.last_run_date); 
+												//alert(element.last_run_time); 
+												//alert(element.last_run_outcome); 
+												//alert(element.current_execution_status); 
+												//alert(element.current_execution_step); 
+												
+												//console.log(element.current_execution_status);
+												if (element.current_execution_status == "Idle")
+												{
+													 CRjobIdleStatus = true;
+													 Q("#actualCRjobinfoTable").append('<tr>' +
+																						 '<td style="width: 8%;text-align:center">' + element.start_step_id + '</td>' +
+																						 '<td style="width: 8%;text-align:center">' + element.date_modified + '</td>' +
+																						 '<td style="width: 8%;text-align:center">' + element.last_run_date + '</td>' +
+																						 '<td style="width: 8%;text-align:center">' + element.last_run_time + '</td>' +
+																						 '<td style="width: 8%;text-align:center">' + element.last_run_outcome + '</td>' +
+																						 '<td style="width: 8%;text-align:center">' + element.current_execution_status + '</td>' +
+																						 '<td style="width: 8%;text-align:center">' + element.current_execution_step + '</td>' +
+																					   '</tr>');
+													 
+													 //Q("#activeDB").val(element.activeDB);
+													 //Q("#activeServer").val(element.activeServer);
+												 }
+												 else
+												 {
+													Q("#loader2").hide();
+													Q("#overlay3").hide();
+													
+												 	Q("#dialog3").dialog("option","title","Error");
+													Q("#dialog3text").text(CRjob + " is not idle at the moment");
+													Q("#dialog3").dialog("open");
+												 
+												 }
+
+
+											}
+											else
+											{
+												Q("#loader2").hide();
+												Q("#overlay3").hide();
+											
+												Q("#dialog3").dialog("option","title","Error");
+												Q("#dialog3text").text(CRjob + " does not exist");
+												Q("#dialog3").dialog("open");	
+											
+											}
+											
+											
+											
+											 
+										 });
+										 
+										 
+										 if (CRjobIdleStatus)
+										 {
+											
+										 
+											 Q.each(stepsjobject.steps, function(index, element){
+												//alert(element.step_id); 
+												//alert(element.step_name); 
+												//alert(element.on_fail_action); 
+												
+												 Q("#actualCRjobstepsTable").append('<tr id="' + element.step_id + '">' +
+																						 '<td id="step_id" style="width: 8%;text-align:center">' + element.step_id + '</td>' +
+																						 '<td id="step_name" style="width: 8%;text-align:center">' + element.step_name + '</td>' +
+																						 '<td id="subsystem" style="width: 8%;text-align:center">' + element.subsystem + '</td>' +
+																						 '<td id="command_substring" style="width: 8%;text-align:center">' + element.command.substring(0, 14) + '...</td>' +
+																						 //'<td style="width: 8%;text-align:center;visibility:hidden"><textarea class="' + element.step_id + '_for_command_retrieval">' + element.command + '</textarea></td>' +	 
+																						 '<td id="on_success_action" style="width: 8%;text-align:center">' + element.on_success_action + '</td>' +
+																						 '<td id="on_fail_action" style="width: 8%;text-align:center">' + element.on_fail_action + '</td>' +
+																						 '<td id="radioButton" style="width: 8%;text-align:center"><input type="radio" name="CRjobsteps" value="' + element.step_id + '"></input></td>' +
+																						 
+																						 //'<td>EditButton</td>' +
+																						 //'<td style="width: 8%;text-align:center"><input type="button" id="edit" value="edit"></input></td>' +
+																					 '</tr>');
+												 
+												 Q("#actualCRjobstepsTable").append('<textarea style="display:none;" class="' + element.step_id + '_for_command_retrieval">' + element.command + '</textarea>');	 
+												 
+											 });
+											 
+											 
+											 //console.log(Q("#actualCRjobstepsTable tr").length);
+											EnableDisableEditAndDeleteButtons();
+											
+											propertiesButtonClicked = true;
+											 
+											//alert("Finished populating the table");
+											 
+											 //Present CR job details
+											 Q("#loader2").hide();
+											 Q("#overlay3").hide();
+											 
+											 Q("#dialog2").dialog("open");
+											 //Q("#CRjobsteps").show();
+											 Q("#CRjobinfoTable, #CRjobstepsTable").show();
+											 
+
+										 }
+
+										 
+										 
+
+										 
+										
+									 }
+									 else
+									 {
+										Q("#loader2").hide();
+										Q("#overlay3").hide();
+										
+										Q("#dialog3").dialog("option","title","Error");
+										Q("#dialog3text").text(response2);
+										Q("#dialog3").dialog("open");
+									 }
+									 
+									 
+								});
+								
+							});
+							
 							
 							Q("#ClientRevisionDecision").change(CheckClientRevisionDecision);
 							Q("#EnvDecision").change(CheckEnvDecision);
+							
+							
+							Q("#startcrjob").change(function(){
+								if(this.checked) 
+								{
+									Q("#prd-env-cr-job").show();
+								}
+								else
+								{
+									Q("#prd-env-cr-job").hide();
+								}
+								
+							});
 							
 							
 							Q("#startnj").change(function(){
@@ -592,104 +1516,13 @@
 							
 							Q("#njStartStepDecision").change(ChecknjStartStepDecision);
 							
-							Q("#datetimepicker").datetimepicker();
 							
-							//Pre-populate the NJ steps
-							var availableNJsteps = [
-								"Check if Previous Job Failed on Cut off Check",
-								"Set Currently Processing To One",
-								"Auto Reprocess",
-								"Staging Load With SSIS",
-								"Send Mail on SSIS Staging Load Failure",
-								"Informatica Load",
-								"Send Mail on Informatica Failure",
-								"Update Staging DB Stats",
-								"Patient Scrub",
-								"Patient Load",
-								"Scrub",
-								"DW Plan Load",
-								"Load SSIS Plan Cache",
-								"Load Plan_Claim_Header",
-								"Load Plan_Claim_Line",
-								"Load Plan_Claim_Diagnosis",
-								"DW Plan 2 Load",
-								"Delete Inactive Patients",
-								"MPI",
-								"Update Patient Freeze/Destroy Indicator",
-								"Destroy Patient/Clinical Information",
-								"Load SSIS Clinical Cache",
-								"Load Encounter",
-								"Drop indexed view indexes",
-								"DW Clinical Load",
-								"DW Provider Organization Hierarchy Load",
-								"Load MedicationList",
-								"Load Prescription",
-								"Load Order",
-								"Load Result",
-								"Load Maintenance",
-								"Load Charge",
-								"Load ProgressNote",
-								"Load UnstructuredText",
-								"Post Load Updates",
-								"Load RAPS File",
-								"Check Cutoff Time",
-								"Populate Top Plan Claim Line",
-								"Load plan_member_month",
-								"Load Person Demographic",
-								"Populate Provider Person",
-								"Populate MedRx, MedDispense, RXCUI tables",
-								"Recreate indexes for indexed views",
-								"Populate POS Location Table",
-								"Delete Events",
-								"Update PersonID In Events",
-								"Update PersonID In RAPSDetail",
-								"Update Location In Events",
-								"Update Provider In Events",
-								"Load Event",
-								"Load EdEvent table",
-								"Populate Attribution",
-								"Populate Fills Report",
-								"Populate Medical Expense",
-								"Populate Dx Hierarchy",
-								"Update Common Report Fields",
-								"Populate Complete Member Product",
-								"Risk Score Calculation And Common Report Fields Post Update",
-								"Populate Interaction and Appointment Sorted",
-								"Populate Comorbidity",
-								"Immunizations Details",
-								"Populate Care Gaps",
-								"Populate PersonLastPCPVisit",
-								"Populate PersonNextPCPAppointment",
-								"Cost Management Fact",
-								"Admission Events",
-								"Update Provider/Location in ImmDetails",
-								"Calculate Measure Enrollment",
-								"Update Warehouse DB Stats and create periods",
-								"Measure Processing",
-								"Populate MeasureSubjectCombined",
-								"Geocode",
-								"Remove Deleted Patients From Measures",
-								"Populate Pre Visit Data",
-								"Populate Member Roster",
-								"Trigger to Populate System Lists",
-								"Run System List Procedure",
-								"Set Currently Processing To Zero and Update Measure Stats",
-								"Update Stats Web DB",
-								"Maintenance Timing Errors",
-								"StartClientBackupJob",
-								"Report job errors"
-							];
-							
-							Q("#njstartstep").autocomplete({
-							  source: availableNJsteps,
-							  minLength: 0
+							Q("#datetimepicker").datetimepicker({
+							    lang: 'en-US',
+								format: 'm/d/Y H:i',
+								step: 30
 							});
 							
-							
-							Q("#njstartstep").focus(function (){
-								Q("#njstartstep").autocomplete( "search", "" );
-							});
-
 							
 							Q("input[name=clientBuilds]").change(function(){
 								
@@ -756,10 +1589,116 @@
 							});
 							
 							
+							//Check if user is authorized to initiate PRD deployments or update PRD CR jobs
+							var response = "";
+							EnvDashViewProxy.checkIfUserIsInJenkinsPRDgroup(function(t) {
+								 response = t.responseObject();
+								 
+								 if (response.indexOf("failed") == -1)
+								 {
+									authorizedForPRDactions = response;
+									//alert(authorizedForPRDactions);
+									
+									/*
+									Q("#dialog3").dialog("option","title","Debug");
+									Q("#dialog3text").text(authorizedForPRDactions);
+									Q("#dialog3").dialog("open");
+									*/
+								 }
+								 else
+								 {
+									//alert(response);
+									Q("#dialog3").dialog("option","title","Error");
+									Q("#dialog3text").text(response);
+									Q("#dialog3").dialog("open");
+								 }
+							});
 							
 							
 						});
 					
+					
+						function EnableDisableEditAndDeleteButtons()
+						{
+							if (Q("#actualCRjobstepsTable tr").length > 1)
+							{
+								Q("#edit").prop('disabled',false).css('opacity','');
+								Q("#delete").prop('disabled',false).css('opacity','');
+
+							}
+							else
+							{
+
+								Q("#edit").prop('disabled',true).css('opacity',0.5);
+								Q("#delete").prop('disabled',true).css('opacity',0.5);
+
+							}
+						}
+						
+						
+						function getClientJobNextRunDateTime(jobDetails, servertime)
+						{
+							
+							//console.log("At getClientJobNextRunDateTime");
+							//console.log("Processing " + jobDetails.job);							
+							//console.log(jobDetails.next_run_schedule_id);
+							//console.log(jobDetails.next_run_date);
+							//console.log(jobDetails.next_run_time);
+							//console.log(jobDetails.next_run_date_time);
+							
+							var NJ = jobDetails.job;
+							var NextRunScheduleID = jobDetails.next_run_schedule_id;
+							var NextRunDate = jobDetails.next_run_date;
+							var NextRunTime = jobDetails.next_run_time;
+							var NextRunDateTimeForConv = jobDetails.next_run_date_time;
+						
+						    var validTime;
+							
+							if (NextRunScheduleID != 0 &amp;&amp; NextRunDate != 0)
+							{
+								validTime = true;
+							}
+							else
+							{ 
+								validTime = false;
+								//console.log("It looks like the " + NJ + " is not scheduled to run");
+							}
+
+
+							if (validTime)
+							{
+
+								var NextRunDateTime = new Date(NextRunDateTimeForConv);
+								//console.log("The built NextRunDateTime is " + NextRunDateTime);
+								
+							   if (servertime &gt; NextRunDateTime)
+							   {
+									//console.log("It looks like " + NJ + " was disabled for at least a day. Will hypothetically bring its next run date and time into the future assuming it runs daily.");
+									while (servertime &gt; NextRunDateTime)
+									{
+										NextRunDateTime.setDate(NextRunDateTime.getDate() + 1);
+									}
+
+							   }
+							   
+							   //console.log("Next " + NJ + " date and time to run is " + NextRunDateTime);
+							   //console.log("Current server date and time is " + servertime);
+
+								return NextRunDateTime;
+							}
+							else
+							{
+							
+								return false;
+							}
+
+						
+						}
+						
+						
+						
+						
+						
 						
 						function CloseResetDynamicDialog(typeOfAction)
 						{
@@ -771,14 +1710,29 @@
 							
 							if (typeOfAction == "close")
 							{
-								Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection, #envSection").hide();
+								Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection, #envSection, #prd-env-cr-job, #kickoffDateTimeSection").hide();
 								Q("#buildNumber").val("");
 								Q("#core_version").val("");
 								Q("#build_num").val("");
 							}
 							else
 							{
+								
+								
+								
 								Q("#ClientRevisionSection, #njstartstepSection, #prd-env").hide();
+								
+								
+								//if Q("#environment").val() == 'PRD'
+								//Q("#kickoffDateTimeSection").hide();
+								
+								
+								
+								if (typeofDeployment != "CRjob")
+								{
+									Q("#prd-env-cr-job").hide();
+								}
+								
 								
 								if (typeofDeployment == "backend")
 								{
@@ -791,12 +1745,21 @@
 									Q("#core_version").val("");
 								}
 								
+								
+								if(Q("#envSection").is(":visible"))
+								{
+									Q("#PRDsection").hide(500);
+									Q("#startCRjobSection, #noRollbackSection").hide();
+									Q("#kickoffDateTimeSection").hide();
+								}
+								
 							}
 							
 							Q('#' + Q("#clientAcronym").val() + "_clientVersions").hide();
 							Q("#customErrorPlacement").text("");
 							Q("#ClientRevision").val("");
 							
+							propertiesButtonClicked = false;
 						
 							if(prevBuildForFoundSHA)
 							{
@@ -818,6 +1781,13 @@
 						}
 						*/
 						
+						/*
+						function success2(msg)
+						{
+							alert("You May Pass!" + msg); 
+						}
+						*/
+						
 						function failure(jqXHR, textStatus, error)
 						{ 
 							//alert("You May not Pass!" + textStatus); 
@@ -831,8 +1801,25 @@
 							Q('.' + Q("input[name=clientBuilds]").filter(":checked").prop('id') + "_sha_forReplacement").css('visibility', 'visible');
 						}
 						
+						
+						/*
+						function failure2(jqXHR, textStatus, error)
+						{ 
+							alert("You May not Pass!" + textStatus); 
+							alert("You May not Pass!" + error); 
+							
+						}
+						*/
+						
 						/*
 						function always()
+						{ 
+							alert("Questions Answered."); 
+						}
+						*/
+						
+						/*
+						function always2()
 						{ 
 							alert("Questions Answered."); 
 						}
@@ -855,35 +1842,76 @@
 						
 						}
 					
-					
+						/*
+						function processSuccess(data)
+						{
+							alert("Inside processSuccess function");
+							alert(data);
+						
+						}
+						*/
 						
 						function showBackendDepDynamicDialog(comp, env, coreVersion) 
-						{ 
-							//alert( "You are running jQuery version: " + Q.fn.jquery );
-							//alert(Q().jquery); //it is 1.7.2
-							
-							typeofDeployment = "backend";
-							
-							 Q("#overlay, #dialog").show();
-							 
-							 if (env != "DEV")
-							 {
-								Q("#non-dev-env").show();
-								
-								if (env == "PRD")
+						{
+							if (authorizedForPRDactions != "TBD")
+							{
+								var proceed = false;
+								if (authorizedForPRDactions == "authorized" &amp;&amp; env == "PRD")
 								{
-									Q("#PRDsection").show();
+									proceed = true;
+								}								
+								else if (authorizedForPRDactions == "unauthorized" &amp;&amp; env == "PRD")
+								{
+									//alert('You are not authorized to access client PRD environments')
+									Q("#dialog3").dialog("option","title","Warning");
+									Q("#dialog3text").text("You are not authorized to access client PRD environments");
+									Q("#dialog3").dialog("open");
+								
 								}
+								else
+								{
+									proceed = true;
+								}
+								
+								
+								if (proceed)
+								{
+									//alert( "You are running jQuery version: " + Q.fn.jquery );
+									//alert(Q().jquery); //it is 1.7.2
+									
+									typeofDeployment = "backend";
+									
+									Q("#overlay").show();
+									Q("#loader2").show();
+									
+									 Q("#startnjlabel").text(" Start nightly job upon successful execution of deployment and/or change request job");
+									 
+									
+									 //Set the html elements
+									 var compSubstr = comp.substring(0, comp.indexOf(' '))
+									 Q("#dialogTitle").text("Backend deploy " + compSubstr + " to " + env + " for " + coreVersion);
+									 Q("#clientAcronym").val(compSubstr);
+									 Q("#environment").val(env);
+									 Q("#core_version").val(coreVersion);
+									 
+									 CRjob = compSubstr + "_Change_Request";
+									 Q("#cr-job-dep").text(CRjob);
+									 //Q("#dialog2Title").text(CRjob);
+									 Q("#dialog2").dialog("option","title",CRjob);
+									 
+									 getNightlyjobSteps();
+								 }
+
+								 
 							 }
-							
-							 //Set the html elements
-							 var compSubstr = comp.substring(0, comp.indexOf(' '))
-							 Q("#dialogTitle").text("Backend deploy " + compSubstr + " to " + env + " for " + coreVersion);
-							 Q("#clientAcronym").val(compSubstr);
-							 Q("#environment").val(env);
-							 Q("#core_version").val(coreVersion);
-							 
-							 
+							 else
+							 {
+								//alert('Cannot proceed due to failing to determine the user level of access')
+								Q("#dialog3").dialog("option","title","Warning");
+								Q("#dialog3text").text("Cannot proceed due to failing to determine user's level of access");
+								Q("#dialog3").dialog("open");
+								
+							 }
 						}
 						
 						function CheckClientRevisionDecision()
@@ -906,17 +1934,34 @@
 						
 						function CheckEnvDecision()
 						{
-							if (Q("#EnvDecision").val() == "PRD")
+
+							if (Q("#EnvDecision").val() != "")
 							{
-								Q("#PRDsection").show(500);
+								if (Q("#EnvDecision").val() != "PRD")
+								{
+									Q("#kickoffDateTimeSection").hide();
+							    }
+							   
+							   Q("#environment").val(Q("#EnvDecision").val());
+							   
+
+							   
+							   Q("#overlay2").show();
+							   Q("#loader2").show();
+							   
+							   //Q("#noRollbackSection").hide();
+							   
+							   getNightlyjobSteps();
 								
 							}
 							else
 							{
 								Q("#PRDsection").hide(500);
+								Q("#startCRjobSection, #noRollbackSection").hide();
+								Q("#kickoffDateTimeSection").hide();
+							
 							}
 							
-							Q("#environment").val(Q("#EnvDecision").val());
 						}
 						
 						function ChecknjStartStepDecision()
@@ -935,39 +1980,384 @@
 						function showClientDepDynamicDialog(comp, env, buildNum) 
 						{
 						
-							typeofDeployment = "client";
-
-							 Q("#overlay, #dialog").show();
-
-							 if (env == null)
-							 {
-							 
-								 Q("#envSection").show();
-								 Q("#dialogTitle").text("Deploying " + comp + " for " + buildNum);
+						
+							if (authorizedForPRDactions != "TBD")
+							{
+								var proceed = false;
+								if (authorizedForPRDactions == "authorized" &amp;&amp; env == "PRD")
+								{
+									proceed = true;
+								}								
+								else if (authorizedForPRDactions == "unauthorized" &amp;&amp; env == "PRD")
+								{
+									//alert('You are not authorized to access client PRD environments')
+									Q("#dialog3").dialog("option","title","Warning");
+									Q("#dialog3text").text("You are not authorized to access client PRD environments");
+									Q("#dialog3").dialog("open");
 								
+								}
+								else
+								{
+									proceed = true;
+								}
+								
+								
+								if (proceed)
+								{
+									//alert( "You are running jQuery version: " + Q.fn.jquery );
+									//alert(Q().jquery); //it is 1.7.2
+									
+									typeofDeployment = "client";
+									
+									Q("#startnjlabel").text(" Start nightly job upon successful execution of deployment and/or change request job");
+									
+									Q("#clientAcronym").val(comp);
+									Q("#build_num").val(buildNum);
+								  
+									 CRjob = comp + "_Change_Request";
+									 Q("#cr-job-dep").text(CRjob);
+									 //Q("#dialog2Title").text(CRjob);
+									 Q("#dialog2").dialog("option","title",CRjob);
+									
+									 if (env == null)
+									 {
+										noInitialEnv = true;
+										Q("#overlay, #dialog").show();
+										
+										 Q("#noRollbackSection").hide();
+										 Q("#envSection").show();
+										 Q("#dialogTitle").text("Deploying " + comp + " for " + buildNum);
+										 
+									 }
+									 else
+									 {
+										Q("#overlay").show();
+										Q("#loader2").show();
+										 
+										 //Set the html elements
+										 //Q("#dialogTitle").text("Deploying " + comp + " to " + env + " for " + buildNum);
+										 Q("#environment").val(env);
+										 
+										 getNightlyjobSteps();
+									 }
+									 
+									
+								}
+
+								 
 							 }
 							 else
 							 {
-							 
-							 	if (env == "PRD")
-								{
-									Q("#PRDsection").show();
-								}
-								 
-								 //Set the html elements
-								 Q("#dialogTitle").text("Deploying " + comp + " to " + env + " for " + buildNum);
-								 Q("#environment").val(env);
-								 
-							 
+								//alert('Cannot proceed due to failing to determine the user level of access')
+								Q("#dialog3").dialog("option","title","Warning");
+								Q("#dialog3text").text("Cannot proceed due to failing to determine user's level of access");
+								Q("#dialog3").dialog("open");
+								
 							 }
-							 
-							 
-							  Q("#clientAcronym").val(comp);
-							  Q("#build_num").val(buildNum);
-							 
 						
 						}
 						
+						
+						function showCRjobDynamicDialog(comp, env) 
+						{
+						
+							if (authorizedForPRDactions != "TBD")
+							{
+								var proceed = false;
+								if (authorizedForPRDactions == "authorized" &amp;&amp; env == "PRD")
+								{
+									proceed = true;
+								}								
+								else if (authorizedForPRDactions == "unauthorized" &amp;&amp; env == "PRD")
+								{
+									//alert('You are not authorized to access client PRD environments')
+									Q("#dialog3").dialog("option","title","Warning");
+									Q("#dialog3text").text("You are not authorized to access client PRD environments");
+									Q("#dialog3").dialog("open");
+								
+								}
+								else
+								{
+									proceed = true;
+								}
+								
+								
+								if (proceed)
+								{
+									Q("#overlay").show();
+									Q("#loader2").show();
+									
+									//alert( "You are running jQuery version: " + Q.fn.jquery );
+									//alert(Q().jquery); //it is 1.7.2
+									
+									typeofDeployment = "CRjob";
+
+									 Q("#startnjlabel").text(" Start nightly job upon successful execution of change request job");
+									 
+									 //Set the html elements
+									 var compSubstr = comp.substring(0, comp.indexOf(' '));
+									//Q("#dialogTitle").text("Change request " + compSubstr + " to " + env);
+									Q("#clientAcronym").val(compSubstr);
+
+									CRjob = compSubstr + "_Change_Request";
+									Q("#cr-job-dep").text(CRjob);
+									//Q("#dialog2Title").text(CRjob);
+									Q("#dialog2").dialog("option","title",CRjob);
+									 
+									Q("#environment").val(env);
+									  
+									getNightlyjobSteps();
+									
+								 }
+
+								 
+							 }
+							 else
+							 {
+								//alert('Cannot proceed due to failing to determine the user level of access')
+								Q("#dialog3").dialog("option","title","Warning");
+								Q("#dialog3text").text("Cannot proceed due to failing to determine user's level of access");
+								Q("#dialog3").dialog("open");
+								
+							 }
+
+						
+						}
+						
+						
+						
+						function getNightlyjobSteps()
+						{
+						
+							//Get the steps
+							var response6 = "";
+							EnvDashViewProxy.getNightlyjobStepsSQLquery(Q("#clientAcronym").val(),Q("#environment").val(), function(t) {
+								 response6 = t.responseObject();
+								 
+								
+								 if (response6.indexOf("failed") == -1)
+								 {
+									/*
+									Q("#dialog3").dialog("option","title","Debug");
+									Q("#dialog3text").text(response6);
+									Q("#dialog3").dialog("open");
+									*/
+									 
+									 var stepsjobject2 = JSON.parse(response6);
+									 //console.log(stepsjobject2);
+									 
+									 
+									 
+									 //Get information on the nightly job
+									 
+									 
+								     Q.each(stepsjobject2.info, function(index, element){
+										
+										
+										//console.log(element.name);
+									    if (element.name == "exists")
+										{
+											NJexistence = true;
+											//console.log(element.job); 
+											//console.log(element.next_run_schedule_id); 
+											//console.log(element.next_run_date); 
+											//console.log(element.next_run_time);
+											
+											
+											NJdetails = {
+											  job: element.job,
+											  next_run_schedule_id: element.next_run_schedule_id,
+											  next_run_date: element.next_run_date,
+											  next_run_time: element.next_run_time,
+											  next_run_date_time: element.next_run_date_time
+											};
+											
+											//console.log(NJdetails.job);
+											//console.log(NJdetails.next_run_schedule_id);
+											//console.log(NJdetails.next_run_date);
+											//console.log(NJdetails.next_run_time);
+											//console.log(NJdetails.next_run_date_time);
+										}
+										
+										Q("#activeDB").val(element.activeDB);
+										Q("#activeServer").val(element.activeServer);
+										
+										
+										/*
+										 element.next_run_schedule_id
+										 element.next_run_date
+										 element.next_run_time
+										 element.enabledStatus
+										 element.current_execution_status
+										 element.job
+										 element.activeDB
+										 element.activeServer
+										 */
+										 
+										 
+										 
+									 });
+									 
+									 
+									 if (NJexistence)
+									 {	 
+										 
+										 //console.log(response6);
+										 //console.log("About to populate the array...");
+										 
+										 //Initialize
+										 Q("#njstartstep").val("");
+										 var availableNJsteps = [];
+										 
+										 Q.each(stepsjobject2.steps, function(index, element){
+											//console.log(element.step_id); 
+											//console.log(element.step_name); 
+										 
+											 availableNJsteps.push(element.step_name);
+											 
+										 });
+										 
+										//console.log("Finished populating the array");
+										//console.log(availableNJsteps);
+										 
+										Q("#njstartstep").autocomplete({
+										  source: availableNJsteps,
+										  minLength: 0
+										}); 
+										
+										
+										Q("#njstartstep").focus(function (){
+										  Q("#njstartstep").autocomplete( "search", "" );
+										});
+										
+										 
+										 //Get information on the nightly job start
+										 Q.each(stepsjobject2.infoStart, function(index, element){
+										 
+											//console.log(element.name);
+											if (element.name == "exists")
+											{
+												NJStartExistence = true;
+												//console.log(element.job); 
+												//console.log(element.next_run_schedule_id); 
+												//console.log(element.next_run_date); 
+												//console.log(element.next_run_time);
+												
+												NJStartdetails = {
+												  job: element.job,
+												  next_run_schedule_id: element.next_run_schedule_id,
+												  next_run_date: element.next_run_date,
+												  next_run_time: element.next_run_time,
+												  next_run_date_time: element.next_run_date_time
+												};
+												
+												//console.log(NJStartdetails.job);
+												//console.log(NJStartdetails.next_run_schedule_id);
+												//console.log(NJStartdetails.next_run_date);
+												//console.log(NJStartdetails.next_run_time);
+												//console.log(NJStartdetails.next_run_date_time);
+											}
+											
+											
+											
+											/*
+											 element.next_run_schedule_id
+											 element.next_run_date
+											 element.next_run_time
+											 element.enabledStatus
+											 element.current_execution_status
+											 element.job
+											 element.activeDB
+											 element.activeServer
+											 */
+											 
+											 
+											 
+										 });
+									  }
+									
+									
+									
+									Q("#loader2").hide();
+									Q("#dialog").show();
+									
+									if (noInitialEnv)
+									{
+										Q("#overlay2").hide();
+										Q("#PRDsection").show(500);
+									}
+									else
+									{
+										Q("#dialogTitle").text("Deploying " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " for " + Q("#build_num").val() + " &#x2192; " + Q("#activeServer").val());
+
+										Q("#PRDsection").show();
+									}
+									
+									if (typeofDeployment == "CRjob")
+									{
+										Q("#dialogTitle").text("Change request " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " &#x2192; " + Q("#activeServer").val());
+
+
+										Q("#startCRjobSection, #noRollbackSection").hide();
+										Q("#prd-env-cr-job").show();
+										Q("#datetimepickerLabel").text("Change Request job kick off date and time");
+
+									}
+									else if (typeofDeployment == "client" || typeofDeployment == "backend")
+									{
+										Q("#startCRjobSection, #noRollbackSection").show();
+										Q("#datetimepickerLabel").text("Deployment kick off date and time");
+										
+										if (typeofDeployment == "backend")
+										{
+											Q("#dialogTitle").text("Backend deploy " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " for " + Q("#core_version").val() + " &#x2192; " + Q("#activeServer").val());
+
+											if (Q("#environment").val() != "DEV")
+											{
+												Q("#non-dev-env").show();
+
+											}
+										}
+										else
+										{
+											Q("#dialogTitle").text("Deploying " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " for " + Q("#build_num").val() + " &#x2192; " + Q("#activeServer").val());
+										}
+										
+									}
+
+									
+									if (Q("#environment").val() == "PRD") 
+									{		
+										Q("#kickoffDateTimeSection").show();
+									}
+									
+									
+								 }
+								 else
+								 {
+									Q("#loader2").hide();
+									
+									
+									if (noInitialEnv)
+									{
+										Q("#overlay2").hide();
+										
+									}
+									else
+									{
+										Q("#overlay").hide();
+									}
+									
+									Q("#dialog3").dialog("option","title","Error");
+									Q("#dialog3text").text(response6);
+									Q("#dialog3").dialog("open");
+								 }
+								 
+								 
+							});
+	
+						
+						}
 						
 						
 						function startDeployment(type, comp, env, version)
@@ -982,10 +2372,14 @@
 								baseUrl = "/job/Client_Deploy";
 								
 							}
-							else
+							else if (type == "backend")
 							{
 								baseUrl = "/job/Backend_Deploy";
-								
+							}
+							else
+							{
+								baseUrl = "/job/CR_Job";
+							
 							}
 							
 							var buildUrl = "";							
@@ -1004,24 +2398,30 @@
 							buildUrl = baseUrl + "/buildWithParameters?" +
 										"Client=" + comp + 
 										"&amp;Env=" + env + 
-										"&amp;NoRollback=" + DoNotPerformRollback +
-										"&amp;StartCRjob=" + StartCRjob +
 										"&amp;StartNJ=" + StartNJ +
 										"&amp;NJstartStep=" + nightly_job_start_step +
 										"&amp;JiraTicket=" + Q("#jiraticket").val().trim().replace(/['"]+/g, '') +
 										"&amp;delay=" + Number(Q("#secondsToWait").val()) + "sec";
 							
-							if (type == "client")
+							if (type == "client" || type == "backend")
 							{
+							
 								buildUrl = buildUrl + 
-										"&amp;SourceBuildID=" + version;
-								
-							}
-							else
-							{
-								buildUrl = buildUrl +
-										"&amp;CoreVersion=" + version +
-										"&amp;ClientRevision=" + Q("#ClientRevision").val().trim();
+											"&amp;NoRollback=" + DoNotPerformRollback +
+											"&amp;StartCRjob=" + StartCRjob;
+							
+								if (type == "client")
+								{
+									buildUrl = buildUrl + 
+											"&amp;SourceBuildID=" + version;
+									
+								}
+								else
+								{
+									buildUrl = buildUrl +
+											"&amp;CoreVersion=" + version +
+											"&amp;ClientRevision=" + Q("#ClientRevision").val().trim();
+								}
 							}
 							
 							
@@ -1035,7 +2435,7 @@
 							  parsedBuildUrl += item + '\n';
 							});
 
-							alert(parsedBuildUrl);
+							console.log(parsedBuildUrl);
 							*/
 							
 							
@@ -1056,7 +2456,8 @@
 								windowObjectReference.focus();
 							}
 							
-							
+							Q("#startDashboard").hide();
+							Q("#loader").show();
 							window.location.reload(true);
 							
 						}
@@ -1131,11 +2532,13 @@
 	</table>
 </div>
 <div id="overlay" style="display:none;"></div>
+<div id="overlay2" style="display:none;"></div>
+<div id="overlay3" style="display:none;"></div>
 <form id="dialog" style="display:none;" autocomplete="off">
 	<p id="dialogTitle">Placeholder for Deployment Information</p>
 
-	<label id="datetimepickerLabel">Jira Ticket (e.g., ACM-123)</label>	<div class="divider"/><input id="jiraticket" type="text"/><br></br>
-	<label id="datetimepickerDescriptionLabel">Used for automatic ticket update</label>
+	<label id="jiraticketLabel">Jira Ticket (e.g., ACM-123)</label>	<div class="divider"/><input id="jiraticket" type="text"/><br></br>
+	<label id="jiraticketDescriptionLabel">Used for automatic ticket update</label>
 	
 	<br></br><br></br>
 	
@@ -1214,19 +2617,22 @@
 		</j:forEach>
 	</div>
 
-	
-	
-	
-	
-	
 	<br></br>
 
 	<div id="PRDsection">
+	
+		<div id="startCRjobSection">
 		<input type="checkbox" id="startcrjob"></input>
 		<label for="startcrjob"> Start change request job upon successful deployment</label><br></br>
+		</div>
+		
+		<div id="prd-env-cr-job" style="text-align: left">
+			<label id="CRjobPrompt">  Please provide details for </label><label id="cr-job-dep">Placeholder for CR Job Dep Name</label><label id="CRjobPrompt2"> by clicking Properties button</label><div class="divider"/><input type="button" id="properties" value="Properties"></input>
+			<br></br><br></br>	
+		</div>
 		
 		<input type="checkbox" id="startnj"></input>
-		<label for="startnj"> Start nightly job upon successful execution of deployment and/or change request job</label><br></br>
+		<label id="startnjlabel" for="startnj"> Placeholder for previous activities</label><br></br>
 		
 
 		<div id="prd-env" style="text-align: left">
@@ -1244,7 +2650,11 @@
 		
 		<br></br>
 		
-		<label id="datetimepickerLabel">Deployment kick off date and time</label><div class="divider"/><input id="datetimepicker" name="datetimepicker" type="text"/>
+		<div id="kickoffDateTimeSection">
+		<label id="datetimepickerLabel">Placeholder for type of request</label><div class="divider"/><input id="datetimepicker" name="datetimepicker" type="text"/><br></br>
+		<label id="datetimepickerDescriptionLabel">Uses America/New_York time zone</label>
+		</div>
+		
 	</div>
 	
 	<input type="hidden" id="clientAcronym" value=""/>
@@ -1254,14 +2664,16 @@
 	<input type="hidden" id="secondsToWait" value=""/>
 	<input type="hidden" id="ClientRevision" value=""/>
 	
+	
+	
 	<br></br>
 	<br></br>
 	<br></br>
 	
-	
+	<div id="noRollbackSection">
 	<input type="checkbox" id="norollback"></input>
 	<label for="norollback"> Do not perform auto-rollback upon failed deployment</label>
-	
+	</div>
 	
 	<br></br>
 	
@@ -1269,7 +2681,83 @@
 		<input type="submit" id="submit" value="Submit"/><div class="divider"/><span id="reset">Reset</span><div class="divider"/><span id="cancel">Cancel</span>
 	</div>
 	
+</form>
+<form id="dialog2" title="cr-job-title" style="display:none;" autocomplete="off">
+	<!--<div id="CRjobsteps" style="display: none; height:200px; overflow: auto;">-->
+	
+		<!--<span id="customErrorPlacement2" style="color:red; font-weight:bold"></span><br></br>-->
+
+		<div id="CRjobinfoTable" style="display: none; height:130px; overflow: auto;">
+			<label id="CRjobstatusInfo">CR job status info</label>
+			<table id="actualCRjobinfoTable" style="width=100%;" class="table table-bordered table-striped table-condensed">
+				<tbody>
+					<th style="width: 8%;text-align:center">start_step_id</th>
+					<th style="width: 8%;text-align:center">date_modified</th>
+					<th style="width: 8%;text-align:center">last_run_date</th>
+					<th style="width: 8%;text-align:center">last_run_time</th>
+					<th style="width: 8%;text-align:center">last_run_outcome</th>
+					<th style="width: 8%;text-align:center">current_execution_status</th>
+					<th style="width: 8%;text-align:center">current_execution_step</th>
+					
+				</tbody>
+			</table>
+		</div>
+		
+		<br></br>
+		
+		<div id="CRjobstepsTable" style="display: none; height:150px; overflow: auto;">
+			<label id="CRjobstepsInfo">CR job steps</label>
+			<table id="actualCRjobstepsTable" style="width=100%;" class="table table-bordered table-striped table-condensed hoverable-table-in-dialog">
+				<tbody>
+					<th style="width: 8%;text-align:center">step_id</th>
+					<th style="width: 8%;text-align:center">step_name</th>
+					<th style="width: 8%;text-align:center">subsystem</th>
+					<th style="width: 8%;text-align:center">command</th>
+					<th style="width: 8%;text-align:center">on_success_action</th>
+					<th style="width: 8%;text-align:center">on_fail_action</th>
+					<th style="width: 8%;text-align:center">choose</th>
+				</tbody>
+			</table>
+		</div>
+	
+	<!--</div>-->
+	
+	<br></br>
+	
+	<div id="buttons2" style="text-align: left">
+		<label id="CRjobstepActions">CR job step actions</label>
+		<br></br>
+		<input type="button" id="new" value="New"></input><div class="divider"/>
+        <input type="button" id="edit" value="Edit"></input><div class="divider"/>
+		<input type="button" id="delete" value="Delete"></input><div class="divider"/>
+	</div>
+	<br></br>
 	
 	
+	<input type="hidden" id="activeDB" value=""/>
+	<input type="hidden" id="activeServer" value=""/>
+	
+</form>
+<div id="dialog3" title="Title place holder" style="display:none;">
+  <p id="dialog3text">Place holder for message</p>
+</div>
+<form id="dialog4" title="cr-job-step-title" style="display:none;" autocomplete="off">
+	<div id="stepnameDefinition" style="text-align: left">
+		<label id="stepnameLabel">Step name:</label><div class="divider"/><input id="stepname" name="stepname" type="text" size="25" placeholder="Jira Ticket and step number"/><br></br>
+		<br></br>
+		
+		<div id="commmandLabelAndParseSection">
+			<label id="commandLabel">Command:</label>
+			<br></br><br></br>
+			<input type="button" id="parse" value="Parse" style="width:80px"></input>
+		</div>
+		
+		<div id="textAreaSection">
+			<textarea id="SQLscript" name="SQLscript" style="margin-left:10px;" rows="20" cols="90" placeholder="Please enter SQL script and make sure to specify name(s) of the database(s) in the query..."></textarea>
+			<br></br>
+			<label id="SQLscriptRequired"></label>
+		</div>
+		
+	</div>
 </form>
 </j:jelly>
