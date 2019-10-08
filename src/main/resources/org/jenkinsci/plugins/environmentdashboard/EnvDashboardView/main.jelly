@@ -1519,11 +1519,11 @@ function showDashboard() {
 								if(this.checked) 
 								{
 									Q("#kickoffDateTimeSection").show();
+									Q("#datetimepicker").val("");
 								}
 								else
 								{
 									Q("#kickoffDateTimeSection").hide();
-									Q("#datetimepicker").val("");
 								}
 								
 							});
