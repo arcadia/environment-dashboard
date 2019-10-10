@@ -1625,7 +1625,7 @@ public class EnvDashboardView extends View {
 			    while (rs.next()) {
 					
 					
-					System.out.println(rs.getString("step_id") + " " + rs.getString("step_name"));
+					//System.out.println(rs.getString("step_id") + " " + rs.getString("step_name"));
 					//NightlyJobSteps += rs.getString("step_id") + " " + rs.getString("step_name") + " " + cleanedUpFailAction + "\n";
 					
 					//System.out.println(rs.getString("age_range_id") + " " + rs.getString("age_range"));
@@ -1837,15 +1837,16 @@ public class EnvDashboardView extends View {
 							next_run_date_time_for_conv = new SimpleDateFormat("yyyyMMdd HHmm").parse(rs.getString("next_run_date") + " " + next_run_time.substring(0,4));
 							next_run_date_time = next_run_date_time_for_conv.toString();
 							
-							//System.out.println(next_run_date_time);
+							System.out.println(next_run_date_time);
 						}
 						else
 						{
 							next_run_date_time = "0";
 						}
 					
-						System.out.println(next_run_date_time);
+						//System.out.println(next_run_date_time);
 					
+						/*
 						System.out.println(rs.getString("next_run_schedule_id") + 
 									 " " + rs.getString("next_run_date") + 
 									 " " + rs.getString("next_run_time") + 
@@ -1853,6 +1854,7 @@ public class EnvDashboardView extends View {
 									 " " + mappedCurrentExecutionStatus + 
 									 " " + job +
 									 " " + next_run_date_time);	
+						*/			 
 									 
 						//CRjobInfo += rs.getString("start_step_id") + " " + rs.getString("date_modified") + " " + rs.getString("last_run_date") + "\n";
 						
@@ -1893,7 +1895,7 @@ public class EnvDashboardView extends View {
 				}
 				 
 				JsonObject combinedStepsAndInfoAndInfoStart = jsonObjectBuilder.build();
-				System.out.println(combinedStepsAndInfoAndInfoStart);
+				//System.out.println(combinedStepsAndInfoAndInfoStart);
 				
 						
 				returnString = combinedStepsAndInfoAndInfoStart.toString();
@@ -2000,7 +2002,7 @@ public class EnvDashboardView extends View {
 				for (int i=0; i < memberOf.size(); i++) 
 				{                
 				   // print out each group that user belongs to
-					System.out.println("memberOf: " + memberOf.get(i));
+					//System.out.println("memberOf: " + memberOf.get(i));
 					if (String.valueOf(memberOf.get(i)).contains("CN=" + PRD_Group))
 					{
 						isMemberOfGroup = true;
