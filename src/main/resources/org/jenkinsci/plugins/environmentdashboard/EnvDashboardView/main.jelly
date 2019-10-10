@@ -513,7 +513,7 @@ function showDashboard() {
 							}, 300 * 1000); // 5 minutes
 							
 							
-							Q("#overlay, #dialog, #dialog2, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection, #envSection, #prd-env-cr-job, #kickoffDateTimeSection").hide();
+							Q("#overlay, #dialog, #dialog2, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection, #envSection, #prd-env-cr-job, #kickoffDateTimeSection, #schedActivitySection").hide();
 							Q("#dialog").draggable();
 							
 							Q("#dialog3").dialog({
@@ -926,7 +926,7 @@ function showDashboard() {
 									ClientRevisionDecision: "please make a choice",
 									njStartStepDecision: "please make a choice",
 									datetimepicker: {
-										required: "please schedule this PRD deployment",
+										required: "please schedule this deployment/activity",
 										remote: "please enter the date and time into the future"
 									},
 									njstartstep: "please enter name of the step",
@@ -1514,6 +1514,20 @@ function showDashboard() {
 								
 							});
 							
+							
+							Q("#schedActivity").change(function(){
+								if(this.checked) 
+								{
+									Q("#kickoffDateTimeSection").show();
+									Q("#datetimepicker").val("");
+								}
+								else
+								{
+									Q("#kickoffDateTimeSection").hide();
+								}
+								
+							});
+							
 							Q("#njStartStepDecision").change(ChecknjStartStepDecision);
 							
 							
@@ -1710,10 +1724,11 @@ function showDashboard() {
 							
 							if (typeOfAction == "close")
 							{
-								Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection, #envSection, #prd-env-cr-job, #kickoffDateTimeSection").hide();
+								Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection, #envSection, #prd-env-cr-job, #kickoffDateTimeSection, #schedActivitySection").hide();
 								Q("#buildNumber").val("");
 								Q("#core_version").val("");
 								Q("#build_num").val("");
+								Q("#datetimepicker").val("");
 							}
 							else
 							{
@@ -1723,9 +1738,10 @@ function showDashboard() {
 								Q("#ClientRevisionSection, #njstartstepSection, #prd-env").hide();
 								
 								
-								//if Q("#environment").val() == 'PRD'
-								//Q("#kickoffDateTimeSection").hide();
-								
+								if (Q("#environment").val() != 'PRD')
+								{
+									Q("#kickoffDateTimeSection").hide();
+								}
 								
 								
 								if (typeofDeployment != "CRjob")
@@ -1940,7 +1956,14 @@ function showDashboard() {
 								if (Q("#EnvDecision").val() != "PRD")
 								{
 									Q("#kickoffDateTimeSection").hide();
+									
 							    }
+								else
+								{
+									
+									Q("#schedActivitySection").hide();
+								}
+							   
 							   
 							   Q("#environment").val(Q("#EnvDecision").val());
 							   
@@ -1959,8 +1982,13 @@ function showDashboard() {
 								Q("#PRDsection").hide(500);
 								Q("#startCRjobSection, #noRollbackSection").hide();
 								Q("#kickoffDateTimeSection").hide();
-							
+								Q("#schedActivitySection").hide();
+								
 							}
+							
+							
+							Q("#datetimepicker").val("");
+							Q("#schedActivity").prop('checked', false);
 							
 						}
 						
@@ -2330,6 +2358,10 @@ function showDashboard() {
 									{		
 										Q("#kickoffDateTimeSection").show();
 									}
+									else
+									{
+										Q("#schedActivitySection").show();
+									}
 									
 									
 								 }
@@ -2650,12 +2682,20 @@ function showDashboard() {
 		
 		<br></br>
 		
+		<div id="schedActivitySection">
+			<input type="checkbox" id="schedActivity"></input>
+			<label for="schedActivity"> Schedule this deployment/activity</label><br></br>
+		</div>
+
 		<div id="kickoffDateTimeSection">
 		<label id="datetimepickerLabel">Placeholder for type of request</label><div class="divider"/><input id="datetimepicker" name="datetimepicker" type="text"/><br></br>
 		<label id="datetimepickerDescriptionLabel">Uses America/New_York time zone</label>
 		</div>
 		
 	</div>
+	
+	
+	
 	
 	<input type="hidden" id="clientAcronym" value=""/>
 	<input type="hidden" id="environment" value=""/>
