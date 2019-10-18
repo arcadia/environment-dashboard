@@ -2798,6 +2798,22 @@ function showDashboard() {
 			<label id="SQLscriptRequired"></label>
 		</div>
 		
+		<br></br><br></br>
+		
+		<div id="on_success_actionAndon_fail_action" style="text-align: left">
+			<label id="on_success_actionLabel">On success action:</label><div class="divider"/>
+			<select id="on_success_actionDecision" name="on_success_actionDecision">
+				<option value="1">Quit with success</option>
+				<option value="3">Go to next step</option>
+			</select>
+			<div class="divider"/><div class="divider"/><div class="divider"/>
+			<label id="on_fail_actionLabel">On failure action:</label><div class="divider"/>
+			<select id="on_fail_actionDecision" name="on_fail_actionDecision">
+				<option value="2">Quit with failure</option>
+				<option value="3">Go to next step</option>
+			</select>
+		</div>
+		
 	</div>
 </form>
 </j:jelly>
