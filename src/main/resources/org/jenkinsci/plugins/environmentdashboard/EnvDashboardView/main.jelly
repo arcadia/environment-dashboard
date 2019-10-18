@@ -1061,7 +1061,7 @@ function showDashboard() {
 														last_step_id = Math.max.apply(Math, step_ids);
 														next_step_id = last_step_id + 1;
 																												
-														Q("#actualCRjobstepsTable").find("#" + last_step_id + "").find("#on_success_action").text("goto next step");
+														Q("#actualCRjobstepsTable").find("#" + last_step_id + "").find("#on_success_action").text("go to next step");
 													}
 													
 													
@@ -1075,8 +1075,17 @@ function showDashboard() {
 														 '<td id="subsystem" style="width: 8%;text-align:center">' + "TSQL" + '</td>' +
 														 '<td id="command_substring" style="width: 8%;text-align:center">' + Q("#SQLscript").val().substring(0, 14) + '...</td>' +
 														 //'<td style="width: 8%;text-align:center;visibility:hidden"><textarea class="' + next_step_id + '_for_command_retrieval">' + element.command + '</textarea></td>' +	 
-														 '<td id="on_success_action" style="width: 8%;text-align:center">' + "quit with success" + '</td>' +
-														 '<td id="on_fail_action" style="width: 8%;text-align:center">' + "quit with failure" + '</td>' +
+														
+														
+														//'<td id="on_success_action" style="width: 8%;text-align:center">' + "quit with success" + '</td>' +
+														//'<td id="on_fail_action" style="width: 8%;text-align:center">' + "quit with failure" + '</td>' +
+														
+														//'<td id="on_success_action" style="width: 8%;text-align:center">' + Q("#on_success_actionDecision").val() + '</td>' +
+														//'<td id="on_fail_action" style="width: 8%;text-align:center">' + Q("#on_fail_actionDecision").val() + '</td>' +
+														
+														'<td id="on_success_action" style="width: 8%;text-align:center">' + Q("#on_success_actionDecision").find(":selected").text() + '</td>' +
+														'<td id="on_fail_action" style="width: 8%;text-align:center">' + Q("#on_fail_actionDecision").find(":selected").text() + '</td>' +
+														
 														 '<td id="radioButton" style="width: 8%;text-align:center"><input type="radio" name="CRjobsteps" value="' + next_step_id + '"></input></td>' +
 														 
 														 //'<td>EditButton</td>' +
@@ -1220,7 +1229,7 @@ function showDashboard() {
 										else
 										{
 											
-											Q(this).find("#on_success_action").text("goto next step");
+											Q(this).find("#on_success_action").text("go to next step");
 										}
 										  
 									});
@@ -2803,14 +2812,14 @@ function showDashboard() {
 		<div id="on_success_actionAndon_fail_action" style="text-align: left">
 			<label id="on_success_actionLabel">On success action:</label><div class="divider"/>
 			<select id="on_success_actionDecision" name="on_success_actionDecision">
-				<option value="1">Quit with success</option>
-				<option value="3">Go to next step</option>
+				<option value="1">quit with success</option>
+				<option value="3">go to next step</option>
 			</select>
 			<div class="divider"/><div class="divider"/><div class="divider"/>
 			<label id="on_fail_actionLabel">On failure action:</label><div class="divider"/>
 			<select id="on_fail_actionDecision" name="on_fail_actionDecision">
-				<option value="2">Quit with failure</option>
-				<option value="3">Go to next step</option>
+				<option value="2">quit with failure</option>
+				<option value="3">qo to next step</option>
 			</select>
 		</div>
 		
