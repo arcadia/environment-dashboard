@@ -1061,7 +1061,7 @@ function showDashboard() {
 														last_step_id = Math.max.apply(Math, step_ids);
 														next_step_id = last_step_id + 1;
 																												
-														Q("#actualCRjobstepsTable").find("#" + last_step_id + "").find("#on_success_action").text("go to next step");
+														Q("#actualCRjobstepsTable").find("#" + last_step_id + "").find("#on_success_action").text("goto next step");
 													}
 													
 													
@@ -1229,7 +1229,7 @@ function showDashboard() {
 										else
 										{
 											
-											Q(this).find("#on_success_action").text("go to next step");
+											Q(this).find("#on_success_action").text("goto next step");
 										}
 										  
 									});
@@ -2813,13 +2813,13 @@ function showDashboard() {
 			<label id="on_success_actionLabel">On success action:</label><div class="divider"/>
 			<select id="on_success_actionDecision" name="on_success_actionDecision">
 				<option value="1">quit with success</option>
-				<option value="3">go to next step</option>
+				<option value="3">goto next step</option>
 			</select>
 			<div class="divider"/><div class="divider"/><div class="divider"/>
 			<label id="on_fail_actionLabel">On failure action:</label><div class="divider"/>
 			<select id="on_fail_actionDecision" name="on_fail_actionDecision">
 				<option value="2">quit with failure</option>
-				<option value="3">qo to next step</option>
+				<option value="3">goto next step</option>
 			</select>
 		</div>
 		
