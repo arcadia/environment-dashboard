@@ -986,6 +986,7 @@ public class EnvDashboardView extends View {
 		String subsystem = null;
 		String command = null;
 		int on_success_action = 0;
+		int on_fail_action = 0;
 	  
        Connection conn = null;
        Statement stat = null;
@@ -1041,12 +1042,14 @@ public class EnvDashboardView extends View {
 				//System.out.println(array.getJSONObject(i).getString("subsystem")); 
 				//System.out.println(array.getJSONObject(i).getString("command")); 
 				//System.out.println(array.getJSONObject(i).getString("on_success_action")); 
+				//System.out.println(array.getJSONObject(i).getString("on_fail_action"));
 				
 				job_name = array.getJSONObject(i).getString("job_name");
 				step_name = array.getJSONObject(i).getString("step_name");
 				subsystem = array.getJSONObject(i).getString("subsystem");
 				command = array.getJSONObject(i).getString("command");
 				on_success_action = Integer.parseInt(array.getJSONObject(i).getString("on_success_action"));
+				on_fail_action = Integer.parseInt(array.getJSONObject(i).getString("on_fail_action"));
 		   
 			   //Prepare SQL statement
 			   step_name = step_name.replace("'","''");
@@ -1059,7 +1062,8 @@ public class EnvDashboardView extends View {
 					"    @step_name = N'" + step_name + "', \n" +
 					"	@subsystem = N'" + subsystem + "', \n" +
 					"	@command = N'" + command + "', \n" +
-					"	@on_success_action = " + on_success_action + ";";
+					"	@on_success_action = " + on_success_action + ", \n" +
+					"	@on_fail_action = " + on_fail_action + ";";
 			   
 			   
 				System.out.println(getCurentDateTime() + ": About to execute SQL query...");

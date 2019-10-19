@@ -584,6 +584,7 @@ function showDashboard() {
 											};
 										var JSONObjToSend;
 										
+										var invalidStep = false;
 										
 										Q("#actualCRjobstepsTable").find("tr:gt(0)").each(function( index ) {
 										
@@ -592,12 +593,57 @@ function showDashboard() {
 											if (Q(this).find("#step_id").text() == last_step_id)
 											{
 												on_success_action = 1;
+												on_fail_action = 2;
 											}
 											else
 											{
-												on_success_action = 3;
-											}
 												
+												
+												//on_success_action = 3;
+												//Q(this).find("#on_success_action").text();
+												//Q(this).find("#on_fail_action").text();
+												
+												switch (Q(this).find("#on_success_action").text()) {
+												  case "goto next step":
+													on_success_action = 3;
+													break;
+												  case "quit with success":
+													on_success_action = 1;
+													break;
+												  default:
+													invalidStep = true;
+													Q("#loader2").hide();
+													Q("#overlay3").hide();
+													
+													Q("#dialog3").dialog("option","title","Failure");
+													Q("#dialog3text").text(Q(this).find("#on_success_action").text() + ' on_success_action cannot be saved');
+													Q("#dialog3").dialog("open");
+													return false;
+												}
+												
+												
+											    switch (Q(this).find("#on_fail_action").text()) {
+												  case "goto next step":
+													on_fail_action = 3;
+													break;
+												  case "quit with failure":
+													on_fail_action = 2;
+													break;
+												  default:
+													invalidStep = true;
+													Q("#loader2").hide();
+													Q("#overlay3").hide();
+													
+													Q("#dialog3").dialog("option","title","Failure");
+													Q("#dialog3text").text(Q(this).find("#on_fail_action").text() + ' on_fail_action cannot be saved');
+													Q("#dialog3").dialog("open");
+													return false;
+												}
+												
+												
+											}
+											
+											
 											step_name = Q(this).find("#step_name").text();
 											subsystem = Q(this).find("#subsystem").text();
 										  
@@ -606,44 +652,47 @@ function showDashboard() {
 												"step_name" : step_name,
 												"subsystem" : subsystem,
 												"command" : command,
-												"on_success_action" : on_success_action
+												"on_success_action" : on_success_action,
+												"on_fail_action" : on_fail_action
 											});
 												
 										});
 										
-										
-										//alert(CRjobStepsJSONobj);
 
-										 EnvDashViewProxy.AddCRjobSteps(Q("#activeServer").val(),CRjob,CRjobStepsJSONobj,function(t) {
-											 response4 = t.responseObject();
-											 if (response4.indexOf("failed") == -1)
-											 {
-												//Processing CRjob steps succeeded
-												//Q("#dialog3").dialog("option","title","Success");
-												//Q("#dialog3text").text(response4);
-												//Q("#dialog3").dialog("open");
-												//console.log(response4);
-												
-												Q("#loader2").hide();
-												Q("#overlay3").hide();
-												//Q(this).dialog( "option", "modal", true );												
-												Q("#dialog2").dialog("close");
-											 
-											 }
-											 else
-											 {
-												Q("#loader2").hide();
-												Q("#overlay3").hide();
-												//Q(this).dialog( "option", "modal", true );
-											 
-												Q("#dialog3").dialog("option","title","Failure");
-												Q("#dialog3text").text(response4);
-												Q("#dialog3").dialog("open");
-											 
-											 }
-											 
-										});
-										
+										if (!invalidStep)
+										{
+											//alert(CRjobStepsJSONobj);
+
+											 EnvDashViewProxy.AddCRjobSteps(Q("#activeServer").val(),CRjob,CRjobStepsJSONobj,function(t) {
+												 response4 = t.responseObject();
+												 if (response4.indexOf("failed") == -1)
+												 {
+													//Processing CRjob steps succeeded
+													//Q("#dialog3").dialog("option","title","Success");
+													//Q("#dialog3text").text(response4);
+													//Q("#dialog3").dialog("open");
+													//console.log(response4);
+													
+													Q("#loader2").hide();
+													Q("#overlay3").hide();
+													//Q(this).dialog( "option", "modal", true );												
+													Q("#dialog2").dialog("close");
+												 
+												 }
+												 else
+												 {
+													Q("#loader2").hide();
+													Q("#overlay3").hide();
+													//Q(this).dialog( "option", "modal", true );
+												 
+													Q("#dialog3").dialog("option","title","Failure");
+													Q("#dialog3text").text(response4);
+													Q("#dialog3").dialog("open");
+												 
+												 }
+												 
+											});
+										}
 										
 									},
 									Cancel: function () {
