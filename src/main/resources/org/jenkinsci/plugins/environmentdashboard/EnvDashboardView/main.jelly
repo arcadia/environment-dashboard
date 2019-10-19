@@ -958,11 +958,19 @@ function showDashboard() {
 									},
 									SQLscript: {
 										required: true
+									},
+									on_success_actionDecision: {
+										required: true
+									},
+									on_fail_actionDecision: {
+										required: true
 									}
 								},
 								messages: {
 									stepname: "step name is required",
-									SQLscript: "command is required"
+									SQLscript: "command is required",
+									on_success_actionDecision: "selection is required",
+									on_fail_actionDecision: "selection is required"
 								},
 								errorPlacement: function(error, element) {
 									if (element.attr("name") == "stepname")
@@ -1280,6 +1288,8 @@ function showDashboard() {
 								CRjobstepActionType = "new";
 								Q("#stepname").val("");
 								Q("#SQLscript").val("");
+								Q("#on_success_actionDecision").val("");
+								Q("#on_fail_actionDecision").val("");
 								
 								Q("#dialog4").dialog("option","title","New step");
 								Q("#dialog4").dialog("open");
@@ -2837,12 +2847,14 @@ function showDashboard() {
 		<div id="on_success_actionAndon_fail_action" style="text-align: left">
 			<label id="on_success_actionLabel">On success action:</label><div class="divider"/>
 			<select id="on_success_actionDecision" name="on_success_actionDecision">
+				<option value="">Choose...</option>
 				<option value="quit with success">quit with success</option>
 				<option value="goto next step">goto next step</option>
 			</select>
 			<div class="divider"/><div class="divider"/><div class="divider"/>
 			<label id="on_fail_actionLabel">On failure action:</label><div class="divider"/>
 			<select id="on_fail_actionDecision" name="on_fail_actionDecision">
+			    <option value="">Choose...</option>
 				<option value="quit with failure">quit with failure</option>
 				<option value="goto next step">goto next step</option>
 			</select>
