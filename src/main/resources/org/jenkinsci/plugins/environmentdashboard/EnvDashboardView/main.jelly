@@ -1307,11 +1307,12 @@ function showDashboard() {
 										{
 											
 											Q(this).find("#on_success_action").text("quit with success");
+											Q(this).find("#on_fail_action").text("quit with failure");
 										}
 										else
 										{
 											
-											Q(this).find("#on_success_action").text("goto next step");
+											//Q(this).find("#on_success_action").text("goto next step");
 										}
 										  
 									});
