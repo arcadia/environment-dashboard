@@ -584,6 +584,7 @@ function showDashboard() {
 											};
 										var JSONObjToSend;
 										
+										var invalidStep = false;
 										
 										Q("#actualCRjobstepsTable").find("tr:gt(0)").each(function( index ) {
 										
@@ -592,12 +593,57 @@ function showDashboard() {
 											if (Q(this).find("#step_id").text() == last_step_id)
 											{
 												on_success_action = 1;
+												on_fail_action = 2;
 											}
 											else
 											{
-												on_success_action = 3;
-											}
 												
+												
+												//on_success_action = 3;
+												//Q(this).find("#on_success_action").text();
+												//Q(this).find("#on_fail_action").text();
+												
+												switch (Q(this).find("#on_success_action").text()) {
+												  case "goto next step":
+													on_success_action = 3;
+													break;
+												  case "quit with success":
+													on_success_action = 1;
+													break;
+												  default:
+													invalidStep = true;
+													Q("#loader2").hide();
+													Q("#overlay3").hide();
+													
+													Q("#dialog3").dialog("option","title","Failure");
+													Q("#dialog3text").text(Q(this).find("#on_success_action").text() + ' on_success_action cannot be saved');
+													Q("#dialog3").dialog("open");
+													return false;
+												}
+												
+												
+											    switch (Q(this).find("#on_fail_action").text()) {
+												  case "goto next step":
+													on_fail_action = 3;
+													break;
+												  case "quit with failure":
+													on_fail_action = 2;
+													break;
+												  default:
+													invalidStep = true;
+													Q("#loader2").hide();
+													Q("#overlay3").hide();
+													
+													Q("#dialog3").dialog("option","title","Failure");
+													Q("#dialog3text").text(Q(this).find("#on_fail_action").text() + ' on_fail_action cannot be saved');
+													Q("#dialog3").dialog("open");
+													return false;
+												}
+												
+												
+											}
+											
+											
 											step_name = Q(this).find("#step_name").text();
 											subsystem = Q(this).find("#subsystem").text();
 										  
@@ -606,44 +652,47 @@ function showDashboard() {
 												"step_name" : step_name,
 												"subsystem" : subsystem,
 												"command" : command,
-												"on_success_action" : on_success_action
+												"on_success_action" : on_success_action,
+												"on_fail_action" : on_fail_action
 											});
 												
 										});
 										
-										
-										//alert(CRjobStepsJSONobj);
 
-										 EnvDashViewProxy.AddCRjobSteps(Q("#activeServer").val(),CRjob,CRjobStepsJSONobj,function(t) {
-											 response4 = t.responseObject();
-											 if (response4.indexOf("failed") == -1)
-											 {
-												//Processing CRjob steps succeeded
-												//Q("#dialog3").dialog("option","title","Success");
-												//Q("#dialog3text").text(response4);
-												//Q("#dialog3").dialog("open");
-												//console.log(response4);
-												
-												Q("#loader2").hide();
-												Q("#overlay3").hide();
-												//Q(this).dialog( "option", "modal", true );												
-												Q("#dialog2").dialog("close");
-											 
-											 }
-											 else
-											 {
-												Q("#loader2").hide();
-												Q("#overlay3").hide();
-												//Q(this).dialog( "option", "modal", true );
-											 
-												Q("#dialog3").dialog("option","title","Failure");
-												Q("#dialog3text").text(response4);
-												Q("#dialog3").dialog("open");
-											 
-											 }
-											 
-										});
-										
+										if (!invalidStep)
+										{
+											//alert(CRjobStepsJSONobj);
+
+											 EnvDashViewProxy.AddCRjobSteps(Q("#activeServer").val(),CRjob,CRjobStepsJSONobj,function(t) {
+												 response4 = t.responseObject();
+												 if (response4.indexOf("failed") == -1)
+												 {
+													//Processing CRjob steps succeeded
+													//Q("#dialog3").dialog("option","title","Success");
+													//Q("#dialog3text").text(response4);
+													//Q("#dialog3").dialog("open");
+													//console.log(response4);
+													
+													Q("#loader2").hide();
+													Q("#overlay3").hide();
+													//Q(this).dialog( "option", "modal", true );												
+													Q("#dialog2").dialog("close");
+												 
+												 }
+												 else
+												 {
+													Q("#loader2").hide();
+													Q("#overlay3").hide();
+													//Q(this).dialog( "option", "modal", true );
+												 
+													Q("#dialog3").dialog("option","title","Failure");
+													Q("#dialog3text").text(response4);
+													Q("#dialog3").dialog("open");
+												 
+												 }
+												 
+											});
+										}
 										
 									},
 									Cancel: function () {
@@ -958,11 +1007,19 @@ function showDashboard() {
 									},
 									SQLscript: {
 										required: true
+									},
+									on_success_actionDecision: {
+										required: true
+									},
+									on_fail_actionDecision: {
+										required: true
 									}
 								},
 								messages: {
 									stepname: "step name is required",
-									SQLscript: "command is required"
+									SQLscript: "command is required",
+									on_success_actionDecision: "selection is required",
+									on_fail_actionDecision: "selection is required"
 								},
 								errorPlacement: function(error, element) {
 									if (element.attr("name") == "stepname")
@@ -1003,6 +1060,8 @@ function showDashboard() {
 											var proceed;
 											var id;
 											
+	
+											
 										    //store the changes temporarily;
 											if (CRjobstepActionType == "edit")
 											{
@@ -1013,6 +1072,12 @@ function showDashboard() {
 												Q("#actualCRjobstepsTable").find("." + id + "_for_command_retrieval").text(Q("#SQLscript").val());
 												Q("#actualCRjobstepsTable").find("#" + id + "").find("#command_substring").text(Q("#SQLscript").val().substring(0, 14));
 												Q("#actualCRjobstepsTable").find("#" + id + "").find("#subsystem").text("TSQL");
+												
+												//Q("#actualCRjobstepsTable").find("#" + id + "").find("#on_success_action").text(Q("#on_success_actionDecision").find(":selected").text());
+												//Q("#actualCRjobstepsTable").find("#" + id + "").find("#on_fail_action").text(Q("#on_fail_actionDecision").find(":selected").text());
+												
+												Q("#actualCRjobstepsTable").find("#" + id + "").find("#on_success_action").text(Q("#on_success_actionDecision").val());
+												Q("#actualCRjobstepsTable").find("#" + id + "").find("#on_fail_action").text(Q("#on_fail_actionDecision").val());
 											
 												Q(this).dialog("close");
 												
@@ -1061,7 +1126,7 @@ function showDashboard() {
 														last_step_id = Math.max.apply(Math, step_ids);
 														next_step_id = last_step_id + 1;
 																												
-														Q("#actualCRjobstepsTable").find("#" + last_step_id + "").find("#on_success_action").text("goto next step");
+														//Q("#actualCRjobstepsTable").find("#" + last_step_id + "").find("#on_success_action").text("goto next step");
 													}
 													
 													
@@ -1075,8 +1140,17 @@ function showDashboard() {
 														 '<td id="subsystem" style="width: 8%;text-align:center">' + "TSQL" + '</td>' +
 														 '<td id="command_substring" style="width: 8%;text-align:center">' + Q("#SQLscript").val().substring(0, 14) + '...</td>' +
 														 //'<td style="width: 8%;text-align:center;visibility:hidden"><textarea class="' + next_step_id + '_for_command_retrieval">' + element.command + '</textarea></td>' +	 
-														 '<td id="on_success_action" style="width: 8%;text-align:center">' + "quit with success" + '</td>' +
-														 '<td id="on_fail_action" style="width: 8%;text-align:center">' + "quit with failure" + '</td>' +
+														
+														
+														//'<td id="on_success_action" style="width: 8%;text-align:center">' + "quit with success" + '</td>' +
+														//'<td id="on_fail_action" style="width: 8%;text-align:center">' + "quit with failure" + '</td>' +
+														
+														'<td id="on_success_action" style="width: 8%;text-align:center">' + Q("#on_success_actionDecision").val() + '</td>' +
+														'<td id="on_fail_action" style="width: 8%;text-align:center">' + Q("#on_fail_actionDecision").val() + '</td>' +
+														
+														//'<td id="on_success_action" style="width: 8%;text-align:center">' + Q("#on_success_actionDecision").find(":selected").text() + '</td>' +
+														//'<td id="on_fail_action" style="width: 8%;text-align:center">' + Q("#on_fail_actionDecision").find(":selected").text() + '</td>' +
+														
 														 '<td id="radioButton" style="width: 8%;text-align:center"><input type="radio" name="CRjobsteps" value="' + next_step_id + '"></input></td>' +
 														 
 														 //'<td>EditButton</td>' +
@@ -1091,6 +1165,9 @@ function showDashboard() {
 												}										
 											}
 											
+											
+											//Q("#on_success_actionDecision option[selected]").removeAttr("selected");
+											//Q("#on_fail_actionDecision option[selected]").removeAttr("selected");
 											
 					
 										}
@@ -1124,6 +1201,20 @@ function showDashboard() {
 									Q("#SQLscript").val(Q("#actualCRjobstepsTable").find("." + id + "_for_command_retrieval").text());
 															
 									Q("#dialog4").dialog("option","title",Q("#actualCRjobstepsTable").find("#" + id + "").find("#step_name").text());
+									
+									//Q("#on_success_actionDecision").text(Q("#actualCRjobstepsTable").find("#" + id + "").find("#on_success_action").text());
+									//Q("#on_fail_actionDecision").text(Q("#actualCRjobstepsTable").find("#" + id + "").find("#on_fail_action").text());
+									
+									//Q("on_success_actionDecision").find('option:contains(Q("#actualCRjobstepsTable").find("#" + id + "").find("#on_success_action").text())').attr("selected",true);
+									//Q("on_fail_actionDecision").find('option:contains(Q("#actualCRjobstepsTable").find("#" + id + "").find("#on_fail_action").text())').attr("selected",true);
+									
+									//Q("#on_success_actionDecision option:contains(" + Q('#actualCRjobstepsTable').find('#' + id + "").find('#on_success_action').text() + ")").attr('selected', 'selected');
+									//Q("#on_fail_actionDecision option:contains(" + Q('#actualCRjobstepsTable').find('#' + id + "").find('#on_fail_action').text() + ")").attr('selected', 'selected');
+									
+									Q("#on_success_actionDecision").val(Q('#actualCRjobstepsTable').find('#' + id + "").find('#on_success_action').text());
+									Q("#on_fail_actionDecision").val(Q('#actualCRjobstepsTable').find('#' + id + "").find('#on_fail_action').text());
+									
+									
 									Q("#dialog4").dialog("open");
 								}
 								else
@@ -1216,11 +1307,12 @@ function showDashboard() {
 										{
 											
 											Q(this).find("#on_success_action").text("quit with success");
+											Q(this).find("#on_fail_action").text("quit with failure");
 										}
 										else
 										{
 											
-											Q(this).find("#on_success_action").text("goto next step");
+											//Q(this).find("#on_success_action").text("goto next step");
 										}
 										  
 									});
@@ -1246,6 +1338,8 @@ function showDashboard() {
 								CRjobstepActionType = "new";
 								Q("#stepname").val("");
 								Q("#SQLscript").val("");
+								Q("#on_success_actionDecision").val("");
+								Q("#on_fail_actionDecision").val("");
 								
 								Q("#dialog4").dialog("option","title","New step");
 								Q("#dialog4").dialog("open");
@@ -2796,6 +2890,24 @@ function showDashboard() {
 			<textarea id="SQLscript" name="SQLscript" style="margin-left:10px;" rows="20" cols="90" placeholder="Please enter SQL script and make sure to specify name(s) of the database(s) in the query..."></textarea>
 			<br></br>
 			<label id="SQLscriptRequired"></label>
+		</div>
+		
+		<br></br><br></br>
+		
+		<div id="on_success_actionAndon_fail_action" style="text-align: left">
+			<label id="on_success_actionLabel">On success action:</label><div class="divider"/>
+			<select id="on_success_actionDecision" name="on_success_actionDecision">
+				<option value="">Choose...</option>
+				<option value="quit with success">quit with success</option>
+				<option value="goto next step">goto next step</option>
+			</select>
+			<div class="divider"/><div class="divider"/><div class="divider"/>
+			<label id="on_fail_actionLabel">On failure action:</label><div class="divider"/>
+			<select id="on_fail_actionDecision" name="on_fail_actionDecision">
+			    <option value="">Choose...</option>
+				<option value="quit with failure">quit with failure</option>
+				<option value="goto next step">goto next step</option>
+			</select>
 		</div>
 		
 	</div>
