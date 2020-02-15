@@ -100,10 +100,13 @@ public class EnvDashboardView extends View {
 	
 	private Secret LDAPpassword = null;
 	
+	private String webtags = null;
+	
+	private String binderyfronttags = null;
 
 	
     @DataBoundConstructor
-    public EnvDashboardView(final String name, final String envOrder, final String compOrder, final String tags, final String betaCustomers, final String deployHistory, final String dbUser, final String dbPassword, final Boolean SQLauth, final String LDAPserver, final String LDAPuser, final String LDAPpassword) {
+    public EnvDashboardView(final String name, final String envOrder, final String compOrder, final String tags, final String betaCustomers, final String deployHistory, final String dbUser, final String dbPassword, final Boolean SQLauth, final String LDAPserver, final String LDAPuser, final String LDAPpassword, final String webtags, final String binderyfronttags) {
         super(name, Hudson.getInstance());
         this.envOrder = envOrder;
         this.compOrder = compOrder;
@@ -118,7 +121,8 @@ public class EnvDashboardView extends View {
 		this.LDAPuser = LDAPuser;
 		this.LDAPpassword = Secret.fromString(LDAPpassword);
 		
-		
+		this.webtags = webtags;
+		this.binderyfronttags = binderyfronttags;
     }
 
     static {
@@ -211,6 +215,8 @@ public class EnvDashboardView extends View {
 		private String LDAPuser;
 		private String LDAPpassword;
 		
+		private String webtags;
+		private String binderyfronttags;
 
 		
         /**
@@ -333,6 +339,8 @@ public class EnvDashboardView extends View {
 			LDAPuser = formData.getString("LDAPuser");
 			LDAPpassword = formData.getString("LDAPpassword");
 			
+			webtags = formData.getString("webtags");
+			binderyfronttags = formData.getString("binderyfronttags");
 			
             save();
             return super.configure(req,formData);
@@ -363,6 +371,7 @@ public class EnvDashboardView extends View {
         }
         return orderOfTags;
     }
+	
 
     public ArrayList<String> splitBetaCustomers(String betaCustomers) {
         ArrayList<String> orderOfBetaCustomers = new ArrayList<String>();
@@ -472,6 +481,22 @@ public class EnvDashboardView extends View {
             }
         }
 
+        return orderOfTags;
+    }
+	
+	
+	public ArrayList<String> getOrderOfWebOrBinderyFrontTags(String type) {
+		
+		ArrayList<String> orderOfTags;
+		if (type == "web")
+		{
+			orderOfTags = splitTags(webtags);
+		}
+		else
+		{
+			orderOfTags = splitTags(binderyfronttags);
+		}
+		
         return orderOfTags;
     }
 
@@ -695,6 +720,14 @@ public class EnvDashboardView extends View {
     public String getTags() {
         return tags;
     }
+	
+	public String getwebtags() {
+        return webtags;
+    }
+	
+	public String getbinderyfronttags() {
+        return binderyfronttags;
+    }
 
     public void setCompOrder(final String compOrder) {
         this.compOrder = compOrder;
@@ -706,6 +739,14 @@ public class EnvDashboardView extends View {
 
     public void setTags(final String tags) {
         this.tags = tags;
+    }
+	
+	public void setwebtags(final String webtags) {
+        this.webtags = webtags;
+    }
+	
+	public void setbinderyfronttags(final String binderyfronttags) {
+        this.binderyfronttags = binderyfronttags;
     }
 
     public String getDeployHistory() {
