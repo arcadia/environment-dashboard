@@ -274,8 +274,8 @@ public class DashboardBuilder extends BuildWrapper {
             }
         }
 
-        // create backend entry
-		runQuery = "INSERT INTO env_dashboard (envComp, jobUrl, buildNum, buildStatus, envName, compName, created_at, buildJobUrl, packageName) select distinct  '', '', 1, 1, '', concat(compName, ' Backend'), '2000-01-01', '', '' from env_dashboard a where not exists (select 1 from env_dashboard b where concat(a.compName, ' Backend') = b.compName) and compName not like '%Backend' and compName not like '%CRjob'";
+        // create Backend entry
+		runQuery = "INSERT INTO env_dashboard (envComp, jobUrl, buildNum, buildStatus, envName, compName, created_at, buildJobUrl, packageName) select distinct  '', '', 1, 1, '', concat(compName, ' Backend'), '2000-01-01', '', '' from env_dashboard a where not exists (select 1 from env_dashboard b where concat(a.compName, ' Backend') = b.compName) and compName not like '%Backend' and compName not like '%CRjob' and compName not like '%Web'";
         try {
             stat.execute(runQuery);
         } catch (SQLException e) {
@@ -285,12 +285,24 @@ public class DashboardBuilder extends BuildWrapper {
 		
 		// create CRjob entry
 		//System.out.println("About to enter entry for " + compName + " CRjob...");
-        runQuery = "INSERT INTO env_dashboard (envComp, jobUrl, buildNum, buildStatus, envName, compName, created_at, buildJobUrl, packageName) select distinct  '', '', 1, 1, '', concat(compName, ' CRjob'), '2000-01-01', '', '' from env_dashboard a where not exists (select 1 from env_dashboard b where concat(a.compName, ' CRjob') = b.compName) and compName not like '%CRjob' and compName not like '%Backend'";
+        runQuery = "INSERT INTO env_dashboard (envComp, jobUrl, buildNum, buildStatus, envName, compName, created_at, buildJobUrl, packageName) select distinct  '', '', 1, 1, '', concat(compName, ' CRjob'), '2000-01-01', '', '' from env_dashboard a where not exists (select 1 from env_dashboard b where concat(a.compName, ' CRjob') = b.compName) and compName not like '%CRjob' and compName not like '%Backend' and compName not like '%Web'";
         try {
             stat.execute(runQuery);
 			//System.out.println("Succeeded entering it");
         } catch (SQLException e) {
             returnComment = "Error running CRjob query " + runQuery + "." + e;
+            return returnComment;
+        }
+		
+		
+		// create Web entry
+		//System.out.println("About to enter entry for " + compName + " Web...");
+        runQuery = "INSERT INTO env_dashboard (envComp, jobUrl, buildNum, buildStatus, envName, compName, created_at, buildJobUrl, packageName) select distinct  '', '', 1, 1, '', concat(compName, ' Web'), '2000-01-01', '', '' from env_dashboard a where not exists (select 1 from env_dashboard b where concat(a.compName, ' Web') = b.compName) and compName not like '%CRjob' and compName not like '%Backend' and compName not like '%Web'";
+        try {
+            stat.execute(runQuery);
+			//System.out.println("Succeeded entering it");
+        } catch (SQLException e) {
+            returnComment = "Error running Web query " + runQuery + "." + e;
             return returnComment;
         }
 		
