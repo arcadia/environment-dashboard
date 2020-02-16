@@ -487,15 +487,21 @@ public class EnvDashboardView extends View {
 	
 	public ArrayList<String> getOrderOfWebOrBinderyFrontTags(String type) {
 		
+		//System.out.println("At getOrderOfWebOrBinderyFrontTags function");
+		//System.out.println(type);
+		
 		ArrayList<String> orderOfTags;
-		if (type == "web")
+		if (type.equals("web"))
 		{
+			//System.out.println("Getting web tags now...");
 			orderOfTags = splitTags(webtags);
 		}
 		else
 		{
 			orderOfTags = splitTags(binderyfronttags);
 		}
+		
+		//System.out.println(orderOfTags);
 		
         return orderOfTags;
     }

@@ -411,7 +411,6 @@ function showDashboard() {
 												
 												
 												   <!-- DROPDOWN MENUS FOR PERFORMING BACKEND DEPLOYMENTS under 'Last Commit' column-->
-												   
 													<j:if test="${comps.indexOf('Backend') != -1}">  
 													<j:set var="tags" value="${it.getOrderOfTags(comps,env_promote)}"/>
 													
@@ -440,7 +439,7 @@ function showDashboard() {
 													</j:if>
 													
 													<!-- PROMOTE LINKS under 'Last Commit' column -->
-													<j:if test="${comps.indexOf('Backend') == -1 &amp;&amp; comps.indexOf('CRjob') == -1}"> 
+													<j:if test="${comps.indexOf('Backend') == -1 &amp;&amp; comps.indexOf('CRjob') == -1 &amp;&amp; comps.indexOf('Web') == -1}"> 
 														<div style="margin-right:30px; float:right;">
 															<j:switch on="${deployment.get('buildstatus')}">
 																<j:case value="SUCCESS">
@@ -455,13 +454,29 @@ function showDashboard() {
 													  											
 													</j:if>
 													
-													
 													<!-- CRjob LINKS under 'Last Commit' column -->
 													<j:if test="${comps.indexOf('CRjob') != -1}"> 
 														<div style="margin-right:30px; float:right;">
 															<a href="javascript:javascript:showCRjobDynamicDialog('${comps}','${env_promote}');">Initiate at ${env_promote}</a>
 														</div>								
 													</j:if>
+													
+												   <!-- DROPDOWN MENUS FOR PERFORMING WEB DEPLOYMENTS under 'Last Commit' column-->
+													<j:if test="${comps.indexOf('Web') != -1}">  
+													<j:set var="webtags" value="${it.getOrderOfWebOrBinderyFrontTags('web')}"/>
+															
+														<div class="dropdown" style="float:right;">
+																<button class="dropbtn" >Deploy to ${env_promote}...</button>
+														  <div id="myDropdown${env_promote}" class="dropdown-content">
+															<code>
+																<j:forEach items="${webtags}" var="webtag">
+																	<a href="javascript:showWebDepDynamicDialog('${comps}','${env_promote}', '${webtag}');">${webtag}</a>
+																</j:forEach>
+															</code>
+														  </div>
+														</div>
+													</j:if>
+													
 												
 											</j:if>
 										</j:forEach>
