@@ -2335,22 +2335,14 @@ function showDashboard() {
 									 
 									 var versions = JSON.parse(response7);
 									 //console.log(versions);
-									 
-									 
-									 
 									 //Get information on the nightly job
 									 
-									 
 								     Q.each(versions.info, function(index, element){
-										
-										
+											
 										//console.log(element.name);
-									    
 										Q("#webVersion").val(element.webVersion);
 										Q("#binderyFrontendVersion").val(element.binderyFrontendVersion);
 										Q("#activeServer").val(element.activeServer);
-										 
-										 
 									 });
 									 									
 									
@@ -2364,30 +2356,41 @@ function showDashboard() {
 									}
 									else
 									{
-										Q("#dialogTitle").text("Deploying " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " for web " + Q("#webVersion").val() + " and for bindery frontend " + Q("#binderyFrontendVersion").val() + " &#x2192; " + Q("#activeServer").val());
+										Q("#dialogTitle").text("Deploying " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " for web " + Q("#webVersion").val() + " &#x2192; " + Q("#activeServer").val());
 
 										Q("#PRDsection").show();
 									}
 									
-
+									Q("#startCRjobSection").hide();
+									Q("#startnj").hide();
+									Q("#startnjlabel").hide();
+									Q("#noRollbackSection").hide();
+									
 									if (typeofDeployment == "web")
 									{
-										alert('here show dialog for web deployments');
+										//alert('here show dialog for web deployments');
 										
 										Q("#datetimepickerLabel").text("Deployment kick off date and time");
 										
 										if (Q("#web_version").val() == "applyPendingChanges")
 										{
-											Q("#dialogTitle").text("Web deploy (applyPendingChanges) " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " for web " + Q("#webVersion").val() + " and for bindery frontend " + Q("#binderyFrontendVersion").val() + " &#x2192; " + Q("#activeServer").val());
+											Q("#dialogTitle").text("Web deploy (applyPendingChanges) " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " for web " + Q("#webVersion").val() + " &#x2192; " + Q("#activeServer").val());
+											Q("#optional-web-bindery-frontend").hide();
 										}
-
-										if (Q("#environment").val() != "DEV")
+										else
 										{
-											Q("#non-dev-env").show();
-
+											Q("#dialogTitle").text("Web deploy " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " for web " + Q("#webVersion").val() + " &#x2192; " + Q("#activeServer").val());
+											Q("#WebBinderyFrontEndLabelQuestion").text(" Do you want to provide specific bindery frontend version with this web deployment");
+											Q("#optional-web-bindery-frontend").show();
 										}
-
 										
+									}
+									else
+									{
+									
+										//for bindery frontend deployment
+										
+									
 									}
 
 									
@@ -2869,6 +2872,15 @@ function showDashboard() {
 		</select>
 	</div>
 	
+    <div id="optional-web-bindery-frontend" style="text-align: left"> 
+		<label id="WebBinderyFrontEndLabelQuestion">Placeholder for whether to specify web version or bindery frontend version</label><div class="divider"/>
+		<select id="WebBinderyFrontEndDecision" name="WebBinderyFrontEndDecision">
+			<option value="">Choose...</option>
+			<option value="no">No</option>
+			<option value="yes">Yes</option>
+		</select>
+	</div>
+	
 	<div id="ClientRevisionSection">
 		<label id="ClientRevisionLabel">Selected client build</label>
 		<div class="divider"/><input type="text" id="buildNumber" name="buildNumber" readonly="readonly"/><br></br>
@@ -2967,9 +2979,7 @@ function showDashboard() {
 		</div>
 		
 	</div>
-	
-	
-	
+		
 	
 	<input type="hidden" id="clientAcronym" value=""/>
 	<input type="hidden" id="environment" value=""/>
