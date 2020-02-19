@@ -2364,47 +2364,32 @@ function showDashboard() {
 									}
 									else
 									{
-										Q("#dialogTitle").text("Deploying " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " for " + Q("#build_num").val() + " &#x2192; " + Q("#activeServer").val());
+										Q("#dialogTitle").text("Deploying " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " for web " + Q("#webVersion").val() + " and for bindery frontend " + Q("#binderyFrontendVersion").val() + " &#x2192; " + Q("#activeServer").val());
 
 										Q("#PRDsection").show();
 									}
 									
-									if (typeofDeployment == "CRjob")
-									{
-										Q("#dialogTitle").text("Change request " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " &#x2192; " + Q("#activeServer").val());
 
-
-										Q("#startCRjobSection, #noRollbackSection").hide();
-										Q("#prd-env-cr-job").show();
-										Q("#datetimepickerLabel").text("Change Request job kick off date and time");
-
-									}
-									else if (typeofDeployment == "client" || typeofDeployment == "backend")
-									{
-										Q("#startCRjobSection, #noRollbackSection").show();
-										Q("#datetimepickerLabel").text("Deployment kick off date and time");
-										
-										if (typeofDeployment == "backend")
-										{
-											Q("#dialogTitle").text("Backend deploy " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " for " + Q("#core_version").val() + " &#x2192; " + Q("#activeServer").val());
-
-											if (Q("#environment").val() != "DEV")
-											{
-												Q("#non-dev-env").show();
-
-											}
-										}
-										else
-										{
-											Q("#dialogTitle").text("Deploying " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " for " + Q("#build_num").val() + " &#x2192; " + Q("#activeServer").val());
-										}
-										
-									}
-									else if (typeofDeployment == "web")
+									if (typeofDeployment == "web")
 									{
 										alert('here show dialog for web deployments');
-									
+										
+										Q("#datetimepickerLabel").text("Deployment kick off date and time");
+										
+										if (Q("#web_version").val() == "applyPendingChanges")
+										{
+											Q("#dialogTitle").text("Web deploy (applyPendingChanges) " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " for web " + Q("#webVersion").val() + " and for bindery frontend " + Q("#binderyFrontendVersion").val() + " &#x2192; " + Q("#activeServer").val());
+										}
+
+										if (Q("#environment").val() != "DEV")
+										{
+											Q("#non-dev-env").show();
+
+										}
+
+										
 									}
+
 									
 									if (Q("#environment").val() == "PRD") 
 									{		
@@ -2992,6 +2977,10 @@ function showDashboard() {
 	<input type="hidden" id="build_num" value=""/>
 	<input type="hidden" id="secondsToWait" value=""/>
 	<input type="hidden" id="ClientRevision" value=""/>
+	<input type="hidden" id="webAction" value=""/>
+	<input type="hidden" id="web_version" value=""/>
+	<input type="hidden" id="webVersion" value=""/>
+	<input type="hidden" id="binderyFrontendVersion" value=""/>
 	
 	
 	
