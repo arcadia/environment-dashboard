@@ -2262,6 +2262,186 @@ function showDashboard() {
 						}
 						
 						
+						function showWebDepDynamicDialog(comp, env, webVersion) 
+						{
+							if (authorizedForPRDactions != "TBD")
+							{
+								var proceed = false;
+								if (authorizedForPRDactions == "authorized" &amp;&amp; env == "PRD")
+								{
+									proceed = true;
+								}								
+								else if (authorizedForPRDactions == "unauthorized" &amp;&amp; env == "PRD")
+								{
+									//alert('You are not authorized to access client PRD environments')
+									Q("#dialog3").dialog("option","title","Warning");
+									Q("#dialog3text").text("You are not authorized to access client PRD environments");
+									Q("#dialog3").dialog("open");
+								
+								}
+								else
+								{
+									proceed = true;
+								}
+								
+								
+								if (proceed)
+								{
+									
+									typeofDeployment = "web";
+									
+									Q("#overlay").show();
+									Q("#loader2").show();
+									
+									 
+									 //Set the html elements
+									 var compSubstr = comp.substring(0, comp.indexOf(' '))
+									 Q("#dialogTitle").text("Web deploy " + compSubstr + " to " + env + " for " + webVersion);
+									 Q("#clientAcronym").val(compSubstr);
+									 Q("#environment").val(env);
+									 Q("#web_version").val(webVersion);
+									 
+
+									 getWebBinderyFrontEndVersions();
+								 }
+
+								 
+							 }
+							 else
+							 {
+								//alert('Cannot proceed due to failing to determine the user level of access')
+								Q("#dialog3").dialog("option","title","Warning");
+								Q("#dialog3text").text("Cannot proceed due to failing to determine user's level of access");
+								Q("#dialog3").dialog("open");
+								
+							 }
+						}
+
+						function getWebBinderyFrontEndVersions()
+						{
+						
+							var response7 = "";
+							EnvDashViewProxy.getWebBinderyFrontEndVersionsSQLquery(Q("#clientAcronym").val(),Q("#environment").val(), function(t) {
+								 response7 = t.responseObject();
+								 
+								
+								 if (response7.indexOf("failed") == -1)
+								 {
+									/*
+									Q("#dialog3").dialog("option","title","Debug");
+									Q("#dialog3text").text(response7);
+									Q("#dialog3").dialog("open");
+									*/
+									 
+									 var versions = JSON.parse(response7);
+									 //console.log(versions);
+									 
+									 
+									 
+									 //Get information on the nightly job
+									 
+									 
+								     Q.each(versions.info, function(index, element){
+										
+										
+										//console.log(element.name);
+									    
+										Q("#webVersion").val(element.webVersion);
+										Q("#binderyFrontendVersion").val(element.binderyFrontendVersion);
+										Q("#activeServer").val(element.activeServer);
+										 
+										 
+									 });
+									 									
+									
+									Q("#loader2").hide();
+									Q("#dialog").show();
+									
+									if (noInitialEnv)
+									{
+										Q("#overlay2").hide();
+										Q("#PRDsection").show(500);
+									}
+									else
+									{
+										Q("#dialogTitle").text("Deploying " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " for " + Q("#build_num").val() + " &#x2192; " + Q("#activeServer").val());
+
+										Q("#PRDsection").show();
+									}
+									
+									if (typeofDeployment == "CRjob")
+									{
+										Q("#dialogTitle").text("Change request " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " &#x2192; " + Q("#activeServer").val());
+
+
+										Q("#startCRjobSection, #noRollbackSection").hide();
+										Q("#prd-env-cr-job").show();
+										Q("#datetimepickerLabel").text("Change Request job kick off date and time");
+
+									}
+									else if (typeofDeployment == "client" || typeofDeployment == "backend")
+									{
+										Q("#startCRjobSection, #noRollbackSection").show();
+										Q("#datetimepickerLabel").text("Deployment kick off date and time");
+										
+										if (typeofDeployment == "backend")
+										{
+											Q("#dialogTitle").text("Backend deploy " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " for " + Q("#core_version").val() + " &#x2192; " + Q("#activeServer").val());
+
+											if (Q("#environment").val() != "DEV")
+											{
+												Q("#non-dev-env").show();
+
+											}
+										}
+										else
+										{
+											Q("#dialogTitle").text("Deploying " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " for " + Q("#build_num").val() + " &#x2192; " + Q("#activeServer").val());
+										}
+										
+									}
+									else if (typeofDeployment == "web")
+									{
+										alert('here show dialog for web deployments');
+									
+									}
+									
+									if (Q("#environment").val() == "PRD") 
+									{		
+										Q("#kickoffDateTimeSection").show();
+									}
+									else
+									{
+										Q("#schedActivitySection").show();
+									}
+									
+									
+								 }
+								 else
+								 {
+									Q("#loader2").hide();
+									
+									
+									if (noInitialEnv)
+									{
+										Q("#overlay2").hide();
+										
+									}
+									else
+									{
+										Q("#overlay").hide();
+									}
+									
+									Q("#dialog3").dialog("option","title","Error");
+									Q("#dialog3text").text(response7);
+									Q("#dialog3").dialog("open");
+								 }
+								 
+								 
+							});
+						
+						
+						}
 						
 						function getNightlyjobSteps()
 						{
