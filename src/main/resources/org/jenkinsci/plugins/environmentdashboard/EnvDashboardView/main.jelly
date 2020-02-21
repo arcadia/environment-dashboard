@@ -819,6 +819,9 @@ function showDashboard() {
 									ClientRevisionDecision: {
 										required: true
 									},
+									WebBinderyFrontEndDecision: {
+										required: true
+									},
 									njstartstep: {
 										required: true,
 										// Using the normalizer to trim the value of the element
@@ -994,6 +997,7 @@ function showDashboard() {
 									},
 									clientBuilds: "please choose the stable build",
 									ClientRevisionDecision: "please make a choice",
+									WebBinderyFrontEndDecision: "please make a choice",
 									njStartStepDecision: "please make a choice",
 									datetimepicker: {
 										required: "please schedule this deployment/activity",
@@ -1602,7 +1606,7 @@ function showDashboard() {
 							
 							Q("#ClientRevisionDecision").change(CheckClientRevisionDecision);
 							Q("#EnvDecision").change(CheckEnvDecision);
-							
+							Q("#WebBinderyFrontEndDecision").change(CheckWebBinderyFrontEndDecision);
 							
 							Q("#startcrjob").change(function(){
 								if(this.checked) 
@@ -2063,6 +2067,20 @@ function showDashboard() {
 							
 						}
 						
+						function CheckWebBinderyFrontEndDecision()
+						{
+							if (Q("#WebBinderyFrontEndDecision").val() == "yes")
+							{
+								Q("#binderyfrontend-versions").show(500);
+							}
+							else
+							{
+								Q("#binderyfrontendVersionDecision").val("");
+								Q("#binderyfrontend-versions").hide(500);
+							}
+							
+						}
+						
 						function CheckEnvDecision()
 						{
 
@@ -2376,6 +2394,7 @@ function showDashboard() {
 									Q("#startnj").hide();
 									Q("#startnjlabel").hide();
 									Q("#noRollbackSection").hide();
+									Q("#binderyfrontend-versions").hide();
 									
 									if (typeofDeployment == "web")
 									{
@@ -2912,6 +2931,21 @@ function showDashboard() {
 			<option value="yes">Yes</option>
 		</select>
 	</div>
+	
+	<!-- dropdown menu for bindery versions-->
+	<j:set var="binderytags" value="${it.getOrderOfWebOrBinderyFrontTags('bindery')}"/>
+	<div id="binderyfrontend-versions" style="text-align: left">
+		<label id="binderyfrontendVersionRequest">Please specify the bindery frontend version</label><div class="divider"/>
+		<select id="binderyfrontendVersionDecision" name="binderyfrontendVersionDecision">
+					<option value="">Choose...</option>
+			<code>
+				<j:forEach items="${binderytags}" var="binderytag">
+					<option value="${binderytag}">${binderytag}</option>
+				</j:forEach>
+			</code>	
+		</select>
+	</div>
+
 	
 	<div id="ClientRevisionSection">
 		<label id="ClientRevisionLabel">Selected client build</label>
