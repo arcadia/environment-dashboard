@@ -770,17 +770,23 @@ function showDashboard() {
 										if (Q("#build_num").val().length != 0 &amp;&amp; Q("#core_version").val().length == 0 &amp;&amp; typeofDeployment == "client")
 										{
 											//Perform client deployment
-											startDeployment("client",Q("#clientAcronym").val(),Q("#environment").val(),Q("#build_num").val());
+											startDeployment("client",Q("#clientAcronym").val(),Q("#environment").val(),Q("#build_num").val(),"NA");
 										}
 										else if (Q("#core_version").val().length != 0 &amp;&amp; Q("#build_num").val().length == 0 &amp;&amp; typeofDeployment == "backend")
 										{
 											//Perform backend deployment		
-											startDeployment("backend",Q("#clientAcronym").val(),Q("#environment").val(),Q("#core_version").val());
+											startDeployment("backend",Q("#clientAcronym").val(),Q("#environment").val(),Q("#core_version").val(),"NA");
 										}
 										else if (typeofDeployment == "CRjob")
 										{
 											//Initiate CR job
-											startDeployment("CRjob",Q("#clientAcronym").val(),Q("#environment").val(),"NA");
+											startDeployment("CRjob",Q("#clientAcronym").val(),Q("#environment").val(),"NA","NA");
+
+										}
+										else if (typeofDeployment == "web")
+										{
+											//Initiate CR job
+											startDeployment("web",Q("#clientAcronym").val(),Q("#environment").val(),Q("#webVersion").val(),Q("#binderyFrontendVersion").val());
 
 										}
 										else
@@ -2341,7 +2347,12 @@ function showDashboard() {
 											
 										//console.log(element.name);
 										Q("#webVersion").val(element.webVersion);
-										Q("#binderyFrontendVersion").val(element.binderyFrontendVersion);
+										
+										if (element.binderyFrontendVersion != "NA")
+										{
+											Q("#binderyFrontendVersion").val(element.binderyFrontendVersion);
+										}
+										
 										Q("#activeServer").val(element.activeServer);
 									 });
 									 									
@@ -2669,7 +2680,7 @@ function showDashboard() {
 						}
 						
 						
-						function startDeployment(type, comp, env, version)
+						function startDeployment(type, comp, env, version, binderyVersion)
 						{
 							var xmlHttp = new XMLHttpRequest();
 							var baseUrl;
@@ -2685,9 +2696,14 @@ function showDashboard() {
 							{
 								baseUrl = "/job/Backend_Deploy";
 							}
-							else
+							else if (type == "CRjob")
 							{
 								baseUrl = "/job/CR_Job";
+							
+							}
+							else if (type == "web")
+							{
+								baseUrl = "/job/qdwWebDockerDeployClientEnvironment";
 							
 							}
 							
@@ -2698,41 +2714,57 @@ function showDashboard() {
 							var nightly_job_start_step;
 							
 							//Prepare switches and parameters for passing to Jenkins
-							if(Q("#norollback").is(":checked")){DoNotPerformRollback="-no_rollback";}else{DoNotPerformRollback="";}
-							if(Q("#startcrjob").is(":checked")){StartCRjob="-start_cr_job";}else{StartCRjob="";}
-							if(Q("#startnj").is(":checked")){StartNJ="-start_nightly_job";}else{StartNJ="";}
-							if(!Q("#njstartstep").val().trim()){nightly_job_start_step="NA";}else{nightly_job_start_step=Q("#njstartstep").val().trim().replace(/['"]+/g, '');}
 							
 							
-							buildUrl = baseUrl + "/buildWithParameters?" +
-										"Client=" + comp + 
-										"&amp;Env=" + env + 
-										"&amp;StartNJ=" + StartNJ +
-										"&amp;NJstartStep=" + nightly_job_start_step +
-										"&amp;JiraTicket=" + Q("#jiraticket").val().trim().replace(/['"]+/g, '') +
-										"&amp;delay=" + Number(Q("#secondsToWait").val()) + "sec";
-							
-							if (type == "client" || type == "backend")
+							if (type == "web")
 							{
+								
+								buildUrl = baseUrl + "/buildWithParameters?" +
+												"client=" + comp + 
+												"&amp;environment=" + env + 
+												"&amp;tag=" + version +
+												"&amp;binderyTag=" + binderyVersion +
+												"&amp;JiraTicket=" + Q("#jiraticket").val().trim().replace(/['"]+/g, '') +
+												"&amp;delay=" + Number(Q("#secondsToWait").val()) + "sec";
 							
-								buildUrl = buildUrl + 
-											"&amp;NoRollback=" + DoNotPerformRollback +
-											"&amp;StartCRjob=" + StartCRjob;
-							
-								if (type == "client")
-								{
-									buildUrl = buildUrl + 
-											"&amp;SourceBuildID=" + version;
-									
-								}
-								else
-								{
-									buildUrl = buildUrl +
-											"&amp;CoreVersion=" + version +
-											"&amp;ClientRevision=" + Q("#ClientRevision").val().trim();
-								}
 							}
-							
+							else
+							{
+								if(Q("#norollback").is(":checked")){DoNotPerformRollback="-no_rollback";}else{DoNotPerformRollback="";}
+								if(Q("#startcrjob").is(":checked")){StartCRjob="-start_cr_job";}else{StartCRjob="";}
+								if(Q("#startnj").is(":checked")){StartNJ="-start_nightly_job";}else{StartNJ="";}
+								if(!Q("#njstartstep").val().trim()){nightly_job_start_step="NA";}else{nightly_job_start_step=Q("#njstartstep").val().trim().replace(/['"]+/g, '');}
+								
+								
+								buildUrl = baseUrl + "/buildWithParameters?" +
+											"Client=" + comp + 
+											"&amp;Env=" + env + 
+											"&amp;StartNJ=" + StartNJ +
+											"&amp;NJstartStep=" + nightly_job_start_step +
+											"&amp;JiraTicket=" + Q("#jiraticket").val().trim().replace(/['"]+/g, '') +
+											"&amp;delay=" + Number(Q("#secondsToWait").val()) + "sec";
+								
+								if (type == "client" || type == "backend")
+								{
+								
+									buildUrl = buildUrl + 
+												"&amp;NoRollback=" + DoNotPerformRollback +
+												"&amp;StartCRjob=" + StartCRjob;
+								
+									if (type == "client")
+									{
+										buildUrl = buildUrl + 
+												"&amp;SourceBuildID=" + version;
+										
+									}
+									else
+									{
+										buildUrl = buildUrl +
+												"&amp;CoreVersion=" + version +
+												"&amp;ClientRevision=" + Q("#ClientRevision").val().trim();
+									}
+								}	
+							}
 							
 							//debug the URL
 							/*
