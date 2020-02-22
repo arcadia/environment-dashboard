@@ -785,7 +785,15 @@ function showDashboard() {
 										}
 										else if (typeofDeployment == "web")
 										{
-											//Initiate CR job
+											//Initiate web deploy
+											
+											if (Q("#WebBinderyFrontEndDecision").val() == "yes")
+											{
+												Q("#binderyFrontendVersion").val(Q("#binderyfrontendVersionDecision").val());
+											}
+											
+											//alert(Q("#binderyFrontendVersion").val());
+											
 											startDeployment("web",Q("#clientAcronym").val(),Q("#environment").val(),Q("#webVersion").val(),Q("#binderyFrontendVersion").val());
 
 										}
@@ -820,6 +828,9 @@ function showDashboard() {
 										required: true
 									},
 									WebBinderyFrontEndDecision: {
+										required: true
+									},
+									binderyfrontendVersionDecision: {
 										required: true
 									},
 									njstartstep: {
@@ -998,6 +1009,7 @@ function showDashboard() {
 									clientBuilds: "please choose the stable build",
 									ClientRevisionDecision: "please make a choice",
 									WebBinderyFrontEndDecision: "please make a choice",
+									binderyfrontendVersionDecision: "please make a choice",
 									njStartStepDecision: "please make a choice",
 									datetimepicker: {
 										required: "please schedule this deployment/activity",
