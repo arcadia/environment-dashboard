@@ -2345,6 +2345,7 @@ function showDashboard() {
 						{
 						
 							var response7 = "";
+							var binderyFrontendExists = false;
 							EnvDashViewProxy.getWebBinderyFrontEndVersionsSQLquery(Q("#clientAcronym").val(),Q("#environment").val(), function(t) {
 								 response7 = t.responseObject();
 								 
@@ -2369,6 +2370,7 @@ function showDashboard() {
 										if (element.binderyFrontendVersion != "NA")
 										{
 											Q("#binderyFrontendVersion").val(element.binderyFrontendVersion);
+											binderyFrontendExists = true;
 										}
 										
 										Q("#activeServer").val(element.activeServer);
@@ -2410,8 +2412,19 @@ function showDashboard() {
 										else
 										{
 											Q("#dialogTitle").text("Web deploy " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " for web " + Q("#webVersion").val() + " &#x2192; " + Q("#activeServer").val());
-											Q("#WebBinderyFrontEndLabelQuestion").text(" Do you want to provide specific bindery frontend version with this web deployment");
-											Q("#optional-web-bindery-frontend").show();
+											
+										    if (binderyFrontendExists)
+											{
+												Q("#WebBinderyFrontEndLabelQuestion").text(" Do you want to also upgrade bindery frontend as part of this web deployment");
+												Q("#web-bindery-frontendLabel").text("Current bindery frontend version");
+												Q("#web-bindery-frontend").val(Q("#binderyFrontendVersion").val());
+												Q("#optional-web-bindery-frontend").show();
+											}
+											else
+											{
+												Q("#optional-web-bindery-frontend").hide();
+											}
+											
 										}
 										
 									}
@@ -2924,6 +2937,8 @@ function showDashboard() {
 	</div>
 	
     <div id="optional-web-bindery-frontend" style="text-align: left"> 
+		<label id="web-bindery-frontendLabel">Placeholder for whether to specify web version or bindery frontend version</label>
+		<div class="divider"/><input type="text" id="web-bindery-frontend" name="web-bindery-frontend" readonly="readonly"/><br></br>
 		<label id="WebBinderyFrontEndLabelQuestion">Placeholder for whether to specify web version or bindery frontend version</label><div class="divider"/>
 		<select id="WebBinderyFrontEndDecision" name="WebBinderyFrontEndDecision">
 			<option value="">Choose...</option>
