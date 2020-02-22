@@ -2409,6 +2409,7 @@ function showDashboard() {
 									Q("#startnjlabel").hide();
 									Q("#noRollbackSection").hide();
 									Q("#binderyfrontend-versions").hide();
+									Q("#current-bindery-frontend-version").hide();
 									
 									if (typeofDeployment == "web")
 									{
@@ -2416,10 +2417,37 @@ function showDashboard() {
 										
 										Q("#datetimepickerLabel").text("Deployment kick off date and time");
 										
-										if (Q("#web_version").val() == "applyPendingChanges")
+										
+										if (Q("#web_version").val() == "applyPendingChangesUponDevOpsApproval")
 										{
-											Q("#dialogTitle").text("Web deploy (applyPendingChanges) " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " for web " + Q("#webVersion").val() + " &#x2192; " + Q("#activeServer").val());
+											Q("#dialogTitle").text("Web deploy (applyPendingChangesUponDevOpsApproval) " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " for web " + Q("#webVersion").val() + " &#x2192; " + Q("#activeServer").val());
 											Q("#optional-web-bindery-frontend").hide();
+											
+										}
+										else if (Q("#web_version").val() == "binderyFrontendSubDeploy")
+										{
+											if (binderyFrontendExists)
+											{
+												
+												Q("#dialogTitle").text("Web deploy (binderyFrontendSubDeploy) " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " for web " + Q("#webVersion").val() + " &#x2192; " + Q("#activeServer").val());
+												Q("#web-bindery-frontendLabel").text("Current bindery frontend version");
+												Q("#web-bindery-frontend").val(Q("#binderyFrontendVersion").val());
+												Q("#current-bindery-frontend-version").show();
+												Q("#binderyfrontend-versions").show();
+												
+											}
+											else
+											{
+												Q("#optional-web-bindery-frontend").hide();
+												
+												Q("#overlay").hide();
+												Q("#dialog").hide();
+												
+												Q("#dialog3").dialog("option","title","Error");
+												Q("#dialog3text").text("This client's environment doesn't have bindery frontend deployed");
+												Q("#dialog3").dialog("open");
+											}
+										
 										}
 										else
 										{
@@ -2427,9 +2455,11 @@ function showDashboard() {
 											
 										    if (binderyFrontendExists)
 											{
+												
 												Q("#WebBinderyFrontEndLabelQuestion").text(" Do you want to also upgrade bindery frontend as part of this web deployment");
 												Q("#web-bindery-frontendLabel").text("Current bindery frontend version");
 												Q("#web-bindery-frontend").val(Q("#binderyFrontendVersion").val());
+												Q("#current-bindery-frontend-version").show();
 												Q("#optional-web-bindery-frontend").show();
 											}
 											else
@@ -2948,9 +2978,12 @@ function showDashboard() {
 		</select>
 	</div>
 	
-    <div id="optional-web-bindery-frontend" style="text-align: left"> 
+	 <div id="current-bindery-frontend-version" style="text-align: left">
 		<label id="web-bindery-frontendLabel">Placeholder for whether to specify web version or bindery frontend version</label>
 		<div class="divider"/><input type="text" id="web-bindery-frontend" name="web-bindery-frontend" readonly="readonly"/><br></br>
+	</div>
+	
+    <div id="optional-web-bindery-frontend" style="text-align: left"> 
 		<label id="WebBinderyFrontEndLabelQuestion">Placeholder for whether to specify web version or bindery frontend version</label><div class="divider"/>
 		<select id="WebBinderyFrontEndDecision" name="WebBinderyFrontEndDecision">
 			<option value="">Choose...</option>
