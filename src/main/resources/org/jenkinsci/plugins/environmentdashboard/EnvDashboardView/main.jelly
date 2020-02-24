@@ -528,7 +528,7 @@ function showDashboard() {
 							}, 300 * 1000); // 5 minutes
 							
 							
-							Q("#overlay, #dialog, #dialog2, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection, #envSection, #prd-env-cr-job, #kickoffDateTimeSection, #schedActivitySection").hide();
+							Q("#overlay, #dialog, #dialog2, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection, #envSection, #prd-env-cr-job, #kickoffDateTimeSection, #schedActivitySection, #optional-web-bindery-frontend, #binderyfrontend-versions, #current-bindery-frontend-version").hide();
 							Q("#dialog").draggable();
 							
 							Q("#dialog3").dialog({
@@ -787,7 +787,7 @@ function showDashboard() {
 										{
 											//Initiate web deploy
 											
-											if (Q("#WebBinderyFrontEndDecision").val() == "yes")
+											if (Q("#WebBinderyFrontEndDecision").val() == "yes" || Q("#web_version").val() == "binderyFrontendSubDeploy")
 											{
 												Q("#binderyFrontendVersion").val(Q("#binderyfrontendVersionDecision").val());
 											}
@@ -1855,11 +1855,14 @@ function showDashboard() {
 							
 							if (typeOfAction == "close")
 							{
-								Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection, #envSection, #prd-env-cr-job, #kickoffDateTimeSection, #schedActivitySection").hide();
+								Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection, #envSection, #prd-env-cr-job, #kickoffDateTimeSection, #schedActivitySection, #optional-web-bindery-frontend, #binderyfrontend-versions, #current-bindery-frontend-version").hide();
 								Q("#buildNumber").val("");
 								Q("#core_version").val("");
 								Q("#build_num").val("");
 								Q("#datetimepicker").val("");
+								Q("#web_version").val("");
+								Q("#webVersion").val("");
+								Q("#binderyFrontendVersion").val("");
 							}
 							else
 							{
@@ -1892,6 +1895,12 @@ function showDashboard() {
 									Q("#core_version").val("");
 								}
 								
+								if (typeofDeployment != "web")
+								{
+									Q("#web_version").val("");
+									Q("#webVersion").val("");
+									Q("#binderyFrontendVersion").val("");
+								}
 								
 								if(Q("#envSection").is(":visible"))
 								{
@@ -2418,9 +2427,9 @@ function showDashboard() {
 										Q("#datetimepickerLabel").text("Deployment kick off date and time");
 										
 										
-										if (Q("#web_version").val() == "applyPendingChangesUponDevOpsApproval")
+										if (Q("#web_version").val() == "applyPendingChanges")
 										{
-											Q("#dialogTitle").text("Web deploy (applyPendingChangesUponDevOpsApproval) " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " for web " + Q("#webVersion").val() + " &#x2192; " + Q("#activeServer").val());
+											Q("#dialogTitle").text("Web deploy (applyPendingChanges) " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " for web " + Q("#webVersion").val() + " &#x2192; " + Q("#activeServer").val());
 											Q("#optional-web-bindery-frontend").hide();
 											
 										}
@@ -2451,22 +2460,48 @@ function showDashboard() {
 										}
 										else
 										{
-											Q("#dialogTitle").text("Web deploy " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " for web " + Q("#webVersion").val() + " &#x2192; " + Q("#activeServer").val());
-											
-										    if (binderyFrontendExists)
+										
+											var splitString = Q("#webVersion").val().toLowerCase().replace('v', '').split(".");
+											var currentVersion = parseInt(splitString[0], 10);
+
+											splitString = Q("#web_version").val().toLowerCase().replace('v', '').split(".");
+											var futureVersion = parseInt(splitString[0], 10);
+
+											if (currentVersion == futureVersion)
 											{
+											
+												Q("#webVersion").val(Q("#web_version").val());
+												Q("#dialogTitle").text("Web deploy " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " for web " + Q("#webVersion").val() + " &#x2192; " + Q("#activeServer").val());
 												
-												Q("#WebBinderyFrontEndLabelQuestion").text(" Do you want to also upgrade bindery frontend as part of this web deployment");
-												Q("#web-bindery-frontendLabel").text("Current bindery frontend version");
-												Q("#web-bindery-frontend").val(Q("#binderyFrontendVersion").val());
-												Q("#current-bindery-frontend-version").show();
-												Q("#optional-web-bindery-frontend").show();
+												if (binderyFrontendExists)
+												{
+													
+													Q("#WebBinderyFrontEndLabelQuestion").text(" Do you want to also upgrade bindery frontend as part of this web deployment");
+													Q("#web-bindery-frontendLabel").text("Current bindery frontend version");
+													Q("#web-bindery-frontend").val(Q("#binderyFrontendVersion").val());
+													Q("#current-bindery-frontend-version").show();
+													Q("#optional-web-bindery-frontend").show();
+												}
+												else
+												{
+													Q("#optional-web-bindery-frontend").hide();
+												}
+											
 											}
 											else
 											{
-												Q("#optional-web-bindery-frontend").hide();
-											}
 											
+												Q("#optional-web-bindery-frontend").hide();
+												
+												Q("#overlay").hide();
+												Q("#dialog").hide();
+												
+												Q("#dialog3").dialog("option","title","Error");
+												Q("#dialog3text").text("Please reach out to DevOps Team for a major upgrade");
+												Q("#dialog3").dialog("open");
+											
+											}
+										
 										}
 										
 									}

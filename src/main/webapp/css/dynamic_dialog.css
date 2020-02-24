@@ -86,7 +86,7 @@
     height:auto;
     display:inline-block;
 }
-#datetimepicker, #jiraticket, #buildNumber {
+#datetimepicker, #jiraticket, #buildNumber, #web-bindery-frontend {
 	border-radius: 3px; width:180px; padding:1px;
 	border:2px groove blue; }
 #requestforSHA {
@@ -127,7 +127,7 @@ input[type=radio]:hover {
 .hoverable-table-in-dialog tr:hover td {
   background-color: #ccc;
 }
-#buildNumber, #ClientRevision {
+#buildNumber, #ClientRevision, #web-bindery-frontend{
 	background-color: #ccc;
 }
 input[type=radio] {
