@@ -165,7 +165,7 @@ function showDashboard() {
 															
 																<j:if test="${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1] != null}">
 	 
-																   <j:if test="${comp.indexOf('Backend') == -1 &amp;&amp; comp.indexOf('CRjob') == -1}">
+																   <j:if test="${comp.indexOf('Backend') == -1 &amp;&amp; comp.indexOf('CRjob') == -1 &amp;&amp; comp.indexOf('Web') == -1}">
 																		<j:switch on="${deployment.get('buildstatus')}">
 																			<j:case value="SUCCESS">
 																				<j:choose>
@@ -200,7 +200,18 @@ function showDashboard() {
 																		</j:switch>
 																		
 																	</j:if> 
+																	<j:if test="${comp.indexOf('Web') != -1}">
 																	
+																			<j:switch on="${deployment.get('buildstatus')}">
+																			<j:case value="SUCCESS">
+																				 <a title="Promote" href="javascript:showWebDepDynamicDialog('${comp}','${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1]}','${deployment.get('buildNum')}');">Promote</a>
+																			</j:case>
+																			<j:default>																
+																				  <a title="Promote" href="javascript:void(0)" class="disabled">Promote</a>
+																			</j:default>
+																		</j:switch>
+																		
+																	</j:if> 
 
 																	
 																</j:if> 
@@ -369,7 +380,7 @@ function showDashboard() {
 												<j:if test="${orderOfEnvs[orderOfEnvs.indexOf(env)+1] != null}">
 													<j:if test="${orderOfEnvs.indexOf(env) != 0}">
 											
-															<j:if test="${comps.indexOf('Backend') == -1 &amp;&amp; comps.indexOf('CRjob') == -1}">
+															<j:if test="${comps.indexOf('Backend') == -1 &amp;&amp; comps.indexOf('CRjob') == -1 &amp;&amp; comps.indexOf('Web') == -1}">
 															<j:switch on="${deployment.get('buildstatus')}">
 																<j:case value="SUCCESS">
 																	 <a title="Promote" href="javascript:showClientDepDynamicDialog('${comps}','${orderOfEnvs[orderOfEnvs.indexOf(env)+1]}','${deployment.get('buildNum')}');">Promote${it.envVars}</a>
@@ -386,6 +397,20 @@ function showDashboard() {
 																<j:switch on="${deployment.get('buildstatus')}">
 																	<j:case value="SUCCESS">
 																		<a title="Promote" href="javascript:showBackendDepDynamicDialog('${comps}','${orderOfEnvs[orderOfEnvs.indexOf(env)+1]}','${deployment.get('buildNum')}');">Promote</a>
+																	</j:case>
+																	<j:default>																	
+																		<a title="Promote" href="javascript:void(0)" class="disabled">Promote</a>
+																	</j:default>
+																</j:switch>
+
+																
+															</j:if> 
+															
+															<j:if test="${comps.indexOf('Web') != -1}">  
+												
+																<j:switch on="${deployment.get('buildstatus')}">
+																	<j:case value="SUCCESS">
+																		<a title="Promote" href="javascript:showWebDepDynamicDialog('${comps}','${orderOfEnvs[orderOfEnvs.indexOf(env)+1]}','${deployment.get('buildNum')}');">Promote</a>
 																	</j:case>
 																	<j:default>																	
 																		<a title="Promote" href="javascript:void(0)" class="disabled">Promote</a>
@@ -2401,18 +2426,8 @@ function showDashboard() {
 									Q("#loader2").hide();
 									Q("#dialog").show();
 									
-									if (noInitialEnv)
-									{
-										Q("#overlay2").hide();
-										Q("#PRDsection").show(500);
-									}
-									else
-									{
-										Q("#dialogTitle").text("Deploying " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " for web " + Q("#webVersion").val() + " &#x2192; " + Q("#activeServer").val());
-
-										Q("#PRDsection").show();
-									}
 									
+									Q("#PRDsection").show();
 									Q("#startCRjobSection").hide();
 									Q("#startnj").hide();
 									Q("#startnjlabel").hide();
@@ -2528,17 +2543,8 @@ function showDashboard() {
 								 else
 								 {
 									Q("#loader2").hide();
+									Q("#overlay").hide();
 									
-									
-									if (noInitialEnv)
-									{
-										Q("#overlay2").hide();
-										
-									}
-									else
-									{
-										Q("#overlay").hide();
-									}
 									
 									Q("#dialog3").dialog("option","title","Error");
 									Q("#dialog3text").text(response7);
