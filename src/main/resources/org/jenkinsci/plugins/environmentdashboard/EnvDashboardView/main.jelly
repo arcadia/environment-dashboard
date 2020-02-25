@@ -1888,6 +1888,12 @@ function showDashboard() {
 								Q("#web_version").val("");
 								Q("#webVersion").val("");
 								Q("#binderyFrontendVersion").val("");
+								
+								Q("#startCRjobSection").show();
+								Q("#startnj").show();
+								Q("#startnjlabel").show();
+								Q("#noRollbackSection").show();
+
 							}
 							else
 							{
@@ -2454,7 +2460,7 @@ function showDashboard() {
 											{
 												
 												Q("#dialogTitle").text("Web deploy (binderyFrontendSubDeploy) " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " for web " + Q("#webVersion").val() + " &#x2192; " + Q("#activeServer").val());
-												Q("#web-bindery-frontendLabel").text("Current bindery frontend version");
+												Q("#web-bindery-frontendLabel").text("Bindery frontend version currently deployed");
 												Q("#web-bindery-frontend").val(Q("#binderyFrontendVersion").val());
 												Q("#current-bindery-frontend-version").show();
 												Q("#binderyfrontend-versions").show();
@@ -2492,7 +2498,7 @@ function showDashboard() {
 												{
 													
 													Q("#WebBinderyFrontEndLabelQuestion").text(" Do you want to also upgrade bindery frontend as part of this web deployment");
-													Q("#web-bindery-frontendLabel").text("Current bindery frontend version");
+													Q("#web-bindery-frontendLabel").text("Bindery frontend version currently deployed");
 													Q("#web-bindery-frontend").val(Q("#binderyFrontendVersion").val());
 													Q("#current-bindery-frontend-version").show();
 													Q("#optional-web-bindery-frontend").show();
@@ -3036,7 +3042,7 @@ function showDashboard() {
 	<!-- dropdown menu for bindery versions-->
 	<j:set var="binderytags" value="${it.getOrderOfWebOrBinderyFrontTags('bindery')}"/>
 	<div id="binderyfrontend-versions" style="text-align: left">
-		<label id="binderyfrontendVersionRequest">Please specify the bindery frontend version</label><div class="divider"/>
+		<label id="binderyfrontendVersionRequest">Please select bindery frontend version to deploy</label><div class="divider"/>
 		<select id="binderyfrontendVersionDecision" name="binderyfrontendVersionDecision">
 					<option value="">Choose...</option>
 			<code>
