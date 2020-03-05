@@ -2111,6 +2111,7 @@ function showDashboard() {
 							else
 							{
 								Q("#build_num").val("");
+								Q("#ClientRevision").val("");
 								Q("#ClientRevisionSection").hide(500);
 								Q('#' + Q("#clientAcronym").val() + "_clientVersions").hide(500);
 								Q('.' + Q("input[name=clientBuilds]").filter(":checked").prop('id') + "_sha_forReplacement").html('TBD');
