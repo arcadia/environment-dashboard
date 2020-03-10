@@ -3182,7 +3182,9 @@ function showDashboard() {
 	<input type="hidden" id="core_version" value=""/>
 	<input type="hidden" id="build_num" value=""/>
 	<input type="hidden" id="secondsToWait" value=""/>
-	<input type="hidden" id="ClientRevision" value=""/>
+	
+	<!--<input type="hidden" id="ClientRevision" value=""/>-->
+	
 	<input type="hidden" id="webAction" value=""/>
 	<input type="hidden" id="web_version" value=""/>
 	<input type="hidden" id="webVersion" value=""/>
