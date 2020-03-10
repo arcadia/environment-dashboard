@@ -1902,6 +1902,12 @@ function showDashboard() {
 								
 								Q("#ClientRevisionSection, #njstartstepSection, #prd-env").hide();
 								
+								//if web upgrade only
+								if(Q("#WebBinderyFrontEndDecision").is(":visible"))
+								{
+									Q("#binderyfrontend-versions").hide();
+								}
+								
 								
 								if (Q("#environment").val() != 'PRD')
 								{
@@ -1957,6 +1963,11 @@ function showDashboard() {
 							{
 								clearInterval(refreshIntervalId);
 								Q('.' + prevBuildForFoundSHA + "_sha_forReplacement").css('visibility', 'visible');
+							}
+						
+							if (Q("#binderyFrontendVersion").val())
+							{
+								Q("#web-bindery-frontend").val(Q("#binderyFrontendVersion").val());
 							}
 						
 						}
@@ -2425,6 +2436,10 @@ function showDashboard() {
 											Q("#binderyFrontendVersion").val(element.binderyFrontendVersion);
 											binderyFrontendExists = true;
 										}
+										else
+										{
+											Q("#binderyFrontendVersion").val("");
+										}
 										
 										Q("#activeServer").val(element.activeServer);
 									 });
@@ -2454,6 +2469,13 @@ function showDashboard() {
 											Q("#dialogTitle").text("Web deploy (applyPendingChanges) " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " for web " + Q("#webVersion").val() + " &#x2192; " + Q("#activeServer").val());
 											Q("#optional-web-bindery-frontend").hide();
 											
+											if (binderyFrontendExists)
+											{
+												Q("#web-bindery-frontendLabel").text("Bindery frontend version currently deployed");
+												Q("#web-bindery-frontend").val(Q("#binderyFrontendVersion").val());
+												Q("#current-bindery-frontend-version").show();
+											}
+
 										}
 										else if (Q("#web_version").val() == "binderyFrontendSubDeploy")
 										{
