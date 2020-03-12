@@ -491,7 +491,7 @@ function showDashboard() {
 													<j:set var="webtags" value="${it.getOrderOfWebOrBinderyFrontTags('web')}"/>
 															
 														<div class="dropdown" style="float:right;">
-																<button class="dropbtn" >Deploy to ${env_promote}...</button>
+																<button class="dropbtn2" >Deploy to ${env_promote}...</button>
 														  <div id="myDropdown${env_promote}" class="dropdown-content">
 															<code>
 																<j:forEach items="${webtags}" var="webtag">
@@ -2088,6 +2088,7 @@ function showDashboard() {
 									 //Set the html elements
 									 var compSubstr = comp.substring(0, comp.indexOf(' '))
 									 Q("#dialogTitle").text("Backend deploy " + compSubstr + " to " + env + " for " + coreVersion);
+									 Q("#dialogTitle").css("background-color", "#81BEF7");
 									 Q("#clientAcronym").val(compSubstr);
 									 Q("#environment").val(env);
 									 Q("#core_version").val(coreVersion);
@@ -2252,6 +2253,7 @@ function showDashboard() {
 										 Q("#noRollbackSection").hide();
 										 Q("#envSection").show();
 										 Q("#dialogTitle").text("Deploying " + comp + " for " + buildNum);
+										 Q("#dialogTitle").css("background-color", "#81BEF7");
 										 
 									 }
 									 else
@@ -2261,6 +2263,7 @@ function showDashboard() {
 										 
 										 //Set the html elements
 										 //Q("#dialogTitle").text("Deploying " + comp + " to " + env + " for " + buildNum);
+										 Q("#dialogTitle").css("background-color", "#81BEF7");
 										 Q("#environment").val(env);
 										 
 										 getNightlyjobSteps();
@@ -2322,6 +2325,7 @@ function showDashboard() {
 									 //Set the html elements
 									 var compSubstr = comp.substring(0, comp.indexOf(' '));
 									//Q("#dialogTitle").text("Change request " + compSubstr + " to " + env);
+									Q("#dialogTitle").css("background-color", "#81BEF7");
 									Q("#clientAcronym").val(compSubstr);
 
 									CRjob = compSubstr + "_Change_Request";
@@ -2385,6 +2389,7 @@ function showDashboard() {
 									 //Set the html elements
 									 var compSubstr = comp.substring(0, comp.indexOf(' '))
 									 Q("#dialogTitle").text("Web deploy " + compSubstr + " to " + env + " for " + webVersion);
+									 Q("#dialogTitle").css("background-color", "#d0f781");
 									 Q("#clientAcronym").val(compSubstr);
 									 Q("#environment").val(env);
 									 Q("#web_version").val(webVersion);
@@ -2467,6 +2472,7 @@ function showDashboard() {
 										if (Q("#web_version").val() == "applyPendingChanges")
 										{
 											Q("#dialogTitle").text("Web deploy (applyPendingChanges) " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " for web " + Q("#webVersion").val() + " &#x2192; " + Q("#activeServer").val());
+											Q("#dialogTitle").css("background-color", "#d0f781");
 											Q("#optional-web-bindery-frontend").hide();
 											
 											if (binderyFrontendExists)
@@ -2483,6 +2489,7 @@ function showDashboard() {
 											{
 												
 												Q("#dialogTitle").text("Web deploy (binderyFrontendSubDeploy) " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " for web " + Q("#webVersion").val() + " &#x2192; " + Q("#activeServer").val());
+												Q("#dialogTitle").css("background-color", "#d0f781");
 												Q("#web-bindery-frontendLabel").text("Bindery frontend version currently deployed");
 												Q("#web-bindery-frontend").val(Q("#binderyFrontendVersion").val());
 												Q("#current-bindery-frontend-version").show();
@@ -2516,6 +2523,7 @@ function showDashboard() {
 											
 												Q("#webVersion").val(Q("#web_version").val());
 												Q("#dialogTitle").text("Web deploy " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " for web " + Q("#webVersion").val() + " &#x2192; " + Q("#activeServer").val());
+												Q("#dialogTitle").css("background-color", "#d0f781");
 												
 												if (binderyFrontendExists)
 												{
@@ -2749,14 +2757,14 @@ function showDashboard() {
 									else
 									{
 										Q("#dialogTitle").text("Deploying " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " for " + Q("#build_num").val() + " &#x2192; " + Q("#activeServer").val());
-
+										Q("#dialogTitle").css("background-color", "#81BEF7");
 										Q("#PRDsection").show();
 									}
 									
 									if (typeofDeployment == "CRjob")
 									{
 										Q("#dialogTitle").text("Change request " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " &#x2192; " + Q("#activeServer").val());
-
+										Q("#dialogTitle").css("background-color", "#81BEF7");
 
 										Q("#startCRjobSection, #noRollbackSection").hide();
 										Q("#prd-env-cr-job").show();
@@ -2771,7 +2779,8 @@ function showDashboard() {
 										if (typeofDeployment == "backend")
 										{
 											Q("#dialogTitle").text("Backend deploy " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " for " + Q("#core_version").val() + " &#x2192; " + Q("#activeServer").val());
-
+											Q("#dialogTitle").css("background-color", "#81BEF7");
+											
 											if (Q("#environment").val() != "DEV")
 											{
 												Q("#non-dev-env").show();
@@ -2781,6 +2790,7 @@ function showDashboard() {
 										else
 										{
 											Q("#dialogTitle").text("Deploying " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " for " + Q("#build_num").val() + " &#x2192; " + Q("#activeServer").val());
+											Q("#dialogTitle").css("background-color", "#81BEF7");
 										}
 										
 									}

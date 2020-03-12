@@ -7,6 +7,15 @@
 	cursor: pointer;
 }
 
+.dropbtn2 {
+	background-color: #d0f781;
+	color: black;
+	padding: 16px;
+	font-size: 13px;
+	border: dotted;
+	cursor: pointer;
+}
+
 .dropdown {
 	position: relative;
 	display: inline-block;
@@ -37,7 +46,10 @@
 .dropdown:hover .dropbtn {
 	background-color: #819FF7;
 }
-											
+
+.dropdown:hover .dropbtn2 {
+	background-color: #7eb809;
+}										
 
 a.disabled {
 	color:grey;
