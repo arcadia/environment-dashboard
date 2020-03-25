@@ -165,7 +165,7 @@ function showDashboard() {
 															
 																<j:if test="${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1] != null}">
 	 
-																   <j:if test="${comp.indexOf('Backend') == -1 &amp;&amp; comp.indexOf('CRjob') == -1}">
+																   <j:if test="${comp.indexOf('Backend') == -1 &amp;&amp; comp.indexOf('CRjob') == -1 &amp;&amp; comp.indexOf('Web') == -1}">
 																		<j:switch on="${deployment.get('buildstatus')}">
 																			<j:case value="SUCCESS">
 																				<j:choose>
@@ -200,7 +200,18 @@ function showDashboard() {
 																		</j:switch>
 																		
 																	</j:if> 
+																	<j:if test="${comp.indexOf('Web') != -1}">
 																	
+																			<j:switch on="${deployment.get('buildstatus')}">
+																			<j:case value="SUCCESS">
+																				 <a title="Promote" href="javascript:showWebDepDynamicDialog('${comp}','${orderOfEnvs[orderOfEnvs.indexOf(envsHeader)+1]}','${deployment.get('buildNum')}');">Promote</a>
+																			</j:case>
+																			<j:default>																
+																				  <a title="Promote" href="javascript:void(0)" class="disabled">Promote</a>
+																			</j:default>
+																		</j:switch>
+																		
+																	</j:if> 
 
 																	
 																</j:if> 
@@ -369,7 +380,7 @@ function showDashboard() {
 												<j:if test="${orderOfEnvs[orderOfEnvs.indexOf(env)+1] != null}">
 													<j:if test="${orderOfEnvs.indexOf(env) != 0}">
 											
-															<j:if test="${comps.indexOf('Backend') == -1 &amp;&amp; comps.indexOf('CRjob') == -1}">
+															<j:if test="${comps.indexOf('Backend') == -1 &amp;&amp; comps.indexOf('CRjob') == -1 &amp;&amp; comps.indexOf('Web') == -1}">
 															<j:switch on="${deployment.get('buildstatus')}">
 																<j:case value="SUCCESS">
 																	 <a title="Promote" href="javascript:showClientDepDynamicDialog('${comps}','${orderOfEnvs[orderOfEnvs.indexOf(env)+1]}','${deployment.get('buildNum')}');">Promote${it.envVars}</a>
@@ -386,6 +397,20 @@ function showDashboard() {
 																<j:switch on="${deployment.get('buildstatus')}">
 																	<j:case value="SUCCESS">
 																		<a title="Promote" href="javascript:showBackendDepDynamicDialog('${comps}','${orderOfEnvs[orderOfEnvs.indexOf(env)+1]}','${deployment.get('buildNum')}');">Promote</a>
+																	</j:case>
+																	<j:default>																	
+																		<a title="Promote" href="javascript:void(0)" class="disabled">Promote</a>
+																	</j:default>
+																</j:switch>
+
+																
+															</j:if> 
+															
+															<j:if test="${comps.indexOf('Web') != -1}">  
+												
+																<j:switch on="${deployment.get('buildstatus')}">
+																	<j:case value="SUCCESS">
+																		<a title="Promote" href="javascript:showWebDepDynamicDialog('${comps}','${orderOfEnvs[orderOfEnvs.indexOf(env)+1]}','${deployment.get('buildNum')}');">Promote</a>
 																	</j:case>
 																	<j:default>																	
 																		<a title="Promote" href="javascript:void(0)" class="disabled">Promote</a>
@@ -411,7 +436,6 @@ function showDashboard() {
 												
 												
 												   <!-- DROPDOWN MENUS FOR PERFORMING BACKEND DEPLOYMENTS under 'Last Commit' column-->
-												   
 													<j:if test="${comps.indexOf('Backend') != -1}">  
 													<j:set var="tags" value="${it.getOrderOfTags(comps,env_promote)}"/>
 													
@@ -440,7 +464,7 @@ function showDashboard() {
 													</j:if>
 													
 													<!-- PROMOTE LINKS under 'Last Commit' column -->
-													<j:if test="${comps.indexOf('Backend') == -1 &amp;&amp; comps.indexOf('CRjob') == -1}"> 
+													<j:if test="${comps.indexOf('Backend') == -1 &amp;&amp; comps.indexOf('CRjob') == -1 &amp;&amp; comps.indexOf('Web') == -1}"> 
 														<div style="margin-right:30px; float:right;">
 															<j:switch on="${deployment.get('buildstatus')}">
 																<j:case value="SUCCESS">
@@ -455,13 +479,29 @@ function showDashboard() {
 													  											
 													</j:if>
 													
-													
 													<!-- CRjob LINKS under 'Last Commit' column -->
 													<j:if test="${comps.indexOf('CRjob') != -1}"> 
 														<div style="margin-right:30px; float:right;">
 															<a href="javascript:javascript:showCRjobDynamicDialog('${comps}','${env_promote}');">Initiate at ${env_promote}</a>
 														</div>								
 													</j:if>
+													
+												   <!-- DROPDOWN MENUS FOR PERFORMING WEB DEPLOYMENTS under 'Last Commit' column-->
+													<j:if test="${comps.indexOf('Web') != -1}">  
+													<j:set var="webtags" value="${it.getOrderOfWebOrBinderyFrontTags('web')}"/>
+															
+														<div class="dropdown" style="float:right;">
+																<button class="dropbtn2" >Deploy to ${env_promote}...</button>
+														  <div id="myDropdown${env_promote}" class="dropdown-content">
+															<code>
+																<j:forEach items="${webtags}" var="webtag">
+																	<a href="javascript:showWebDepDynamicDialog('${comps}','${env_promote}', '${webtag}');">${webtag}</a>
+																</j:forEach>
+															</code>
+														  </div>
+														</div>
+													</j:if>
+													
 												
 											</j:if>
 										</j:forEach>
@@ -513,7 +553,7 @@ function showDashboard() {
 							}, 300 * 1000); // 5 minutes
 							
 							
-							Q("#overlay, #dialog, #dialog2, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection, #envSection, #prd-env-cr-job, #kickoffDateTimeSection, #schedActivitySection").hide();
+							Q("#overlay, #dialog, #dialog2, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection, #envSection, #prd-env-cr-job, #kickoffDateTimeSection, #schedActivitySection, #optional-web-bindery-frontend, #binderyfrontend-versions, #current-bindery-frontend-version").hide();
 							Q("#dialog").draggable();
 							
 							Q("#dialog3").dialog({
@@ -755,17 +795,31 @@ function showDashboard() {
 										if (Q("#build_num").val().length != 0 &amp;&amp; Q("#core_version").val().length == 0 &amp;&amp; typeofDeployment == "client")
 										{
 											//Perform client deployment
-											startDeployment("client",Q("#clientAcronym").val(),Q("#environment").val(),Q("#build_num").val());
+											startDeployment("client",Q("#clientAcronym").val(),Q("#environment").val(),Q("#build_num").val(),"NA");
 										}
 										else if (Q("#core_version").val().length != 0 &amp;&amp; Q("#build_num").val().length == 0 &amp;&amp; typeofDeployment == "backend")
 										{
 											//Perform backend deployment		
-											startDeployment("backend",Q("#clientAcronym").val(),Q("#environment").val(),Q("#core_version").val());
+											startDeployment("backend",Q("#clientAcronym").val(),Q("#environment").val(),Q("#core_version").val(),"NA");
 										}
 										else if (typeofDeployment == "CRjob")
 										{
 											//Initiate CR job
-											startDeployment("CRjob",Q("#clientAcronym").val(),Q("#environment").val(),"NA");
+											startDeployment("CRjob",Q("#clientAcronym").val(),Q("#environment").val(),"NA","NA");
+
+										}
+										else if (typeofDeployment == "web")
+										{
+											//Initiate web deploy
+											
+											if (Q("#WebBinderyFrontEndDecision").val() == "yes" || Q("#web_version").val() == "binderyFrontendSubDeploy")
+											{
+												Q("#binderyFrontendVersion").val(Q("#binderyfrontendVersionDecision").val());
+											}
+											
+											//alert(Q("#binderyFrontendVersion").val());
+											
+											startDeployment("web",Q("#clientAcronym").val(),Q("#environment").val(),Q("#webVersion").val(),Q("#binderyFrontendVersion").val());
 
 										}
 										else
@@ -796,6 +850,12 @@ function showDashboard() {
 										required: true
 									},
 									ClientRevisionDecision: {
+										required: true
+									},
+									WebBinderyFrontEndDecision: {
+										required: true
+									},
+									binderyfrontendVersionDecision: {
 										required: true
 									},
 									njstartstep: {
@@ -973,6 +1033,8 @@ function showDashboard() {
 									},
 									clientBuilds: "please choose the stable build",
 									ClientRevisionDecision: "please make a choice",
+									WebBinderyFrontEndDecision: "please make a choice",
+									binderyfrontendVersionDecision: "please make a choice",
 									njStartStepDecision: "please make a choice",
 									datetimepicker: {
 										required: "please schedule this deployment/activity",
@@ -1581,7 +1643,7 @@ function showDashboard() {
 							
 							Q("#ClientRevisionDecision").change(CheckClientRevisionDecision);
 							Q("#EnvDecision").change(CheckEnvDecision);
-							
+							Q("#WebBinderyFrontEndDecision").change(CheckWebBinderyFrontEndDecision);
 							
 							Q("#startcrjob").change(function(){
 								if(this.checked) 
@@ -1818,11 +1880,20 @@ function showDashboard() {
 							
 							if (typeOfAction == "close")
 							{
-								Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection, #envSection, #prd-env-cr-job, #kickoffDateTimeSection, #schedActivitySection").hide();
+								Q("#overlay, #dialog, #ClientRevisionSection, #non-dev-env, #PRDsection, #prd-env, #njstartstepSection, #envSection, #prd-env-cr-job, #kickoffDateTimeSection, #schedActivitySection, #optional-web-bindery-frontend, #binderyfrontend-versions, #current-bindery-frontend-version").hide();
 								Q("#buildNumber").val("");
 								Q("#core_version").val("");
 								Q("#build_num").val("");
 								Q("#datetimepicker").val("");
+								Q("#web_version").val("");
+								Q("#webVersion").val("");
+								Q("#binderyFrontendVersion").val("");
+								
+								Q("#startCRjobSection").show();
+								Q("#startnj").show();
+								Q("#startnjlabel").show();
+								Q("#noRollbackSection").show();
+
 							}
 							else
 							{
@@ -1830,6 +1901,12 @@ function showDashboard() {
 								
 								
 								Q("#ClientRevisionSection, #njstartstepSection, #prd-env").hide();
+								
+								//if web upgrade only
+								if(Q("#WebBinderyFrontEndDecision").is(":visible"))
+								{
+									Q("#binderyfrontend-versions").hide();
+								}
 								
 								
 								if (Q("#environment").val() != 'PRD')
@@ -1855,6 +1932,12 @@ function showDashboard() {
 									Q("#core_version").val("");
 								}
 								
+								if (typeofDeployment != "web")
+								{
+									Q("#web_version").val("");
+									Q("#webVersion").val("");
+									Q("#binderyFrontendVersion").val("");
+								}
 								
 								if(Q("#envSection").is(":visible"))
 								{
@@ -1880,6 +1963,11 @@ function showDashboard() {
 							{
 								clearInterval(refreshIntervalId);
 								Q('.' + prevBuildForFoundSHA + "_sha_forReplacement").css('visibility', 'visible');
+							}
+						
+							if (Q("#binderyFrontendVersion").val())
+							{
+								Q("#web-bindery-frontend").val(Q("#binderyFrontendVersion").val());
 							}
 						
 						}
@@ -2000,6 +2088,7 @@ function showDashboard() {
 									 //Set the html elements
 									 var compSubstr = comp.substring(0, comp.indexOf(' '))
 									 Q("#dialogTitle").text("Backend deploy " + compSubstr + " to " + env + " for " + coreVersion);
+									 Q("#dialogTitle").css("background-color", "#81BEF7");
 									 Q("#clientAcronym").val(compSubstr);
 									 Q("#environment").val(env);
 									 Q("#core_version").val(coreVersion);
@@ -2034,10 +2123,25 @@ function showDashboard() {
 							else
 							{
 								Q("#build_num").val("");
+								Q("#ClientRevision").val("");
 								Q("#ClientRevisionSection").hide(500);
 								Q('#' + Q("#clientAcronym").val() + "_clientVersions").hide(500);
 								Q('.' + Q("input[name=clientBuilds]").filter(":checked").prop('id') + "_sha_forReplacement").html('TBD');
 								Q("input[name=clientBuilds]").filter(":checked").prop('checked', false);
+							}
+							
+						}
+						
+						function CheckWebBinderyFrontEndDecision()
+						{
+							if (Q("#WebBinderyFrontEndDecision").val() == "yes")
+							{
+								Q("#binderyfrontend-versions").show(500);
+							}
+							else
+							{
+								Q("#binderyfrontendVersionDecision").val("");
+								Q("#binderyfrontend-versions").hide(500);
 							}
 							
 						}
@@ -2149,6 +2253,7 @@ function showDashboard() {
 										 Q("#noRollbackSection").hide();
 										 Q("#envSection").show();
 										 Q("#dialogTitle").text("Deploying " + comp + " for " + buildNum);
+										 Q("#dialogTitle").css("background-color", "#81BEF7");
 										 
 									 }
 									 else
@@ -2158,6 +2263,7 @@ function showDashboard() {
 										 
 										 //Set the html elements
 										 //Q("#dialogTitle").text("Deploying " + comp + " to " + env + " for " + buildNum);
+										 Q("#dialogTitle").css("background-color", "#81BEF7");
 										 Q("#environment").val(env);
 										 
 										 getNightlyjobSteps();
@@ -2219,6 +2325,7 @@ function showDashboard() {
 									 //Set the html elements
 									 var compSubstr = comp.substring(0, comp.indexOf(' '));
 									//Q("#dialogTitle").text("Change request " + compSubstr + " to " + env);
+									Q("#dialogTitle").css("background-color", "#81BEF7");
 									Q("#clientAcronym").val(compSubstr);
 
 									CRjob = compSubstr + "_Change_Request";
@@ -2247,6 +2354,245 @@ function showDashboard() {
 						}
 						
 						
+						function showWebDepDynamicDialog(comp, env, webVersion) 
+						{
+							if (authorizedForPRDactions != "TBD")
+							{
+								var proceed = false;
+								if (authorizedForPRDactions == "authorized" &amp;&amp; env == "PRD")
+								{
+									proceed = true;
+								}								
+								else if (authorizedForPRDactions == "unauthorized" &amp;&amp; env == "PRD")
+								{
+									//alert('You are not authorized to access client PRD environments')
+									Q("#dialog3").dialog("option","title","Warning");
+									Q("#dialog3text").text("You are not authorized to access client PRD environments");
+									Q("#dialog3").dialog("open");
+								
+								}
+								else
+								{
+									proceed = true;
+								}
+								
+								
+								if (proceed)
+								{
+									
+									typeofDeployment = "web";
+									
+									Q("#overlay").show();
+									Q("#loader2").show();
+									
+									 
+									 //Set the html elements
+									 var compSubstr = comp.substring(0, comp.indexOf(' '))
+									 Q("#dialogTitle").text("Web deploy " + compSubstr + " to " + env + " for " + webVersion);
+									 Q("#dialogTitle").css("background-color", "#d0f781");
+									 Q("#clientAcronym").val(compSubstr);
+									 Q("#environment").val(env);
+									 Q("#web_version").val(webVersion);
+									 
+
+									 getWebBinderyFrontEndVersions();
+								 }
+
+								 
+							 }
+							 else
+							 {
+								//alert('Cannot proceed due to failing to determine the user level of access')
+								Q("#dialog3").dialog("option","title","Warning");
+								Q("#dialog3text").text("Cannot proceed due to failing to determine user's level of access");
+								Q("#dialog3").dialog("open");
+								
+							 }
+						}
+
+						function getWebBinderyFrontEndVersions()
+						{
+						
+							var response7 = "";
+							var binderyFrontendExists = false;
+							EnvDashViewProxy.getWebBinderyFrontEndVersionsSQLquery(Q("#clientAcronym").val(),Q("#environment").val(), function(t) {
+								 response7 = t.responseObject();
+								 
+								
+								 if (response7.indexOf("failed") == -1)
+								 {
+									/*
+									Q("#dialog3").dialog("option","title","Debug");
+									Q("#dialog3text").text(response7);
+									Q("#dialog3").dialog("open");
+									*/
+									 
+									 var versions = JSON.parse(response7);
+									 //console.log(versions);
+									 //Get information on the nightly job
+									 
+								     Q.each(versions.info, function(index, element){
+											
+										//console.log(element.name);
+										Q("#webVersion").val(element.webVersion);
+										
+										if (element.binderyFrontendVersion != "NA")
+										{
+											Q("#binderyFrontendVersion").val(element.binderyFrontendVersion);
+											binderyFrontendExists = true;
+										}
+										else
+										{
+											Q("#binderyFrontendVersion").val("");
+										}
+										
+										Q("#activeServer").val(element.activeServer);
+									 });
+									 									
+									
+									Q("#loader2").hide();
+									Q("#dialog").show();
+									
+									
+									Q("#PRDsection").show();
+									Q("#startCRjobSection").hide();
+									Q("#startnj").hide();
+									Q("#startnjlabel").hide();
+									Q("#noRollbackSection").hide();
+									Q("#binderyfrontend-versions").hide();
+									Q("#current-bindery-frontend-version").hide();
+									
+									if (typeofDeployment == "web")
+									{
+										//alert('here show dialog for web deployments');
+										
+										Q("#datetimepickerLabel").text("Deployment kick off date and time");
+										
+										
+										if (Q("#web_version").val() == "applyPendingChanges")
+										{
+											Q("#dialogTitle").text("Web deploy (applyPendingChanges) " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " for web " + Q("#webVersion").val() + " &#x2192; " + Q("#activeServer").val());
+											Q("#dialogTitle").css("background-color", "#d0f781");
+											Q("#optional-web-bindery-frontend").hide();
+											
+											if (binderyFrontendExists)
+											{
+												Q("#web-bindery-frontendLabel").text("Bindery frontend version currently deployed");
+												Q("#web-bindery-frontend").val(Q("#binderyFrontendVersion").val());
+												Q("#current-bindery-frontend-version").show();
+											}
+
+										}
+										else if (Q("#web_version").val() == "binderyFrontendSubDeploy")
+										{
+											if (binderyFrontendExists)
+											{
+												
+												Q("#dialogTitle").text("Web deploy (binderyFrontendSubDeploy) " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " for web " + Q("#webVersion").val() + " &#x2192; " + Q("#activeServer").val());
+												Q("#dialogTitle").css("background-color", "#d0f781");
+												Q("#web-bindery-frontendLabel").text("Bindery frontend version currently deployed");
+												Q("#web-bindery-frontend").val(Q("#binderyFrontendVersion").val());
+												Q("#current-bindery-frontend-version").show();
+												Q("#binderyfrontend-versions").show();
+												
+											}
+											else
+											{
+												Q("#optional-web-bindery-frontend").hide();
+												
+												Q("#overlay").hide();
+												Q("#dialog").hide();
+												
+												Q("#dialog3").dialog("option","title","Error");
+												Q("#dialog3text").text("This client's environment doesn't have bindery frontend deployed");
+												Q("#dialog3").dialog("open");
+											}
+										
+										}
+										else
+										{
+										
+											var splitString = Q("#webVersion").val().toLowerCase().replace('v', '').split(".");
+											var currentVersion = parseInt(splitString[0], 10);
+
+											splitString = Q("#web_version").val().toLowerCase().replace('v', '').split(".");
+											var futureVersion = parseInt(splitString[0], 10);
+
+											if (currentVersion == futureVersion)
+											{
+											
+												Q("#webVersion").val(Q("#web_version").val());
+												Q("#dialogTitle").text("Web deploy " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " for web " + Q("#webVersion").val() + " &#x2192; " + Q("#activeServer").val());
+												Q("#dialogTitle").css("background-color", "#d0f781");
+												
+												if (binderyFrontendExists)
+												{
+													
+													Q("#WebBinderyFrontEndLabelQuestion").text(" Do you want to also upgrade bindery frontend as part of this web deployment");
+													Q("#web-bindery-frontendLabel").text("Bindery frontend version currently deployed");
+													Q("#web-bindery-frontend").val(Q("#binderyFrontendVersion").val());
+													Q("#current-bindery-frontend-version").show();
+													Q("#optional-web-bindery-frontend").show();
+												}
+												else
+												{
+													Q("#optional-web-bindery-frontend").hide();
+												}
+											
+											}
+											else
+											{
+											
+												Q("#optional-web-bindery-frontend").hide();
+												
+												Q("#overlay").hide();
+												Q("#dialog").hide();
+												
+												Q("#dialog3").dialog("option","title","Error");
+												Q("#dialog3text").text("Please reach out to DevOps Team for a major upgrade");
+												Q("#dialog3").dialog("open");
+											
+											}
+										
+										}
+										
+									}
+									else
+									{
+									
+										//for bindery frontend deployment
+										
+									
+									}
+
+									
+									if (Q("#environment").val() == "PRD") 
+									{		
+										Q("#kickoffDateTimeSection").show();
+									}
+									else
+									{
+										Q("#schedActivitySection").show();
+									}
+									
+									
+								 }
+								 else
+								 {
+									Q("#loader2").hide();
+									Q("#overlay").hide();
+									
+									
+									Q("#dialog3").dialog("option","title","Error");
+									Q("#dialog3text").text(response7);
+									Q("#dialog3").dialog("open");
+								 }
+								 
+								 
+							});
+						
+						
+						}
 						
 						function getNightlyjobSteps()
 						{
@@ -2411,14 +2757,14 @@ function showDashboard() {
 									else
 									{
 										Q("#dialogTitle").text("Deploying " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " for " + Q("#build_num").val() + " &#x2192; " + Q("#activeServer").val());
-
+										Q("#dialogTitle").css("background-color", "#81BEF7");
 										Q("#PRDsection").show();
 									}
 									
 									if (typeofDeployment == "CRjob")
 									{
 										Q("#dialogTitle").text("Change request " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " &#x2192; " + Q("#activeServer").val());
-
+										Q("#dialogTitle").css("background-color", "#81BEF7");
 
 										Q("#startCRjobSection, #noRollbackSection").hide();
 										Q("#prd-env-cr-job").show();
@@ -2433,7 +2779,8 @@ function showDashboard() {
 										if (typeofDeployment == "backend")
 										{
 											Q("#dialogTitle").text("Backend deploy " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " for " + Q("#core_version").val() + " &#x2192; " + Q("#activeServer").val());
-
+											Q("#dialogTitle").css("background-color", "#81BEF7");
+											
 											if (Q("#environment").val() != "DEV")
 											{
 												Q("#non-dev-env").show();
@@ -2443,6 +2790,7 @@ function showDashboard() {
 										else
 										{
 											Q("#dialogTitle").text("Deploying " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " for " + Q("#build_num").val() + " &#x2192; " + Q("#activeServer").val());
+											Q("#dialogTitle").css("background-color", "#81BEF7");
 										}
 										
 									}
@@ -2486,7 +2834,7 @@ function showDashboard() {
 						}
 						
 						
-						function startDeployment(type, comp, env, version)
+						function startDeployment(type, comp, env, version, binderyVersion)
 						{
 							var xmlHttp = new XMLHttpRequest();
 							var baseUrl;
@@ -2502,9 +2850,14 @@ function showDashboard() {
 							{
 								baseUrl = "/job/Backend_Deploy";
 							}
-							else
+							else if (type == "CRjob")
 							{
 								baseUrl = "/job/CR_Job";
+							
+							}
+							else if (type == "web")
+							{
+								baseUrl = "/job/qdwWebDockerDeployClientEnvironment";
 							
 							}
 							
@@ -2515,41 +2868,57 @@ function showDashboard() {
 							var nightly_job_start_step;
 							
 							//Prepare switches and parameters for passing to Jenkins
-							if(Q("#norollback").is(":checked")){DoNotPerformRollback="-no_rollback";}else{DoNotPerformRollback="";}
-							if(Q("#startcrjob").is(":checked")){StartCRjob="-start_cr_job";}else{StartCRjob="";}
-							if(Q("#startnj").is(":checked")){StartNJ="-start_nightly_job";}else{StartNJ="";}
-							if(!Q("#njstartstep").val().trim()){nightly_job_start_step="NA";}else{nightly_job_start_step=Q("#njstartstep").val().trim().replace(/['"]+/g, '');}
 							
 							
-							buildUrl = baseUrl + "/buildWithParameters?" +
-										"Client=" + comp + 
-										"&amp;Env=" + env + 
-										"&amp;StartNJ=" + StartNJ +
-										"&amp;NJstartStep=" + nightly_job_start_step +
-										"&amp;JiraTicket=" + Q("#jiraticket").val().trim().replace(/['"]+/g, '') +
-										"&amp;delay=" + Number(Q("#secondsToWait").val()) + "sec";
-							
-							if (type == "client" || type == "backend")
+							if (type == "web")
 							{
+								
+								buildUrl = baseUrl + "/buildWithParameters?" +
+												"client=" + comp + 
+												"&amp;environment=" + env + 
+												"&amp;tag=" + version +
+												"&amp;binderyTag=" + binderyVersion +
+												"&amp;JiraTicket=" + Q("#jiraticket").val().trim().replace(/['"]+/g, '') +
+												"&amp;delay=" + Number(Q("#secondsToWait").val()) + "sec";
 							
-								buildUrl = buildUrl + 
-											"&amp;NoRollback=" + DoNotPerformRollback +
-											"&amp;StartCRjob=" + StartCRjob;
-							
-								if (type == "client")
-								{
-									buildUrl = buildUrl + 
-											"&amp;SourceBuildID=" + version;
-									
-								}
-								else
-								{
-									buildUrl = buildUrl +
-											"&amp;CoreVersion=" + version +
-											"&amp;ClientRevision=" + Q("#ClientRevision").val().trim();
-								}
 							}
-							
+							else
+							{
+								if(Q("#norollback").is(":checked")){DoNotPerformRollback="-no_rollback";}else{DoNotPerformRollback="";}
+								if(Q("#startcrjob").is(":checked")){StartCRjob="-start_cr_job";}else{StartCRjob="";}
+								if(Q("#startnj").is(":checked")){StartNJ="-start_nightly_job";}else{StartNJ="";}
+								if(!Q("#njstartstep").val().trim()){nightly_job_start_step="NA";}else{nightly_job_start_step=Q("#njstartstep").val().trim().replace(/['"]+/g, '');}
+								
+								
+								buildUrl = baseUrl + "/buildWithParameters?" +
+											"Client=" + comp + 
+											"&amp;Env=" + env + 
+											"&amp;StartNJ=" + StartNJ +
+											"&amp;NJstartStep=" + nightly_job_start_step +
+											"&amp;JiraTicket=" + Q("#jiraticket").val().trim().replace(/['"]+/g, '') +
+											"&amp;delay=" + Number(Q("#secondsToWait").val()) + "sec";
+								
+								if (type == "client" || type == "backend")
+								{
+								
+									buildUrl = buildUrl + 
+												"&amp;NoRollback=" + DoNotPerformRollback +
+												"&amp;StartCRjob=" + StartCRjob;
+								
+									if (type == "client")
+									{
+										buildUrl = buildUrl + 
+												"&amp;SourceBuildID=" + version;
+										
+									}
+									else
+									{
+										buildUrl = buildUrl +
+												"&amp;CoreVersion=" + version +
+												"&amp;ClientRevision=" + Q("#ClientRevision").val().trim();
+									}
+								}	
+							}
 							
 							//debug the URL
 							/*
@@ -2689,6 +3058,35 @@ function showDashboard() {
 		</select>
 	</div>
 	
+	 <div id="current-bindery-frontend-version" style="text-align: left">
+		<label id="web-bindery-frontendLabel">Placeholder for whether to specify web version or bindery frontend version</label>
+		<div class="divider"/><input type="text" id="web-bindery-frontend" name="web-bindery-frontend" readonly="readonly"/><br></br>
+	</div>
+	
+    <div id="optional-web-bindery-frontend" style="text-align: left"> 
+		<label id="WebBinderyFrontEndLabelQuestion">Placeholder for whether to specify web version or bindery frontend version</label><div class="divider"/>
+		<select id="WebBinderyFrontEndDecision" name="WebBinderyFrontEndDecision">
+			<option value="">Choose...</option>
+			<option value="no">No</option>
+			<option value="yes">Yes</option>
+		</select>
+	</div>
+	
+	<!-- dropdown menu for bindery versions-->
+	<j:set var="binderytags" value="${it.getOrderOfWebOrBinderyFrontTags('bindery')}"/>
+	<div id="binderyfrontend-versions" style="text-align: left">
+		<label id="binderyfrontendVersionRequest">Please select bindery frontend version to deploy</label><div class="divider"/>
+		<select id="binderyfrontendVersionDecision" name="binderyfrontendVersionDecision">
+					<option value="">Choose...</option>
+			<code>
+				<j:forEach items="${binderytags}" var="binderytag">
+					<option value="${binderytag}">${binderytag}</option>
+				</j:forEach>
+			</code>	
+		</select>
+	</div>
+
+	
 	<div id="ClientRevisionSection">
 		<label id="ClientRevisionLabel">Selected client build</label>
 		<div class="divider"/><input type="text" id="buildNumber" name="buildNumber" readonly="readonly"/><br></br>
@@ -2787,16 +3185,20 @@ function showDashboard() {
 		</div>
 		
 	</div>
-	
-	
-	
+		
 	
 	<input type="hidden" id="clientAcronym" value=""/>
 	<input type="hidden" id="environment" value=""/>
 	<input type="hidden" id="core_version" value=""/>
 	<input type="hidden" id="build_num" value=""/>
 	<input type="hidden" id="secondsToWait" value=""/>
-	<input type="hidden" id="ClientRevision" value=""/>
+	
+	<!--<input type="hidden" id="ClientRevision" value=""/>-->
+	
+	<input type="hidden" id="webAction" value=""/>
+	<input type="hidden" id="web_version" value=""/>
+	<input type="hidden" id="webVersion" value=""/>
+	<input type="hidden" id="binderyFrontendVersion" value=""/>
 	
 	
 	

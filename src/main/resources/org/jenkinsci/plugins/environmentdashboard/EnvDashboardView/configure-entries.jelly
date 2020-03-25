@@ -46,6 +46,13 @@
 	  <f:password value="${instance.LDAPpasswordSecret}"/>
 	</f:entry>
 	
+	<f:entry title="Tagged web versions" field="webtags">
+        <f:textbox />
+    </f:entry>
+	
+	<f:entry title="Tagged bindery frontend versions" field="binderyfronttags">
+        <f:textbox />
+    </f:entry>
 	
     <f:advanced>
 

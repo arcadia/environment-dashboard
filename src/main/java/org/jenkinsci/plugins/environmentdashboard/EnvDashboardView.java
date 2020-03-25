@@ -100,10 +100,13 @@ public class EnvDashboardView extends View {
 	
 	private Secret LDAPpassword = null;
 	
+	private String webtags = null;
+	
+	private String binderyfronttags = null;
 
 	
     @DataBoundConstructor
-    public EnvDashboardView(final String name, final String envOrder, final String compOrder, final String tags, final String betaCustomers, final String deployHistory, final String dbUser, final String dbPassword, final Boolean SQLauth, final String LDAPserver, final String LDAPuser, final String LDAPpassword) {
+    public EnvDashboardView(final String name, final String envOrder, final String compOrder, final String tags, final String betaCustomers, final String deployHistory, final String dbUser, final String dbPassword, final Boolean SQLauth, final String LDAPserver, final String LDAPuser, final String LDAPpassword, final String webtags, final String binderyfronttags) {
         super(name, Hudson.getInstance());
         this.envOrder = envOrder;
         this.compOrder = compOrder;
@@ -118,7 +121,8 @@ public class EnvDashboardView extends View {
 		this.LDAPuser = LDAPuser;
 		this.LDAPpassword = Secret.fromString(LDAPpassword);
 		
-		
+		this.webtags = webtags;
+		this.binderyfronttags = binderyfronttags;
     }
 
     static {
@@ -211,6 +215,8 @@ public class EnvDashboardView extends View {
 		private String LDAPuser;
 		private String LDAPpassword;
 		
+		private String webtags;
+		private String binderyfronttags;
 
 		
         /**
@@ -333,6 +339,8 @@ public class EnvDashboardView extends View {
 			LDAPuser = formData.getString("LDAPuser");
 			LDAPpassword = formData.getString("LDAPpassword");
 			
+			webtags = formData.getString("webtags");
+			binderyfronttags = formData.getString("binderyfronttags");
 			
             save();
             return super.configure(req,formData);
@@ -363,6 +371,7 @@ public class EnvDashboardView extends View {
         }
         return orderOfTags;
     }
+	
 
     public ArrayList<String> splitBetaCustomers(String betaCustomers) {
         ArrayList<String> orderOfBetaCustomers = new ArrayList<String>();
@@ -472,6 +481,28 @@ public class EnvDashboardView extends View {
             }
         }
 
+        return orderOfTags;
+    }
+	
+	
+	public ArrayList<String> getOrderOfWebOrBinderyFrontTags(String type) {
+		
+		//System.out.println("At getOrderOfWebOrBinderyFrontTags function");
+		//System.out.println(type);
+		
+		ArrayList<String> orderOfTags;
+		if (type.equals("web"))
+		{
+			//System.out.println("Getting web tags now...");
+			orderOfTags = splitTags(webtags);
+		}
+		else
+		{
+			orderOfTags = splitTags(binderyfronttags);
+		}
+		
+		//System.out.println(orderOfTags);
+		
         return orderOfTags;
     }
 
@@ -695,6 +726,14 @@ public class EnvDashboardView extends View {
     public String getTags() {
         return tags;
     }
+	
+	public String getwebtags() {
+        return webtags;
+    }
+	
+	public String getbinderyfronttags() {
+        return binderyfronttags;
+    }
 
     public void setCompOrder(final String compOrder) {
         this.compOrder = compOrder;
@@ -706,6 +745,14 @@ public class EnvDashboardView extends View {
 
     public void setTags(final String tags) {
         this.tags = tags;
+    }
+	
+	public void setwebtags(final String webtags) {
+        this.webtags = webtags;
+    }
+	
+	public void setbinderyfronttags(final String binderyfronttags) {
+        this.binderyfronttags = binderyfronttags;
     }
 
     public String getDeployHistory() {
@@ -1484,6 +1531,202 @@ public class EnvDashboardView extends View {
 	
 	
 	@JavaScriptMethod
+	public String retrieveWebBinderyFrontEndVersionsSQLquery(String customer, String env) 
+	{
+	
+		String returnString = null;
+		String webVersion = null;
+		String binderyFrontendVersion = null;
+
+		System.out.println(getCurentDateTime() + ": At retrieveWebBinderyFrontEndVersionsSQLquery function");
+
+
+		//identify the active database
+		String SQL = "use " + getOpsDB() + ";\n" +
+		"select [web_version], [binderyfrontend_version]\n" +
+		"from (\n" +
+		"select d.version as 'web_version', d.client_revision as 'binderyfrontend_version',\n" +
+		"		RANK() OVER (PARTITION BY c.acronym, e.name, p.name, di.name, t.name ORDER BY d.start_timestamp DESC) AS Rank\n" +
+		"                                         from OpsDB.dbo.deployment d inner join OpsDB.dbo.status s on d.status_id = s.status_id \n" +
+		"                                                                     inner join OpsDB.dbo.client c on d.client_id = c.client_id\n" +
+		"                                                                     inner join OpsDB.dbo.provisioning_environment p on d.provisioning_environment_id = p.provisioning_environment_id\n" +
+		"																	 inner join OpsDB.dbo.environment e on e.environment_id = p.environment_id\n" +
+		"                                                                     inner join OpsDB.dbo.db_instance di on d.db_instance_id = di.db_instance_id\n" +
+		"                                                                     inner join OpsDB.dbo.product pr on d.product_id = pr.product_id\n" +
+		"                                                                     inner join OpsDB.dbo.type t on d.type_id = t.type_id\n" +
+		"																	 inner join OpsDB.dbo.db_instance_database dbi on dbi.database_id = d.database_id\n" +
+		"where pr.name = 'Analytics' and t.name in ('WEB') and dbi.status_id <> (select status_id from OpsDB.dbo.status where name = 'Decomissioned') and di.name not like 'qdwsql%' and c.acronym = '" + customer + "' and s.name = 'Success' and e.name = '" + env + "') a\n" +
+		"where a.Rank = 1;";
+
+		
+		String returnValue = getRequestedInfo(customer, env, SQL, "web_version");
+		if(returnValue.contains("failed"))
+		{
+			System.out.println(returnValue);
+			returnString = returnValue;
+			return returnString;
+		}
+		else
+		{
+			webVersion = returnValue;
+			//System.out.println(webVersion);
+			
+		}
+
+
+		returnValue = getRequestedInfo(customer, env, SQL, "binderyfrontend_version");
+		if(returnValue.contains("failed"))
+		{
+			System.out.println(returnValue);
+			returnString = returnValue;
+			return returnString;
+		}
+		else
+		{
+			binderyFrontendVersion = returnValue;
+			//System.out.println(binderyFrontendVersion);
+			
+		}
+
+		
+		returnString = webVersion + "," + binderyFrontendVersion;
+		
+		return returnString;
+	
+	}
+
+	
+	@JavaScriptMethod
+	public String getWebBinderyFrontEndVersionsSQLquery(String customer, String env) 
+	{
+	
+	   String returnString = null;
+	   String error = new String();
+	   String activeDB = null;
+	   String provEnv = null;
+	   String activeServer = null;
+	   String webVersion = null;
+	   String binderyFrontendVersion = null;
+		
+	   System.out.println(getCurentDateTime() + ": At getWebBinderyFrontEndVersionsSQLquery function");
+	   
+	   String returnValue = getActiveDBprovEnvAndServerSQLquery(customer, env);
+	   if(returnValue.contains("failed"))
+	   {
+			System.out.println(returnValue);
+			returnString = returnValue;
+			return returnString;
+	   }
+	   else
+	   {
+	   
+	        String[] arrOfStr = returnValue.split(",");
+            //for (String a: arrOfStr)
+              //  System.out.println(a);
+			
+			activeDB = arrOfStr[0];
+			System.out.println(activeDB);
+			
+			provEnv = arrOfStr[1];
+			System.out.println(provEnv);
+			
+			activeServer = arrOfStr[2];
+			System.out.println(activeServer);
+			
+		}
+			
+		
+	   String returnValue2 = retrieveWebBinderyFrontEndVersionsSQLquery(customer, env);
+	   if(returnValue2.contains("failed"))
+	   {
+			System.out.println(returnValue2);
+			returnString = returnValue2;
+			return returnString;
+	   }
+	   else
+	   {
+	   
+	        String[] arrOfStr2 = returnValue2.split(",");
+            //for (String a: arrOfStr2)
+              //  System.out.println(a);
+			
+			webVersion = arrOfStr2[0];
+			System.out.println(webVersion);
+			
+			binderyFrontendVersion = arrOfStr2[1];
+			System.out.println(binderyFrontendVersion);
+			
+		}
+	  
+	  
+	  	//String activeServer = "TESTSQLTST04";
+		
+	   
+	   //Check if server is reachable
+	   if (!testServerConnection(activeServer))
+	   {
+			error = "failed " + activeServer + " is not reachable";
+			System.out.println(getCurentDateTime() + ": " + error);
+			returnString = error;
+			return returnString;
+	   }
+	  
+	   	   	   
+       try 
+	   {
+	   
+			//Iterate through the data in the result set and display it.
+		   JsonArrayBuilder jarr = Json.createArrayBuilder();
+		   JsonArray arr = null;
+		   JsonObject joInfo = null;
+		   
+			if (webVersion == null || webVersion.isEmpty() || binderyFrontendVersion == null || binderyFrontendVersion.isEmpty())
+			{
+			
+				System.out.println(getCurentDateTime() + ": Either web or bindery frontend version is empty");
+				returnString = "failed";
+			
+			}
+			else
+			{
+				System.out.println(getCurentDateTime() + ": Building JSON object...");
+				  jarr.add(Json.createObjectBuilder()
+						  .add("webVersion", webVersion)
+						  .add("binderyFrontendVersion", binderyFrontendVersion)
+						  .add("activeServer", activeServer)
+					  .build());
+					  
+				arr = jarr.build();
+			    joInfo = Json.createObjectBuilder().add("info", arr).build();
+			    System.out.println(joInfo);
+			   
+			    returnString = joInfo.toString();
+			   
+			}
+
+		   
+       } 
+	   catch (Exception e) 
+	   {
+		    System.out.println(getCurentDateTime() + ": Something failed at getWebBinderyFrontEndVersionsSQLquery function"); 
+			System.out.println(e.toString());			
+            //e.printStackTrace();  
+			returnString = "Something failed at getWebBinderyFrontEndVersionsSQLquery function: " + e.getMessage();
+       } 
+	   finally 
+	   { 
+		   	if(returnString == null)
+			{
+				returnString = "failed";
+			}
+       }
+	  
+	   return returnString;
+	   
+    }
+
+	
+	@JavaScriptMethod
 	public String getNightlyjobStepsSQLquery(String customer, String env) 
 	{
 	
@@ -2085,8 +2328,9 @@ public class EnvDashboardView extends View {
 	   System.out.println(getCurentDateTime() + ": At getRequestedInfo function");
 	   System.out.println(customer);
 	   System.out.println(env);
-	   System.out.println(SQL);
 	   System.out.println(property);
+	   System.out.println(SQL);
+	   
 		
 	   String returnString = null;
 	   String error = new String();
