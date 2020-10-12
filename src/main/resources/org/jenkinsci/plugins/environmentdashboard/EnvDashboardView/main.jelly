@@ -2800,6 +2800,8 @@ function showDashboard() {
 										{
 											Q("#dialogTitle").text("Deploying " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " for " + Q("#build_num").val() + " &#x2192; " + Q("#activeServer").val());
 											Q("#dialogTitle").css("background-color", "#81BEF7");
+											
+											Q("#runQASQLscriptSection").hide();
 										}
 										
 									}
