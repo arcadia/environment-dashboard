@@ -1481,7 +1481,7 @@ function showDashboard() {
 									 response2 = t.responseObject();
 									 
 									
-									 if (response2.indexOf("failed") == -1)
+									 if (response2.indexOf("failedAtgetCRjobStepsSQLquery") == -1)
 									 {
 										/*
 										Q("#dialog3").dialog("option","title","Debug");

@@ -1175,7 +1175,7 @@ public class EnvDashboardView extends View {
 		if(returnValue.contains("failed"))
 		{
 			System.out.println(returnValue);
-			returnString = returnValue;
+			returnString = returnValue + " failedAtgetCRjobStepsSQLquery";
 			return returnString;
 		}
 		else
@@ -1202,7 +1202,7 @@ public class EnvDashboardView extends View {
 	   {
 			error = "failed " + activeServer + " is not reachable";
 			System.out.println(getCurentDateTime() + ": " + error);
-			returnString = error;
+			returnString = error + " failedAtgetCRjobStepsSQLquery";
 			return returnString;
 	   }
 	  
@@ -1241,7 +1241,7 @@ public class EnvDashboardView extends View {
 		   error = "E13" + " failed " + e.getMessage();
            System.out.println(error);
 		   
-		   returnString = error;
+		   returnString = error + " failedAtgetCRjobStepsSQLquery";
 		   return returnString;
 
        }
@@ -1429,14 +1429,14 @@ public class EnvDashboardView extends View {
 		    System.out.println(getCurentDateTime() + ": Something failed at getCRjobStepsSQLquery function"); 
 			System.out.println(e.toString());			
             //e.printStackTrace();  
-			returnString = "Something failed at getCRjobStepsSQLquery function: " + e.getMessage();
+			returnString = "Something failed at getCRjobStepsSQLquery function: " + e.getMessage() + " failedAtgetCRjobStepsSQLquery";
        } 
 	   finally 
 	   { 
            CustomDBConnection.closeConnection(conn);
 		   	if(returnString == null)
 			{
-				returnString = "failed";
+				returnString = "failed" + " failedAtgetCRjobStepsSQLquery";
 			}
        }
 	  
