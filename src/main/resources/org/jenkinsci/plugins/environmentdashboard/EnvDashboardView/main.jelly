@@ -1893,6 +1893,7 @@ function showDashboard() {
 								Q("#startnj").show();
 								Q("#startnjlabel").show();
 								Q("#noRollbackSection").show();
+								Q("#runQASQLscriptSection").show();
 
 							}
 							else
@@ -1942,7 +1943,7 @@ function showDashboard() {
 								if(Q("#envSection").is(":visible"))
 								{
 									Q("#PRDsection").hide(500);
-									Q("#startCRjobSection, #noRollbackSection").hide();
+									Q("#startCRjobSection, #noRollbackSection, #runQASQLscriptSection").hide();
 									Q("#kickoffDateTimeSection").hide();
 								}
 								
@@ -2178,7 +2179,7 @@ function showDashboard() {
 							else
 							{
 								Q("#PRDsection").hide(500);
-								Q("#startCRjobSection, #noRollbackSection").hide();
+								Q("#startCRjobSection, #noRollbackSection, #runQASQLscriptSection").hide();
 								Q("#kickoffDateTimeSection").hide();
 								Q("#schedActivitySection").hide();
 								
@@ -2251,6 +2252,7 @@ function showDashboard() {
 										Q("#overlay, #dialog").show();
 										
 										 Q("#noRollbackSection").hide();
+										 Q("#runQASQLscriptSection").hide();
 										 Q("#envSection").show();
 										 Q("#dialogTitle").text("Deploying " + comp + " for " + buildNum);
 										 Q("#dialogTitle").css("background-color", "#81BEF7");
@@ -2459,6 +2461,7 @@ function showDashboard() {
 									Q("#startnj").hide();
 									Q("#startnjlabel").hide();
 									Q("#noRollbackSection").hide();
+									Q("#runQASQLscriptSection").hide();
 									Q("#binderyfrontend-versions").hide();
 									Q("#current-bindery-frontend-version").hide();
 									
@@ -2766,7 +2769,7 @@ function showDashboard() {
 										Q("#dialogTitle").text("Change request " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " &#x2192; " + Q("#activeServer").val());
 										Q("#dialogTitle").css("background-color", "#81BEF7");
 
-										Q("#startCRjobSection, #noRollbackSection").hide();
+										Q("#startCRjobSection, #noRollbackSection, #runQASQLscriptSection").hide();
 										Q("#prd-env-cr-job").show();
 										Q("#datetimepickerLabel").text("Change Request job kick off date and time");
 
@@ -2774,6 +2777,8 @@ function showDashboard() {
 									else if (typeofDeployment == "client" || typeofDeployment == "backend")
 									{
 										Q("#startCRjobSection, #noRollbackSection").show();
+										
+										
 										Q("#datetimepickerLabel").text("Deployment kick off date and time");
 										
 										if (typeofDeployment == "backend")
@@ -2786,6 +2791,8 @@ function showDashboard() {
 												Q("#non-dev-env").show();
 
 											}
+											
+											Q("#runQASQLscriptSection").show();
 										}
 										else
 										{
@@ -2885,6 +2892,7 @@ function showDashboard() {
 							else
 							{
 								if(Q("#norollback").is(":checked")){DoNotPerformRollback="-no_rollback";}else{DoNotPerformRollback="";}
+								if(Q("#runqascript").is(":checked")){ExecuteQAscript="-run_qa_script";}else{ExecuteQAscript="";}
 								if(Q("#startcrjob").is(":checked")){StartCRjob="-start_cr_job";}else{StartCRjob="";}
 								if(Q("#startnj").is(":checked")){StartNJ="-start_nightly_job";}else{StartNJ="";}
 								if(!Q("#njstartstep").val().trim()){nightly_job_start_step="NA";}else{nightly_job_start_step=Q("#njstartstep").val().trim().replace(/['"]+/g, '');}
@@ -2915,7 +2923,8 @@ function showDashboard() {
 									{
 										buildUrl = buildUrl +
 												"&amp;CoreVersion=" + version +
-												"&amp;ClientRevision=" + Q("#ClientRevision").val().trim();
+												"&amp;ClientRevision=" + Q("#ClientRevision").val().trim() +
+												"&amp;RunQAScript=" + ExecuteQAscript;
 									}
 								}	
 							}
@@ -3185,7 +3194,8 @@ function showDashboard() {
 		</div>
 		
 	</div>
-		
+	
+
 	
 	<input type="hidden" id="clientAcronym" value=""/>
 	<input type="hidden" id="environment" value=""/>
@@ -3208,8 +3218,18 @@ function showDashboard() {
 	
 	<div id="noRollbackSection">
 	<input type="checkbox" id="norollback"></input>
-	<label for="norollback"> Do not perform auto-rollback upon failed deployment</label>
+	<label for="norollback"> Do not perform auto-rollback upon failed deployment</label><br></br>
 	</div>
+	
+	<div id="runQASQLscriptSection">
+	<input type="checkbox" id="runqascript"></input>
+	<label for="runqascript"> Run QA SQL script</label>
+	</div>
+	
+	<!--
+	<div id="BackendDeploySection">
+	</div>
+	-->
 	
 	<br></br>
 	
