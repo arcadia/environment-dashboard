@@ -888,6 +888,7 @@ function showDashboard() {
 												 //console.log("passed time is " + futureDateTime);
 												 
 												 //Server time
+												 //console.log("retrieved server time is " + data);
 												 serverDateTime = new Date(data);
 												 //console.log("server time is " + serverDateTime);
 												 
@@ -1814,7 +1815,7 @@ function showDashboard() {
 							//console.log(jobDetails.next_run_schedule_id);
 							//console.log(jobDetails.next_run_date);
 							//console.log(jobDetails.next_run_time);
-							//console.log(jobDetails.next_run_date_time);
+							//console.log("The retrieved NJ next run date and time from client server is " + jobDetails.next_run_date_time);
 							
 							var NJ = jobDetails.job;
 							var NextRunScheduleID = jobDetails.next_run_schedule_id;
@@ -1838,8 +1839,9 @@ function showDashboard() {
 							if (validTime)
 							{
 
-								var NextRunDateTime = new Date(NextRunDateTimeForConv);
-								//console.log("The built NextRunDateTime is " + NextRunDateTime);
+								//remove EDT or EST keyword
+								var NextRunDateTime = new Date(NextRunDateTimeForConv.replace('EDT','').replace('EST',''));
+								//console.log("The built NextRunDateTime on a client side or browser is " + NextRunDateTime);
 								
 							   if (servertime &gt; NextRunDateTime)
 							   {
