@@ -34,7 +34,7 @@ function showDashboard() {
 
 <div class="overlay" style="display:none; background-color: rgba(0, 0, 0, 0.4); position:absolute; top: 0; left:0; bottom:0; right:0;" onclick="hideAll()"></div>
 <div class="popup" id="popup" style="position: absolute; width: 300px; height:150; display:none; background-color: white; text-align: center; top:50%; left:50%; margin-left: -150px; margin-top: -75;"></div>
-<div id="startDashboard" style="margin-left: -360px; margin-right: 360px; display: none;">
+<div id="startDashboard" style="margin-left: 0px; margin-right: 360px; display: none;">
 	<input type="text" id="searchInput" style="width: 100%; font-size: 16px; padding: 12px 20px 12px 40px; border: 1px solid #ddd; margin-bottom: 12px;" onkeyup="filterTable()" placeholder="Search for clients.." title="Type in a client"/>
 	<table id="envDashboard" class="table table-bordered table-striped table-condensed">
 		<tbody>
