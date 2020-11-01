@@ -34,7 +34,7 @@ function showDashboard() {
 
 <div class="overlay" style="display:none; background-color: rgba(0, 0, 0, 0.4); position:absolute; top: 0; left:0; bottom:0; right:0;" onclick="hideAll()"></div>
 <div class="popup" id="popup" style="position: absolute; width: 300px; height:150; display:none; background-color: white; text-align: center; top:50%; left:50%; margin-left: -150px; margin-top: -75;"></div>
-<div id="startDashboard" style="margin-left: -360px; margin-right: 360px; display: none;">
+<div id="startDashboard" style="margin-left: 0px; margin-right: 360px; display: none;">
 	<input type="text" id="searchInput" style="width: 100%; font-size: 16px; padding: 12px 20px 12px 40px; border: 1px solid #ddd; margin-bottom: 12px;" onkeyup="filterTable()" placeholder="Search for clients.." title="Type in a client"/>
 	<table id="envDashboard" class="table table-bordered table-striped table-condensed">
 		<tbody>
@@ -888,6 +888,7 @@ function showDashboard() {
 												 //console.log("passed time is " + futureDateTime);
 												 
 												 //Server time
+												 //console.log("retrieved server time is " + data);
 												 serverDateTime = new Date(data);
 												 //console.log("server time is " + serverDateTime);
 												 
@@ -1480,7 +1481,7 @@ function showDashboard() {
 									 response2 = t.responseObject();
 									 
 									
-									 if (response2.indexOf("failed") == -1)
+									 if (response2.indexOf("failedAtgetCRjobStepsSQLquery") == -1)
 									 {
 										/*
 										Q("#dialog3").dialog("option","title","Debug");
@@ -1814,7 +1815,7 @@ function showDashboard() {
 							//console.log(jobDetails.next_run_schedule_id);
 							//console.log(jobDetails.next_run_date);
 							//console.log(jobDetails.next_run_time);
-							//console.log(jobDetails.next_run_date_time);
+							//console.log("The retrieved NJ next run date and time from client server is " + jobDetails.next_run_date_time);
 							
 							var NJ = jobDetails.job;
 							var NextRunScheduleID = jobDetails.next_run_schedule_id;
@@ -1838,8 +1839,9 @@ function showDashboard() {
 							if (validTime)
 							{
 
-								var NextRunDateTime = new Date(NextRunDateTimeForConv);
-								//console.log("The built NextRunDateTime is " + NextRunDateTime);
+								//remove EDT or EST keyword
+								var NextRunDateTime = new Date(NextRunDateTimeForConv.replace('EDT','').replace('EST',''));
+								//console.log("The built NextRunDateTime on a client side or browser is " + NextRunDateTime);
 								
 							   if (servertime &gt; NextRunDateTime)
 							   {
@@ -1893,6 +1895,7 @@ function showDashboard() {
 								Q("#startnj").show();
 								Q("#startnjlabel").show();
 								Q("#noRollbackSection").show();
+								Q("#runQASQLscriptSection").show();
 
 							}
 							else
@@ -1942,7 +1945,7 @@ function showDashboard() {
 								if(Q("#envSection").is(":visible"))
 								{
 									Q("#PRDsection").hide(500);
-									Q("#startCRjobSection, #noRollbackSection").hide();
+									Q("#startCRjobSection, #noRollbackSection, #runQASQLscriptSection").hide();
 									Q("#kickoffDateTimeSection").hide();
 								}
 								
@@ -2178,7 +2181,7 @@ function showDashboard() {
 							else
 							{
 								Q("#PRDsection").hide(500);
-								Q("#startCRjobSection, #noRollbackSection").hide();
+								Q("#startCRjobSection, #noRollbackSection, #runQASQLscriptSection").hide();
 								Q("#kickoffDateTimeSection").hide();
 								Q("#schedActivitySection").hide();
 								
@@ -2251,6 +2254,7 @@ function showDashboard() {
 										Q("#overlay, #dialog").show();
 										
 										 Q("#noRollbackSection").hide();
+										 Q("#runQASQLscriptSection").hide();
 										 Q("#envSection").show();
 										 Q("#dialogTitle").text("Deploying " + comp + " for " + buildNum);
 										 Q("#dialogTitle").css("background-color", "#81BEF7");
@@ -2459,6 +2463,7 @@ function showDashboard() {
 									Q("#startnj").hide();
 									Q("#startnjlabel").hide();
 									Q("#noRollbackSection").hide();
+									Q("#runQASQLscriptSection").hide();
 									Q("#binderyfrontend-versions").hide();
 									Q("#current-bindery-frontend-version").hide();
 									
@@ -2766,7 +2771,7 @@ function showDashboard() {
 										Q("#dialogTitle").text("Change request " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " &#x2192; " + Q("#activeServer").val());
 										Q("#dialogTitle").css("background-color", "#81BEF7");
 
-										Q("#startCRjobSection, #noRollbackSection").hide();
+										Q("#startCRjobSection, #noRollbackSection, #runQASQLscriptSection").hide();
 										Q("#prd-env-cr-job").show();
 										Q("#datetimepickerLabel").text("Change Request job kick off date and time");
 
@@ -2774,6 +2779,8 @@ function showDashboard() {
 									else if (typeofDeployment == "client" || typeofDeployment == "backend")
 									{
 										Q("#startCRjobSection, #noRollbackSection").show();
+										
+										
 										Q("#datetimepickerLabel").text("Deployment kick off date and time");
 										
 										if (typeofDeployment == "backend")
@@ -2786,11 +2793,15 @@ function showDashboard() {
 												Q("#non-dev-env").show();
 
 											}
+											
+											Q("#runQASQLscriptSection").show();
 										}
 										else
 										{
 											Q("#dialogTitle").text("Deploying " + Q("#clientAcronym").val() + " to " + Q("#environment").val() + " for " + Q("#build_num").val() + " &#x2192; " + Q("#activeServer").val());
 											Q("#dialogTitle").css("background-color", "#81BEF7");
+											
+											Q("#runQASQLscriptSection").hide();
 										}
 										
 									}
@@ -2885,6 +2896,7 @@ function showDashboard() {
 							else
 							{
 								if(Q("#norollback").is(":checked")){DoNotPerformRollback="-no_rollback";}else{DoNotPerformRollback="";}
+								if(Q("#runqascript").is(":checked")){ExecuteQAscript="-run_qa_script";}else{ExecuteQAscript="";}
 								if(Q("#startcrjob").is(":checked")){StartCRjob="-start_cr_job";}else{StartCRjob="";}
 								if(Q("#startnj").is(":checked")){StartNJ="-start_nightly_job";}else{StartNJ="";}
 								if(!Q("#njstartstep").val().trim()){nightly_job_start_step="NA";}else{nightly_job_start_step=Q("#njstartstep").val().trim().replace(/['"]+/g, '');}
@@ -2915,7 +2927,8 @@ function showDashboard() {
 									{
 										buildUrl = buildUrl +
 												"&amp;CoreVersion=" + version +
-												"&amp;ClientRevision=" + Q("#ClientRevision").val().trim();
+												"&amp;ClientRevision=" + Q("#ClientRevision").val().trim() +
+												"&amp;RunQAScript=" + ExecuteQAscript;
 									}
 								}	
 							}
@@ -3185,7 +3198,8 @@ function showDashboard() {
 		</div>
 		
 	</div>
-		
+	
+
 	
 	<input type="hidden" id="clientAcronym" value=""/>
 	<input type="hidden" id="environment" value=""/>
@@ -3208,8 +3222,18 @@ function showDashboard() {
 	
 	<div id="noRollbackSection">
 	<input type="checkbox" id="norollback"></input>
-	<label for="norollback"> Do not perform auto-rollback upon failed deployment</label>
+	<label for="norollback"> Do not perform auto-rollback upon failed deployment</label><br></br>
 	</div>
+	
+	<div id="runQASQLscriptSection">
+	<input type="checkbox" id="runqascript"></input>
+	<label for="runqascript"> Run QA SQL script</label>
+	</div>
+	
+	<!--
+	<div id="BackendDeploySection">
+	</div>
+	-->
 	
 	<br></br>
 	
