@@ -2914,7 +2914,7 @@ function showDashboard() {
 									branch = "nonExistentBranch";
 									
 									Q("#dialog3").dialog("option","title","Error");
-									Q("#dialog3text").text("Something is not right with this web " + version + " because deployment branch could not be determined. Cannot proceed with this web deployment");
+									Q("#dialog3text").text("Something is not right with this web " + version + " version because deployment branch could not be determined. Cannot proceed with this web deployment");
 									Q("#dialog3").dialog("open");
 									
 									return false;
@@ -2927,7 +2927,7 @@ function showDashboard() {
 								
 								buildUrl = baseUrl + "/buildWithParameters?" +
 												"gitBranch=" + branch +
-												"client=" + comp + 
+												"&amp;client=" + comp + 
 												"&amp;environment=" + env + 
 												"&amp;tag=" + version +
 												"&amp;binderyTag=" + binderyVersion +
