@@ -2884,6 +2884,8 @@ function showDashboard() {
 							if (type == "web")
 							{
 							
+								//Set appropriate git branch for the chosen web version
+								
 								var options = {zeroExtend: true};
 								var branch;
 								
@@ -2912,15 +2914,15 @@ function showDashboard() {
 									branch = "nonExistentBranch";
 									
 									Q("#dialog3").dialog("option","title","Error");
-									Q("#dialog3text").text("Something is not right with this web " + version + " Cannot proceed with this web deployment");
+									Q("#dialog3text").text("Something is not right with this web " + version + " because deployment branch could not be determined. Cannot proceed with this web deployment");
 									Q("#dialog3").dialog("open");
 									
 									return false;
 								}
 
 
-								alert(branch);
-								return false;
+								//alert(branch);
+								//return false;
 								
 								
 								buildUrl = baseUrl + "/buildWithParameters?" +
