@@ -2883,8 +2883,48 @@ function showDashboard() {
 							
 							if (type == "web")
 							{
+							
+								var options = {zeroExtend: true};
+								var branch;
+								
+								var cleanedVersion = version;
+								var parsedShortWebVersion = (cleanedVersion.replace('v','').split(".")[0] + "." + cleanedVersion.replace('v','').split(".")[1] + "." + cleanedVersion.replace('v','').split(".")[2]).replace('undefined',0);
+								
+								if (versionCompare(parsedShortWebVersion, "5.2.6", options) &lt; 0)
+								{
+									branch = "deploy";
+								}
+								else if (versionCompare(parsedShortWebVersion, "5.3", options) &lt; 0 &amp;&amp; (versionCompare(parsedShortWebVersion, "5.2.6", options) &gt; 0 || versionCompare(parsedShortWebVersion, "5.2.6", options) === 0))
+								{
+									branch = "deploy-5.2";
+								}
+								else if (versionCompare(parsedShortWebVersion, "6.0", options) &lt; 0 &amp;&amp; (versionCompare(parsedShortWebVersion, "5.3.0", options) &gt; 0 || versionCompare(parsedShortWebVersion, "5.3.0", options) === 0))
+								{
+									branch = "deploy-5.3";
+								}
+								else if (versionCompare(parsedShortWebVersion, "6.0.0", options) &gt; 0 || versionCompare(parsedShortWebVersion, "6.0.0", options) === 0)
+								{
+									branch = "deploy-6.0";
+								}
+								else
+								{
+									//this web version has not qualified for any branch
+									branch = "nonExistentBranch";
+									
+									Q("#dialog3").dialog("option","title","Error");
+									Q("#dialog3text").text("Something is not right with this web " + version + " Cannot proceed with this web deployment");
+									Q("#dialog3").dialog("open");
+									
+									return false;
+								}
+
+
+								alert(branch);
+								return false;
+								
 								
 								buildUrl = baseUrl + "/buildWithParameters?" +
+												"gitBranch=" + branch +
 												"client=" + comp + 
 												"&amp;environment=" + env + 
 												"&amp;tag=" + version +
@@ -3031,7 +3071,55 @@ function showDashboard() {
 
 						}
 						
-						
+						//source: https://gist.github.com/TheDistantSea/8021359#file-version_compare-js
+						function versionCompare(v1, v2, options) {
+							var lexicographical = options &amp;&amp; options.lexicographical,
+								zeroExtend = options &amp;&amp; options.zeroExtend,
+								v1parts = v1.split('.'),
+								v2parts = v2.split('.');
+
+							function isValidPart(x) {
+								return (lexicographical ? /^\d+[A-Za-z]*$/ : /^\d+$/).test(x);
+							}
+
+							if (!v1parts.every(isValidPart) || !v2parts.every(isValidPart)) {
+								return NaN;
+							}
+
+							if (zeroExtend) {
+								
+								//console.log('zeroExtend flag was passed');
+								while (v1parts.length &lt; v2parts.length) v1parts.push("0");
+								while (v2parts.length &lt; v1parts.length) v2parts.push("0");
+							}
+
+							if (!lexicographical) {
+								v1parts = v1parts.map(Number);
+								v2parts = v2parts.map(Number);
+							}
+
+							for (var i = 0; i &lt; v1parts.length; ++i) {
+								if (v2parts.length == i) {
+									return 1;
+								}
+
+								if (v1parts[i] == v2parts[i]) {
+									continue;
+								}
+								else if (v1parts[i] &gt; v2parts[i]) {
+									return 1;
+								}
+								else {
+									return -1;
+								}
+							}
+
+							if (v1parts.length != v2parts.length) {
+								return -1;
+							}
+
+							return 0;
+						}
 						
 					</script>
 				</j:case>
